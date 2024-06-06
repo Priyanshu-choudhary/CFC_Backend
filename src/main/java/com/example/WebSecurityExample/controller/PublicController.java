@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/Public")
-//@CrossOrigin(origins = "https://code-with-challenge.vercel.app")
+@CrossOrigin(origins = "https://code-with-challenge.vercel.app")
 @CrossOrigin(origins = "http://localhost:5173")
 public class PublicController {
 
