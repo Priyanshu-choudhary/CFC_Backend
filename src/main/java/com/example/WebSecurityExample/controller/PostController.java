@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/Posts")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "https://code-with-challenge.vercel.app/")
 public class PostController {
     @Autowired
     private PostService postService;
