@@ -1,14 +1,12 @@
-# Use an official OpenJDK runtime as a parent image
-FROM openjdk:17-slim
-
-# Set the working directory in the container
+# Use the official Maven image to create a build artifact.
+FROM maven:3.8.1-openjdk-17 AS build
 WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package
 
-# Copy the jar file to the container
-COPY target/Basic_CRUD_Oprations-0.0.1-SNAPSHOT.jar app.jar
-
-# Expose the port the application runs on
-EXPOSE 9090
-
-# Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Use the official OpenJDK image to run the application
+FROM openjdk:17-slim
+WORKDIR /app
+COPY --from=build /app/target/your-app.jar ./your-app.jar
+ENTRYPOINT ["java", "-jar", "your-app.jar"]
