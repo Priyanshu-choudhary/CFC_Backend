@@ -31,11 +31,13 @@ public class PublicController {
     @PostMapping("/Create-User")
     public ResponseEntity<User> createUser(@RequestBody User user) {
         try {
+            if (userService.existsByName(user.getName())) {
+                return new ResponseEntity<>(HttpStatus.CONFLICT); // Return 409 Conflict if user already exists
+            }
             userService.createNewUser(user);
-            return new ResponseEntity<>(user,HttpStatus.CREATED);
-        }catch(Exception e){
+            return new ResponseEntity<>(user, HttpStatus.CREATED);
+        } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-
     }
 }

@@ -51,5 +51,9 @@ public class UserService {
     public void updateUser(User user) {
         userRepository.save(user);
     }
+     // New method to check if a user exists by username
+     public boolean existsByName(String username) {
+        return userRepository.findByName(username) != null;
+    }
 
 }
