@@ -18,7 +18,8 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
-@CrossOrigin(origins = "https://code-with-challenge.vercel.app/")
+@CrossOrigin(origins = {"https://code-with-challenge.vercel.app", "http://localhost:5173"})
+
 public class userController {
     @Autowired
     private UserService userService;
