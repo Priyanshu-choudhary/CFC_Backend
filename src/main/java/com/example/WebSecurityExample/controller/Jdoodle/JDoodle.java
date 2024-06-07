@@ -9,7 +9,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/jdoodle")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "https://code-with-challenge.vercel.app")
 public class JDoodle {
 
     @Value("${jdoodle.clientId}")
