@@ -20,7 +20,9 @@ public class PostService {
     public List<Posts> getAllUsers() {
         return postRepo.findAll();
     }
-
+    public List<Posts> getQuestionsByTags(List<String> tags) {
+        return postRepo.findByTagsIn(tags);
+    }
     public Optional<Posts> getUserById(String id) {
         return postRepo.findById(id);
     }

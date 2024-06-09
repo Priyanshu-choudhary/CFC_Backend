@@ -27,7 +27,6 @@ public class PostController {
     @Autowired
     private UserService userService;
 
-
     @GetMapping
     public ResponseEntity<?> getUserByUserName() {
         Authentication auth= SecurityContextHolder.getContext().getAuthentication();
@@ -39,7 +38,10 @@ public class PostController {
         }
         return new ResponseEntity<>( HttpStatus.NOT_FOUND);
     }
-
+    @GetMapping("/filter")
+    public List<Posts> getQuestionsByTags(@RequestParam List<String> tags) {
+        return postService.getQuestionsByTags(tags);
+    }
     @GetMapping("/id/{myid}")
     public ResponseEntity<?> getUserById(@PathVariable String myid) {
         Authentication auth= SecurityContextHolder.getContext().getAuthentication();

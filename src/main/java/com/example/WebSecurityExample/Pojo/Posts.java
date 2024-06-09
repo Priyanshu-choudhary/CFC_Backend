@@ -6,6 +6,9 @@ import lombok.NonNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+import java.util.Map;
+
 @Data
 @Document(collection = "Posts")
 @NoArgsConstructor
@@ -19,8 +22,13 @@ public class Posts {
     private String Example;
     private String difficulty;
     private String solution;
-    @NonNull
     private String answer;
+    private String constrain;
+    private String timecomplixity;
+    private String avgtime;
+    @NonNull
+    private List<String> tags;
+    private Map<String,String> testcase;
 
 
 

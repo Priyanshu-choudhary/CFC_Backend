@@ -3,6 +3,8 @@ package com.example.WebSecurityExample.MongoRepo;
 import com.example.WebSecurityExample.Pojo.Posts;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface PostRepo extends MongoRepository<Posts, String> {
+import java.util.List;
 
+public interface PostRepo extends MongoRepository<Posts, String> {
+    List<Posts> findByTagsIn(List<String> tags);
 }
