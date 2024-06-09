@@ -26,9 +26,11 @@ public class Posts {
     private String constrain;
     private String timecomplixity;
     private String avgtime;
+    private String boilerCode;
     @NonNull
     private List<String> tags;
     private Map<String,String> testcase;
+
 
 
 
