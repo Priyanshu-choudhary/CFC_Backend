@@ -8,8 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/jdoodle")
-@CrossOrigin(origins = "https://code-with-challenge.vercel.app")
+@RequestMapping("/code")
+@CrossOrigin(origins = {"https://code-with-challenge.vercel.app", "http://localhost:5173"})
 public class JDoodle {
 
     @Value("${jdoodle.clientId}")
