@@ -15,11 +15,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
 @RestController
 @RequestMapping("/Posts")
 @CrossOrigin(origins = {"https://code-with-challenge.vercel.app", "http://localhost:5173"})
-
 public class PostController {
     @Autowired
     private PostService postService;
@@ -29,23 +27,30 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<?> getUserByUserName() {
-        Authentication auth= SecurityContextHolder.getContext().getAuthentication();
-        String username= auth.getName();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
         User users = userService.findByName(username);
-        List<Posts> all=users.getPosts();
+        List<Posts> all = users.getPosts();
         if (all != null) {
             return new ResponseEntity<>(all, HttpStatus.OK);
         }
-        return new ResponseEntity<>( HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+
     @GetMapping("/filter")
-    public List<Posts> getQuestionsByTags(@RequestParam List<String> tags) {
-        return postService.getQuestionsByTags(tags);
+    public ResponseEntity<List<Posts>> getQuestionsByTags(@RequestParam List<String> tags) {
+        try {
+            List<Posts> filteredPosts = postService.getQuestionsByTags(tags);
+            return new ResponseEntity<>(filteredPosts, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
+
     @GetMapping("/id/{myid}")
     public ResponseEntity<?> getUserById(@PathVariable String myid) {
-        Authentication auth= SecurityContextHolder.getContext().getAuthentication();
-        String username= auth.getName();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
         User users = userService.findByName(username);
         List<Posts> collect = users.getPosts().stream().filter(x -> x.getId().equals(myid)).collect(Collectors.toList());
 
@@ -54,34 +59,29 @@ public class PostController {
             if (userById.isPresent()) {
                 return new ResponseEntity<>(userById.get(), HttpStatus.OK);
             }
-
         }
-        return new ResponseEntity<>( HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping
     public ResponseEntity<Posts> createUser(@RequestBody Posts user) {
-       try {
-           Authentication auth= SecurityContextHolder.getContext().getAuthentication();
-           String username= auth.getName();
-           postService.createUser(user,username);
-           return new ResponseEntity<>(user,HttpStatus.CREATED);
-       }catch(Exception e){
-           return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-       }
-
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String username = auth.getName();
+            postService.createUser(user, username);
+            return new ResponseEntity<>(user, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @DeleteMapping("/id/{id}")
     public ResponseEntity<?> deleteUserById(@PathVariable String id) {
-        Authentication auth= SecurityContextHolder.getContext().getAuthentication();
-        String username= auth.getName();
-        postService.deleteUserById(id,username);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        postService.deleteUserById(id, username);
         return new ResponseEntity<>(HttpStatus.OK);
-
-
     }
-
 
     @PutMapping("/id/{myId}")
     public ResponseEntity<?> updatePostById(@PathVariable String myId, @RequestBody Posts newPost) {
@@ -95,8 +95,4 @@ public class PostController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
-
-
-
-
 }
