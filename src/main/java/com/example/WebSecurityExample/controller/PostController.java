@@ -38,14 +38,20 @@ public class PostController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<List<Posts>> getQuestionsByTags(@RequestParam List<String> tags) {
-        try {
-            List<Posts> filteredPosts = postService.getQuestionsByTags(tags);
-            return new ResponseEntity<>(filteredPosts, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public List<Posts> getQuestionsByExactTags(@RequestParam List<String> tags) {
+        // Fetch the current authenticated user
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        User user = userService.findByName(username);
+
+        // Filter the user's posts by exact tags
+        List<Posts> filteredPosts = user.getPosts().stream()
+                .filter(post -> post.getTags().containsAll(tags))
+                .collect(Collectors.toList());
+
+        return filteredPosts;
     }
+
 
     @GetMapping("/id/{myid}")
     public ResponseEntity<?> getUserById(@PathVariable String myid) {
