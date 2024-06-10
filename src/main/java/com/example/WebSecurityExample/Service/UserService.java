@@ -19,11 +19,18 @@ public class UserService {
     private static final PasswordEncoder passwordEncoder= new BCryptPasswordEncoder();
 
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        List<User> users = userRepository.findAll();
+
+
+        users.forEach(user -> user.setPostCount(user.getPosts().size()));
+
+        return users;
     }
 
     public Optional<User> getUserById(String id) {
-        return userRepository.findById(id);
+        Optional<User> userOpt = userRepository.findById(id);
+        userOpt.ifPresent(user -> user.setPostCount(user.getPosts().size()));
+        return userOpt;
     }
 
     public User createNewUser(User user) {
@@ -40,7 +47,11 @@ public class UserService {
     }
 
     public User findByName(String name){
-        return userRepository.findByName(name);
+        User user = userRepository.findByName(name);
+        if (user != null) {
+            user.setPostCount(user.getPosts().size());
+        }
+        return user;
     }
 
 

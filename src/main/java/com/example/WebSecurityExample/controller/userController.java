@@ -42,14 +42,7 @@ public class userController {
         return  userService.findByName(username);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable String id) {
-        Optional<User>  users= userService.getUserById(id);
-        if (users.isPresent()) {
-            return new ResponseEntity<>(users.get(), HttpStatus.OK);
-        }
-        return new ResponseEntity<>( HttpStatus.NOT_FOUND);
-    }
+
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody User user) {
