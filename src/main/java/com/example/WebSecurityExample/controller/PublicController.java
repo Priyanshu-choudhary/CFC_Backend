@@ -34,6 +34,10 @@ public class PublicController {
     public List getAllUsersbyUserName() {
         return  userService.getAllUsers();
     }
+    @GetMapping("getUser2")
+    public List getAllUsersbyUserName2() {
+        return  userService.getAllUsers();
+    }
 
 
     @PostMapping("/Create-User")
