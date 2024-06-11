@@ -68,6 +68,8 @@ public class userController {
             userIndb.setBadges(updatedUser.getBadges());
             userIndb.setNumber(updatedUser.getNumber());
             userIndb.setSkills(updatedUser.getSkills());
+            userIndb.setRoles(updatedUser.getRoles());
+
             // Save the updated user back to the database
             userService.createNewUser(userIndb);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);

@@ -30,6 +30,8 @@ public class JDoodle {
     public ResponseEntity<?> executeCode(@RequestBody Map<String, String> requestBody) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
+        logger.info("Executing script: {}", requestBody.get("script"));
+        logger.info("Using language: {}", requestBody.get("language"));
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         Map<String, Object> body = new HashMap<>();
