@@ -22,7 +22,7 @@ public class UserService {
         List<User> users = userRepository.findAll();
 
 
-//        users.forEach(user -> user.setPostCount(user.getPosts().size()));
+        users.forEach(user -> user.setPostCount(user.getPosts().size()));
 
         return users;
     }
