@@ -34,7 +34,7 @@ public class PublicController {
     public List getAllUsersbyUserName() {
         return  userService.getAllUsers();
     }
-
+    @CrossOrigin(origins = {"https://code-with-challenge.vercel.app", "http://localhost:5173"})
     @PostMapping("/Create-User")
     public ResponseEntity<User> createUser(@RequestBody User user) {
         try {
