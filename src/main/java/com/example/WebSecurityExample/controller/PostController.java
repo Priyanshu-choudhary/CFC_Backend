@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/Posts")
-@CrossOrigin(origins = {"https://code-with-challenge.vercel.app", "http://localhost:5173"})
+//@CrossOrigin(origins = {"https://code-with-challenge.vercel.app", "http://localhost:5173"})
 public class PostController {
     private static final Logger logger = LoggerFactory.getLogger(PostController.class);
 
