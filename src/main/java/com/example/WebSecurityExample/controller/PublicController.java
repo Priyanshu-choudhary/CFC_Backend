@@ -25,15 +25,16 @@ public class PublicController {
     @Autowired
     private PostService postService;
 
-    @GetMapping("api")
+    @GetMapping("HealthCheck")
     public String sayHello(){
-        return "Hello test";
+        return "Ok!";
     }
 
     @GetMapping("getUser")
     public List getAllUsersbyUserName() {
         return  userService.getAllUsers();
     }
+
     @CrossOrigin(origins = {"https://code-with-challenge.vercel.app", "http://localhost:5173"})
     @PostMapping("/Create-User")
     public ResponseEntity<User> createUser(@RequestBody User user) {

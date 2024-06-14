@@ -8,7 +8,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 import java.util.Map;
-
+import java.util.Date;
+import java.util.List;
 @Data
 @Document(collection = "Posts")
 @NoArgsConstructor
@@ -27,9 +28,19 @@ public class Posts {
     private String timecomplixity;
     private String avgtime;
     private String boilerCode;
+    private Date lastModified; // Add this field
+
     @NonNull
     private List<String> tags;
+
     private Map<String,String> testcase;
+    public Date getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(Date lastModified) {
+        this.lastModified = lastModified;
+    }
 
 
 

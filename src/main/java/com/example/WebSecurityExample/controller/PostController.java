@@ -18,10 +18,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @RestController
 @RequestMapping("/Posts")
-//@CrossOrigin(origins = {"https://code-with-challenge.vercel.app", "http://localhost:5173"})
+@CrossOrigin(origins = {"https://code-with-challenge.vercel.app", "http://localhost:5173"})
 public class PostController {
     private static final Logger logger = LoggerFactory.getLogger(PostController.class);
 
@@ -32,16 +37,41 @@ public class PostController {
     private UserService userService;
 
     @GetMapping
-    public ResponseEntity<?> getUserByUserName() {
+    public ResponseEntity<?> getUserByUserName(@RequestHeader(value = "If-Modified-Since", required = false) String ifModifiedSince) {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
+            logger.info("Fetching posts for user: {}", username);
+
             User users = userService.findByName(username);
-            List<Posts> all = users.getPosts();
-            if (all != null) {
-                return new ResponseEntity<>(all, HttpStatus.OK);
+            if (users == null) {
+                logger.error("User not found: {}", username);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+            List<Posts> all = users.getPosts();
+            if (all == null || all.isEmpty()) {
+                logger.info("No posts found for user: {}", username);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+            Date lastModified = postService.getLastModifiedForUser(username);
+            if (ifModifiedSince != null) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
+                Date ifModifiedSinceDate = dateFormat.parse(ifModifiedSince);
+                if (!lastModified.after(ifModifiedSinceDate)) {
+                    logger.info("Posts not modified since: {}", ifModifiedSince);
+                    return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+                }
+            }
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setLastModified(lastModified.getTime());
+            logger.info("Returning posts for user: {}", username);
+            return new ResponseEntity<>(all, headers, HttpStatus.OK);
+        } catch (ParseException e) {
+            logger.error("Error parsing If-Modified-Since header", e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             logger.error("Error fetching posts by username", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -49,20 +79,21 @@ public class PostController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<?> getQuestionsByExactTags(@RequestParam List<String> tags, @RequestParam boolean exactMatch) {
+    public ResponseEntity<?> getQuestionsByExactTags(@RequestParam List<String> tags, @RequestParam boolean exactMatch,
+                                                     @RequestHeader(value = "If-Modified-Since", required = false) String ifModifiedSince) {
         try {
-            // Fetch the current authenticated user
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
-            User user = userService.findByName(username);
-
             logger.info("Filtering posts for user: {}", username);
             logger.info("Request tags: {}", tags);
 
-            // Convert the list of tags from the request to a Set for comparison
-            Set<String> requestTags = new HashSet<>(tags);
+            User user = userService.findByName(username);
+            if (user == null) {
+                logger.error("User not found: {}", username);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
 
-            // Filter the user's posts by whether they contain all the requested tags
+            Set<String> requestTags = new HashSet<>(tags);
             List<Posts> filteredPosts = user.getPosts().stream()
                     .filter(post -> {
                         Set<String> postTags = post.getTags() != null ? new HashSet<>(post.getTags()) : new HashSet<>();
@@ -76,7 +107,28 @@ public class PostController {
 
             logger.info("Filtered posts count: {}", filteredPosts.size());
 
-            return new ResponseEntity<>(filteredPosts, HttpStatus.OK);
+            if (filteredPosts.isEmpty()) {
+                logger.info("No posts found matching the tags: {}", tags);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+            Date lastModified = postService.getLastModifiedForUser(username);
+            if (ifModifiedSince != null) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
+                Date ifModifiedSinceDate = dateFormat.parse(ifModifiedSince);
+                if (!lastModified.after(ifModifiedSinceDate)) {
+                    logger.info("Posts not modified since: {}", ifModifiedSince);
+                    return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+                }
+            }
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setLastModified(lastModified.getTime());
+            logger.info("Returning filtered posts for user: {}", username);
+            return new ResponseEntity<>(filteredPosts, headers, HttpStatus.OK);
+        } catch (ParseException e) {
+            logger.error("Error parsing If-Modified-Since header", e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             logger.error("Error filtering posts by tags", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -88,16 +140,28 @@ public class PostController {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
-            User users = userService.findByName(username);
-            List<Posts> collect = users.getPosts().stream().filter(x -> x.getId().equals(myid)).collect(Collectors.toList());
+            logger.info("Fetching post by ID: {} for user: {}", myid, username);
 
-            if (!collect.isEmpty()) {
-                Optional<Posts> userById = postService.getUserById(myid);
-                if (userById.isPresent()) {
-                    return new ResponseEntity<>(userById.get(), HttpStatus.OK);
-                }
+            User users = userService.findByName(username);
+            if (users == null) {
+                logger.error("User not found: {}", username);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+            List<Posts> collect = users.getPosts().stream().filter(x -> x.getId().equals(myid)).collect(Collectors.toList());
+            if (collect.isEmpty()) {
+                logger.info("Post not found with ID: {}", myid);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+            Optional<Posts> userById = postService.getUserById(myid);
+            if (userById.isPresent()) {
+                logger.info("Returning post with ID: {}", myid);
+                return new ResponseEntity<>(userById.get(), HttpStatus.OK);
+            } else {
+                logger.info("Post not found in database with ID: {}", myid);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
         } catch (Exception e) {
             logger.error("Error fetching post by ID", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -109,7 +173,10 @@ public class PostController {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
+            logger.info("Creating new post for user: {}", username);
+
             postService.createUser(user, username);
+            logger.info("Post created successfully for user: {}", username);
             return new ResponseEntity<>(user, HttpStatus.CREATED);
         } catch (Exception e) {
             logger.error("Error creating post", e);
@@ -122,7 +189,10 @@ public class PostController {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
+            logger.info("Deleting post with ID: {} for user: {}", id, username);
+
             postService.deleteUserById(id, username);
+            logger.info("Post deleted successfully with ID: {} for user: {}", id, username);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error deleting post by ID", e);
@@ -135,8 +205,10 @@ public class PostController {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String username = authentication.getName();
+            logger.info("Updating post with ID: {} for user: {}", myId, username);
 
             Posts updatedPost = postService.updatePost(myId, newPost, username);
+            logger.info("Post updated successfully with ID: {} for user: {}", myId, username);
             return new ResponseEntity<>(updatedPost, HttpStatus.OK);
         } catch (RuntimeException e) {
             logger.error("Error updating post by ID", e);

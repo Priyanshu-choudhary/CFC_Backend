@@ -9,7 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 @Service
 public class PostService {
     @Autowired
@@ -29,7 +31,16 @@ public class PostService {
     public Optional<Posts> getUserById(String id) {
         return postRepo.findById(id);
     }
-
+    public Date getLastModifiedForUser(String username) {
+        User user = userService.findByName(username);
+        if (user != null && user.getPosts() != null && !user.getPosts().isEmpty()) {
+            return user.getPosts().stream()
+                    .map(Posts::getLastModified)
+                    .max(Date::compareTo)
+                    .orElse(new Date(0)); // Return a default date if no posts found
+        }
+        return new Date(0); // Return a default date if user or posts not found
+    }
     @Transactional
     public void createUser(Posts posts,String inputuser) {
         try{
