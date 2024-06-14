@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,6 +70,7 @@ public class userController {
             userIndb.setNumber(updatedUser.getNumber());
             userIndb.setSkills(updatedUser.getSkills());
             userIndb.setRoles(updatedUser.getRoles());
+            userIndb.setLastModifiedUser(new Date());
 
             // Save the updated user back to the database
             userService.createNewUser(userIndb);
@@ -82,6 +84,7 @@ public class userController {
     public ResponseEntity<?> deleteUserById() {
         Authentication auth= SecurityContextHolder.getContext().getAuthentication();
         userService.deleteByName(auth.getName());
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

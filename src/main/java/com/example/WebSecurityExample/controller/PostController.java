@@ -36,12 +36,14 @@ public class PostController {
     @Autowired
     private UserService userService;
 
+
     @GetMapping
-    public ResponseEntity<?> getUserByUserName(@RequestHeader(value = "If-Modified-Since", required = false) String ifModifiedSince) {
+    public ResponseEntity<?> getPostByUsername(@RequestHeader(value = "If-Modified-Since", required = false) String ifModifiedSince) {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
             logger.info("Fetching posts for user: {}", username);
+            logger.info("ifModifiedSince: {}", ifModifiedSince);
 
             User users = userService.findByName(username);
             if (users == null) {
@@ -54,8 +56,10 @@ public class PostController {
                 logger.info("No posts found for user: {}", username);
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-
+            logger.info("try to fetch lastModified ");
             Date lastModified = postService.getLastModifiedForUser(username);
+            logger.info("lastModifyed : {}", lastModified);
+
             if (ifModifiedSince != null) {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
                 Date ifModifiedSinceDate = dateFormat.parse(ifModifiedSince);
@@ -113,6 +117,7 @@ public class PostController {
             }
 
             Date lastModified = postService.getLastModifiedForUser(username);
+
             if (ifModifiedSince != null) {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
                 Date ifModifiedSinceDate = dateFormat.parse(ifModifiedSince);
@@ -169,20 +174,26 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<Posts> createUser(@RequestBody Posts user) {
+    public ResponseEntity<Posts> createUser(@RequestBody Posts post) {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
             logger.info("Creating new post for user: {}", username);
 
-            postService.createUser(user, username);
+            // Set the lastModified field to the current date and time
+            post.setLastModified(new Date());
+            userService.setLastdate(username);
+
+
+            postService.createUser(post, username);
             logger.info("Post created successfully for user: {}", username);
-            return new ResponseEntity<>(user, HttpStatus.CREATED);
+            return new ResponseEntity<>(post, HttpStatus.CREATED);
         } catch (Exception e) {
             logger.error("Error creating post", e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
 
     @DeleteMapping("/id/{id}")
     public ResponseEntity<?> deleteUserById(@PathVariable String id) {
@@ -192,6 +203,8 @@ public class PostController {
             logger.info("Deleting post with ID: {} for user: {}", id, username);
 
             postService.deleteUserById(id, username);
+
+            userService.setLastdate(username);
             logger.info("Post deleted successfully with ID: {} for user: {}", id, username);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
@@ -208,6 +221,7 @@ public class PostController {
             logger.info("Updating post with ID: {} for user: {}", myId, username);
 
             Posts updatedPost = postService.updatePost(myId, newPost, username);
+            userService.setLastdate(username);
             logger.info("Post updated successfully with ID: {} for user: {}", myId, username);
             return new ResponseEntity<>(updatedPost, HttpStatus.OK);
         } catch (RuntimeException e) {

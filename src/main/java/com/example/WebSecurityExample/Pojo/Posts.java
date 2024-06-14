@@ -34,17 +34,6 @@ public class Posts {
     private List<String> tags;
 
     private Map<String,String> testcase;
-    public Date getLastModified() {
-        return lastModified;
-    }
-
-    public void setLastModified(Date lastModified) {
-        this.lastModified = lastModified;
-    }
-
-
-
-
 //    private String id;
 //    private String question;
 //    private String solution;

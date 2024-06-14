@@ -3,6 +3,9 @@ package com.example.WebSecurityExample.Service;
 import com.example.WebSecurityExample.MongoRepo.PostRepo;
 import com.example.WebSecurityExample.Pojo.Posts;
 import com.example.WebSecurityExample.Pojo.User;
+import com.example.WebSecurityExample.controller.PostController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +17,8 @@ import java.util.List;
 import java.util.Optional;
 @Service
 public class PostService {
+    private static final Logger logger = LoggerFactory.getLogger(PostController.class);
+
     @Autowired
     private PostRepo postRepo;
     @Autowired
@@ -34,10 +39,10 @@ public class PostService {
     public Date getLastModifiedForUser(String username) {
         User user = userService.findByName(username);
         if (user != null && user.getPosts() != null && !user.getPosts().isEmpty()) {
-            return user.getPosts().stream()
-                    .map(Posts::getLastModified)
-                    .max(Date::compareTo)
-                    .orElse(new Date(0)); // Return a default date if no posts found
+            logger.info("try to get it inside function lastModifyed ");
+            Date date = user.getLastModifiedUser();
+            logger.info("date>>> :{}",date);
+            return date;
         }
         return new Date(0); // Return a default date if user or posts not found
     }

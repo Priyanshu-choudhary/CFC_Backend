@@ -2,17 +2,23 @@ package com.example.WebSecurityExample.Service;
 
 import com.example.WebSecurityExample.MongoRepo.UserRepo;
 import com.example.WebSecurityExample.Pojo.User;
+import com.example.WebSecurityExample.controller.PostController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UserService {
+    private static final Logger logger = LoggerFactory.getLogger(PostController.class);
+
     @Autowired
     private UserRepo userRepository;
 
@@ -20,8 +26,6 @@ public class UserService {
 
     public List<User> getAllUsers() {
         List<User> users = userRepository.findAll();
-
-
         users.forEach(user -> user.setPostCount(user.getPosts().size()));
 
         return users;
@@ -53,6 +57,17 @@ public class UserService {
             user.setPostCount(user.getPosts().size());
         }
         return user;
+    }
+
+    public void setLastdate(String name){
+        User user = userRepository.findByName(name);
+        if (user != null) {
+            logger.info("Set new date in user");
+            user.setLastModifiedUser(new Date());
+            userRepository.save(user);
+            logger.info("Updated!");
+
+        }
     }
 
 
