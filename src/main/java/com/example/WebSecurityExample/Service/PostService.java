@@ -20,6 +20,7 @@ public class PostService {
     public List<Posts> getAllUsers() {
         return postRepo.findAll();
     }
+
     public List<Posts> getQuestionsByTags(List<String> tags) {
         return postRepo.findByTagsIn(tags);
     }
@@ -28,6 +29,7 @@ public class PostService {
     public Optional<Posts> getUserById(String id) {
         return postRepo.findById(id);
     }
+
     @Transactional
     public void createUser(Posts posts,String inputuser) {
         try{

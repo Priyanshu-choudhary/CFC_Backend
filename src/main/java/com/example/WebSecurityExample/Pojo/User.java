@@ -36,4 +36,7 @@ public class User {
     @DBRef
     private List<Posts> posts=new ArrayList<>();
 
+    @DBRef
+    private List<Course> courses=new ArrayList<>();
+
 }
