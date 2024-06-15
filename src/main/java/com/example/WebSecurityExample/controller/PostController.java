@@ -81,10 +81,8 @@ public class PostController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
     @GetMapping("/filter")
-    public ResponseEntity<?> getQuestionsByExactTags(@RequestParam List<String> tags, @RequestParam boolean exactMatch,
-                                                     @RequestHeader(value = "If-Modified-Since", required = false) String ifModifiedSince) {
+    public ResponseEntity<?> getQuestionsByExactTags(@RequestParam List<String> tags, @RequestParam boolean exactMatch) {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
@@ -116,29 +114,14 @@ public class PostController {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
 
-            Date lastModified = postService.getLastModifiedForUser(username);
-
-            if (ifModifiedSince != null) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
-                Date ifModifiedSinceDate = dateFormat.parse(ifModifiedSince);
-                if (!lastModified.after(ifModifiedSinceDate)) {
-                    logger.info("Posts not modified since: {}", ifModifiedSince);
-                    return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
-                }
-            }
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setLastModified(lastModified.getTime());
             logger.info("Returning filtered posts for user: {}", username);
-            return new ResponseEntity<>(filteredPosts, headers, HttpStatus.OK);
-        } catch (ParseException e) {
-            logger.error("Error parsing If-Modified-Since header", e);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(filteredPosts, HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error filtering posts by tags", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     @GetMapping("/id/{myid}")
     public ResponseEntity<?> getUserById(@PathVariable String myid) {
