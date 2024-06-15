@@ -111,7 +111,7 @@ public class PostController {
 
             if (filteredPosts.isEmpty()) {
                 logger.info("No posts found matching the tags: {}", tags);
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
 
             logger.info("Returning filtered posts for user: {}", username);
