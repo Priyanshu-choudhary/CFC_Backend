@@ -28,7 +28,13 @@ public class Posts {
     private String timecomplixity;
     private String avgtime;
     private String boilerCode;
-    private Date lastModified; // Add this field
+    private Date lastModified;
+    private String type;
+    private String optionA;
+    private String optionB;
+    private String optionC;
+    private String optionD;
+
 
     @NonNull
     private List<String> tags;
