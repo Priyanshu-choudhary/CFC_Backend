@@ -26,7 +26,7 @@ public class User {
     private String year;
     private String skills;
     private String badges;
-    private String rating;
+    private Integer rating;
     private String city;
     private Date lastModifiedUser;
     private transient int postCount;

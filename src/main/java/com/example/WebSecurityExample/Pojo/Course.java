@@ -18,9 +18,13 @@ public class Course {
     private String id;
     private String title;
     private String description;
-    private String progress;
+    private Integer progress;
     private String totalQuestions;
-    private String completeQuestions;
+    private List<String> completeQuestions=new ArrayList<>();
+    private Integer rating;
+    private Integer newRating;
+    private String image;
+    private String type;
 
     @DBRef
     private List<Posts> posts=new ArrayList<>();

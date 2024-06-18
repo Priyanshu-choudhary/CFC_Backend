@@ -1,5 +1,6 @@
 package com.example.WebSecurityExample.controller;
 
+import com.example.WebSecurityExample.MongoRepo.CourseRepo;
 import com.example.WebSecurityExample.Pojo.Course;
 import com.example.WebSecurityExample.Pojo.Posts;
 import com.example.WebSecurityExample.Pojo.User;
@@ -15,10 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -35,6 +33,9 @@ public class CourseController {
 
     @Autowired
     private CourseService courseService;
+
+    @Autowired
+    private CourseRepo courseRepo;
 
     @GetMapping
     public ResponseEntity<?> getCourseByUserName() {
@@ -55,17 +56,23 @@ public class CourseController {
 
 
     @PostMapping
-    public ResponseEntity<Course> createCourse(@RequestBody Course course) {
+    public ResponseEntity<?> createCourse(@RequestBody Course course) {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
-            courseService.createCourse(course,username);
-            return new ResponseEntity<>(course, HttpStatus.CREATED);
+            String id = courseService.createCourse(course, username);
+
+            // Wrap the ID in a JSON object
+            Map<String, String> response = new HashMap<>();
+            response.put("courseId", id);
+
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception e) {
             logger.error("Error creating Course", e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
     @DeleteMapping("/id/{id}")
     public ResponseEntity<?> deleteUserById(@PathVariable String id) {
         try {
@@ -79,17 +86,20 @@ public class CourseController {
         }
     }
 
-//    @PutMapping("/id/{myId}")
-//    public ResponseEntity<?> updatePostById(@PathVariable String myId, @RequestBody Posts newPost) {
-//        try {
-//            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//            String username = authentication.getName();
-//
-//            Posts updatedPost = postService.updatePost(myId, newPost, username);
-//            return new ResponseEntity<>(updatedPost, HttpStatus.OK);
-//        } catch (RuntimeException e) {
-//            logger.error("Error updating post by ID", e);
-//            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-//        }
-//    }
+    @PutMapping("/id/{myId}")
+    public ResponseEntity<?> updateCourseById(@PathVariable String myId, @RequestBody Course newdata) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+            logger.error("Try to updating course by ID");
+            Course updatedCourse = courseService.updateCourse(myId, newdata, username);
+            return new ResponseEntity<>(updatedCourse, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            logger.error("Error updating post by ID", e);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+
+
 }

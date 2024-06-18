@@ -60,8 +60,8 @@ public class userController {
         String username= auth.getName();
         User userIndb= userService.findByName(username);
         if(userIndb!=null){
-//            userIndb.setName(updatedUser.getName());
-//            userIndb.setPassword(updatedUser.getPassword());
+            userIndb.setName(updatedUser.getName());
+            userIndb.setPassword(updatedUser.getPassword());
             userIndb.setEmail(updatedUser.getEmail());
             userIndb.setCollage(updatedUser.getCollage());
             userIndb.setBranch(updatedUser.getBranch());
