@@ -1,14 +1,14 @@
 package com.example.WebSecurityExample.Pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Date;
+import java.util.*;
 import java.util.List;
 @Data
 @Document(collection = "Posts")
@@ -35,19 +35,15 @@ public class Posts {
     private String optionC;
     private String optionD;
 
+    @JsonIgnore
+    @DBRef
+    private Course course;
+//    private List<Course> course=new ArrayList<>();
+
 
     @NonNull
     private List<String> tags;
 
     private Map<String,String> testcase;
-//    private String id;
-//    private String question;
-//    private String solution;
-//    private String output;
-//    private String testCase;
-
-
-
-
 
 }

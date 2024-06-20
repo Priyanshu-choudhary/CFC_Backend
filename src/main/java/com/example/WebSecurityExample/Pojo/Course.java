@@ -3,8 +3,11 @@ package com.example.WebSecurityExample.Pojo;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +29,9 @@ public class Course {
     private String image;
     private String type;
 
+
+
+
     @DBRef
-    private List<Posts> posts=new ArrayList<>();
-
-
+    private List<Posts> posts;
 }

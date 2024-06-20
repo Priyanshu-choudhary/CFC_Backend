@@ -1,7 +1,9 @@
 package com.example.WebSecurityExample.controller;
 
+import com.example.WebSecurityExample.Pojo.Course;
 import com.example.WebSecurityExample.Pojo.Posts;
 import com.example.WebSecurityExample.Pojo.User;
+import com.example.WebSecurityExample.Service.CourseService;
 import com.example.WebSecurityExample.Service.PostService;
 import com.example.WebSecurityExample.Service.UserService;
 import org.slf4j.Logger;
@@ -35,6 +37,9 @@ public class PostController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private CourseService courseService;
 
 
     @GetMapping
@@ -156,6 +161,48 @@ public class PostController {
         }
     }
 
+    @GetMapping("/Course/{courseName}")
+    public ResponseEntity<?> getPostsByCourse(@PathVariable String courseName) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String username = auth.getName();
+            logger.info("Fetching posts for course '{}' for user: {}", courseName, username);
+
+            // Find the user
+            User user = userService.findByName(username);
+            if (user == null) {
+                logger.error("User not found: {}", username);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+            // Find the course by name for this user
+            Optional<Course> courseOpt = user.getCourses().stream()
+                    .filter(c -> c.getTitle().equalsIgnoreCase(courseName))
+                    .findFirst();
+
+            if (courseOpt.isPresent()) {
+                Course course = courseOpt.get();
+                List<Posts> posts = course.getPosts();
+
+                if (posts == null || posts.isEmpty()) {
+                    logger.info("No posts found for course: {}", courseName);
+                    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                }
+
+                logger.info("Returning posts for course '{}' for user: {}", courseName, username);
+                return new ResponseEntity<>(posts, HttpStatus.OK);
+            } else {
+                logger.error("Course not found: {}", courseName);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+        } catch (Exception e) {
+            logger.error("Error fetching posts by course", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
     @PostMapping
     public ResponseEntity<Posts> createUser(@RequestBody Posts post) {
         try {
@@ -168,7 +215,7 @@ public class PostController {
             userService.setLastdate(username);
 
 
-            postService.createUser(post, username);
+            postService.createPost(post, username);
             logger.info("Post created successfully for user: {}", username);
             return new ResponseEntity<>(post, HttpStatus.CREATED);
         } catch (Exception e) {
@@ -176,6 +223,50 @@ public class PostController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+
+    @PostMapping("/Course/{courseName}")
+    public ResponseEntity<?> createPostRefCourse(@PathVariable String courseName, @RequestBody Posts post) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String username = auth.getName();
+            logger.info("Creating new post ref to course for user: {}", username);
+
+            // Fetch the user
+            User user = userService.findByName(username);
+
+            // Find the course by name for this user
+            Optional<Course> courseOpt = user.getCourses().stream()
+                    .filter(c -> c.getTitle().equalsIgnoreCase(courseName))
+                    .findFirst();
+
+            if (courseOpt.isPresent()) {
+                Course course = courseOpt.get();
+
+                // Set the lastModified field to the current date and time
+                post.setLastModified(new Date());
+
+                // Reference the course in the post
+                post.setCourse(course);
+
+                // Create the post
+                postService.createPostWithRefCourse(post, username);
+                logger.info("Post ref to course created successfully for user: {}", username);
+
+                return new ResponseEntity<>(post, HttpStatus.CREATED);
+            } else {
+                logger.error("Course not found: {}", courseName);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+        } catch (Exception e) {
+            logger.error("Error creating post ref to course", e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+
 
 
     @DeleteMapping("/id/{id}")

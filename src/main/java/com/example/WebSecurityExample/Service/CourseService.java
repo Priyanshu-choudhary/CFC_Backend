@@ -38,26 +38,30 @@ private UserRepo userRepo;
     @Transactional
     public String createCourse(Course course, String inputUser) {
         try {
-            // Fetch the user and their associated courses
+            // Fetch the user
             User myUser = userService.findByName(inputUser);
-            List<Course> userCourses = myUser.getCourses();
 
-            // Check if a course with the same title already exists in the user's courses
-            for (Course existingCourse : userCourses) {
-                if (existingCourse.getTitle().equalsIgnoreCase(course.getTitle())) {
-                    // Course already exists, return the existing course ID
-                    logger.info("Course with the same title already exists for this user. Returning existing course ID.");
-                    return existingCourse.getId();
-                }
+            // Check if a course with the same title already exists for this user
+            Optional<Course> existingCourseOpt = myUser.getCourses().stream()
+                    .filter(c -> c.getTitle().equalsIgnoreCase(course.getTitle()))
+                    .findFirst();
+
+            if (existingCourseOpt.isPresent()) {
+                // Course already exists, return the existing course ID
+                logger.info("Course with the same title already exists for this user. Returning existing course ID.");
+                return existingCourseOpt.get().getId();
+            } else {
+                // Associate the course with the user
+//                course.setUser(myUser);
+                Course savedCourse = courseRepo.save(course);
+
+                // Update user's course list
+                myUser.getCourses().add(savedCourse);
+                userService.createUser(myUser); // Save the user to update the courses
+
+                // Return the new course ID
+                return savedCourse.getId();
             }
-
-            // Proceed to create a new course
-            Course savedCourse = courseRepo.save(course);
-            myUser.getCourses().add(savedCourse);
-            userService.createUser(myUser); // Save the user to update the courses
-
-            // Return the new course ID
-            return savedCourse.getId();
 
         } catch (Exception e) {
             logger.error("An error occurred while saving the entry", e);
@@ -65,21 +69,27 @@ private UserRepo userRepo;
         }
     }
 
+    public Course findByName(String courseName) {
+        return courseRepo.findByTitle(courseName);
+    }
+
 
     @Transactional
-    public void deleteUserById(String id, String name) {
+    public boolean deleteUserById(String id, String name) {
         try {
             User myuser = userService.findByName(name);
             boolean b = myuser.getCourses().removeIf(x -> x.getId().equals(id));
             if (b) {
                 userService.createUser(myuser);
-                courseRepo.deleteById(id);
+               return b;
             }
         } catch (Exception e) {
 
             System.out.println(e);
-            throw new RuntimeException("Error occur while delete post", e);
+            return false;
+
         }
+        return false;
     }
 
 

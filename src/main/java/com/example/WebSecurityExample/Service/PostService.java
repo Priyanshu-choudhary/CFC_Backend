@@ -1,6 +1,9 @@
 package com.example.WebSecurityExample.Service;
 
+import com.example.WebSecurityExample.MongoRepo.CourseRepo;
 import com.example.WebSecurityExample.MongoRepo.PostRepo;
+import com.example.WebSecurityExample.MongoRepo.UserRepo;
+import com.example.WebSecurityExample.Pojo.Course;
 import com.example.WebSecurityExample.Pojo.Posts;
 import com.example.WebSecurityExample.Pojo.User;
 import com.example.WebSecurityExample.controller.PostController;
@@ -23,6 +26,14 @@ public class PostService {
     private PostRepo postRepo;
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private CourseService courseService;
+
+    @Autowired
+    private UserRepo userRepo;
+    @Autowired
+    private CourseRepo courseRepo;
 
     public List<Posts> getAllUsers() {
         return postRepo.findAll();
@@ -47,7 +58,7 @@ public class PostService {
         return new Date(0); // Return a default date if user or posts not found
     }
     @Transactional
-    public void createUser(Posts posts,String inputuser) {
+    public void createPost(Posts posts,String inputuser) {
         try{
             User myuser = userService.findByName(inputuser);//get user
 
@@ -55,11 +66,41 @@ public class PostService {
             myuser.getPosts().add(saved);
 
             userService.createUser(myuser);//saved in user DB(creating ref)
+//            courseService.createCourse(course);
         }catch (Exception e){
             System.out.println(e);
-            throw new RuntimeException("an error occur while saving an entry",e);
+            throw new RuntimeException("(Ref course)an error occur while saving an entry",e);
         }
     }
+
+
+    @Transactional
+    public void createPostWithRefCourse(Posts post, String username) {
+        try {
+            User user = userService.findByName(username);
+            if (user == null) {
+                throw new RuntimeException("(Ref course)User not found");
+            }
+
+            postRepo.save(post);
+            user.getPosts().add(post);
+            userRepo.save(user);
+
+            Course course = post.getCourse();
+            if (course != null) {
+                course.getPosts().add(post);
+                courseRepo.save(course);
+            }
+
+            logger.info("(Ref course)Post created successfully for user: {}", username);
+        } catch (Exception e) {
+            logger.error("(Ref course)Error creating post for user: {}", username, e);
+            throw new RuntimeException("(Ref course)Error creating post", e);
+        }
+    }
+
+
+
     @Transactional
     public void deleteUserById(String id, String name) {
       try {
@@ -92,6 +133,15 @@ public class PostService {
                     existingPost.setExample(newPost.getExample() != null && !newPost.getExample().isEmpty() ? newPost.getExample() : existingPost.getExample());
                     existingPost.setSolution(newPost.getSolution() != null && !newPost.getSolution().isEmpty() ? newPost.getSolution() : existingPost.getSolution());
                     existingPost.setDifficulty(newPost.getDifficulty() != null && !newPost.getDifficulty().isEmpty() ? newPost.getDifficulty() : existingPost.getDifficulty());
+                    existingPost.setConstrain(newPost.getConstrain() != null && !newPost.getConstrain().isEmpty() ? newPost.getConstrain() : existingPost.getConstrain());
+                    existingPost.setTimecomplixity(newPost.getTimecomplixity() != null && !newPost.getTimecomplixity().isEmpty() ? newPost.getTimecomplixity() : existingPost.getTimecomplixity());
+                    existingPost.setAvgtime(newPost.getAvgtime() != null && !newPost.getAvgtime().isEmpty() ? newPost.getAvgtime() : existingPost.getAvgtime());
+                    existingPost.setBoilerCode(newPost.getBoilerCode() != null && !newPost.getBoilerCode().isEmpty() ? newPost.getBoilerCode() : existingPost.getBoilerCode());
+                    existingPost.setType(newPost.getType() != null && !newPost.getType().isEmpty() ? newPost.getType() : existingPost.getType());
+                    existingPost.setOptionA(newPost.getOptionA() != null && !newPost.getOptionA().isEmpty() ? newPost.getOptionA() : existingPost.getOptionA());
+                    existingPost.setOptionB(newPost.getOptionB() != null && !newPost.getOptionB().isEmpty() ? newPost.getOptionB() : existingPost.getOptionB());
+                    existingPost.setOptionC(newPost.getOptionC() != null && !newPost.getOptionC().isEmpty() ? newPost.getOptionC() : existingPost.getOptionC());
+                    existingPost.setOptionD(newPost.getOptionD() != null && !newPost.getOptionD().isEmpty() ? newPost.getOptionD() : existingPost.getOptionD());
 
                     return postRepo.save(existingPost);
                 } else {

@@ -74,18 +74,29 @@ public class CourseController {
     }
 
     @DeleteMapping("/id/{id}")
-    public ResponseEntity<?> deleteUserById(@PathVariable String id) {
+    public ResponseEntity<Map<String, String>> deleteUserById(@PathVariable String id) {
+        Map<String, String> response = new HashMap<>();
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
-            courseService.deleteUserById(id, username);
-            return new ResponseEntity<>(HttpStatus.OK);
+
+            // Assuming courseService.deleteUserById(id, username) returns a boolean indicating success
+            boolean deleted = courseService.deleteUserById(id, username);
+
+            if (deleted) {
+                response.put("message", "Course deleted successfully");
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("message", "Course not found or you do not have permission to delete it");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+
         } catch (Exception e) {
-            logger.error("Error deleting post by ID", e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            logger.error("Error deleting course by ID", e);
+            response.put("message", "Error deleting course");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-
     @PutMapping("/id/{myId}")
     public ResponseEntity<?> updateCourseById(@PathVariable String myId, @RequestBody Course newdata) {
         try {
