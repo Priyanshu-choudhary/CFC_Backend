@@ -28,10 +28,11 @@ public class Course {
     private Integer newRating;
     private String image;
     private String type;
+    private String permission;
 
 
 
 
     @DBRef
-    private List<Posts> posts;
+    private List<Posts> posts =new ArrayList<>();
 }
