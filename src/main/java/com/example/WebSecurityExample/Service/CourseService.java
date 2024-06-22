@@ -69,10 +69,10 @@ private UserRepo userRepo;
         }
     }
 
-    public Course findByName(String courseName) {
-        return courseRepo.findByTitle(courseName);
-    }
 
+    public Course findCourseByTitleAndUser(String courseTitle, User user) {
+        return courseRepo.findByTitle(courseTitle);
+    }
 
     @Transactional
     public boolean deleteUserById(String id, String name) {

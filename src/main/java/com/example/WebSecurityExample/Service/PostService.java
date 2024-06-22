@@ -66,7 +66,6 @@ public class PostService {
             myuser.getPosts().add(saved);
 
             userService.createUser(myuser);//saved in user DB(creating ref)
-//            courseService.createCourse(course);
         }catch (Exception e){
             System.out.println(e);
             throw new RuntimeException("(Ref course)an error occur while saving an entry",e);

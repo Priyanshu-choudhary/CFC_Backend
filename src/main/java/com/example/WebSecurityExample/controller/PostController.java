@@ -204,17 +204,27 @@ public class PostController {
 
 
     @PostMapping
-    public ResponseEntity<Posts> createUser(@RequestBody Posts post) {
+    public ResponseEntity<Posts> createPost(@RequestBody Posts post) {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
             logger.info("Creating new post for user: {}", username);
 
+            User user = userService.findByName(username);
+            List<Posts> allPosts = user.getPosts();
+
+            if (allPosts != null) {
+                for (Posts existingPost : allPosts) {
+                    if (existingPost.getTitle().equals(post.getTitle())) {
+                        logger.warn("Duplicate post creation attempt for user: {}", username);
+                        return new ResponseEntity<>(HttpStatus.CONFLICT); // 409 Conflict
+                    }
+                }
+            }
+
             // Set the lastModified field to the current date and time
             post.setLastModified(new Date());
             userService.setLastdate(username);
-
-
             postService.createPost(post, username);
             logger.info("Post created successfully for user: {}", username);
             return new ResponseEntity<>(post, HttpStatus.CREATED);
@@ -223,6 +233,7 @@ public class PostController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
 
 
     @PostMapping("/Course/{courseName}")

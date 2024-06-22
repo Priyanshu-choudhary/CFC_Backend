@@ -23,6 +23,7 @@ public class Posts {
     private String Example;
     private String difficulty;
     private String solution;
+    private String templateCode;
     private String answer;
     private String constrain;
     private String timecomplixity;
