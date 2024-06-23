@@ -2,6 +2,7 @@ package com.example.WebSecurityExample.Pojo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.springframework.data.annotation.Id;
@@ -13,9 +14,13 @@ import java.util.List;
 @Data
 @Document(collection = "Posts")
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Posts {
     @Id
+    @EqualsAndHashCode.Include
     private String id;
+
+    @EqualsAndHashCode.Include
     @NonNull
     private String title;
     @NonNull

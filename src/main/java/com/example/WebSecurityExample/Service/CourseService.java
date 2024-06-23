@@ -126,26 +126,14 @@ private UserRepo userRepo;
                         List<String> currentCompleteQuestions = existingCourse.getCompleteQuestions();
                         if (currentCompleteQuestions == null) {
                             currentCompleteQuestions = new ArrayList<>();
+                            existingCourse.setCompleteQuestions(currentCompleteQuestions);
                             logger.debug("Initialized new completeQuestions list");
-                            // Update course progress
-                            if (newCourse.getProgress() != null) {
-                                Integer newProgress=+newCourse.getProgress()+existingCourse.getProgress();
-                                existingCourse.setProgress(newProgress);
-                                logger.info("Updated course progress to {}", newCourse.getProgress());
-                            }
                         }
                         for (String questionId : newCourse.getCompleteQuestions()) {
                             if (!currentCompleteQuestions.contains(questionId)) {
                                 currentCompleteQuestions.add(questionId);
                                 newUniqueQuestions++;
                                 logger.info("Added question ID {} to completeQuestions list", questionId);
-                                logger.info("trying to increase the progress");
-                                // Update course progress
-                                if (newCourse.getProgress() != null) {
-                                    Integer newProgress=+newCourse.getProgress()+existingCourse.getProgress();
-                                    existingCourse.setProgress(newProgress);
-                                    logger.info("Updated course progress to {}", newCourse.getProgress());
-                                }
                             } else {
                                 logger.debug("Question ID {} is already in completeQuestions list", questionId);
                             }
@@ -153,29 +141,35 @@ private UserRepo userRepo;
                         existingCourse.setCompleteQuestions(currentCompleteQuestions);
                         logger.info("Updated completeQuestions list to {}", currentCompleteQuestions);
                     }
-                    existingCourse.setTotalQuestions(newCourse.getTotalQuestions());
+
+                    // Update course progress
+                    if (newCourse.getProgress() != null) {
+                        Integer newProgress = newCourse.getProgress() + (existingCourse.getProgress() != null ? existingCourse.getProgress() : 0);
+                        existingCourse.setProgress(newProgress);
+                        logger.info("Updated course progress to {}", newProgress);
+                    }
+
                     // Update user's rating and course's rating if new unique questions are added
                     if (newUniqueQuestions > 0) {
                         if (user.getRating() == null) {
-                            user.setRating( newCourse.getRating());
-                            logger.info("Set user rating to {}",  newCourse.getRating());
+                            user.setRating(newCourse.getRating());
+                            logger.info("Set user rating to {}", newCourse.getRating());
                         } else {
                             user.setRating(user.getRating() + newCourse.getRating());
-                            logger.info("Updated user rating by adding {}",  newCourse.getRating());
+                            logger.info("Updated user rating by adding {}", newCourse.getRating());
                         }
 
                         if (existingCourse.getRating() == null) {
-                            existingCourse.setRating( newCourse.getRating());
-                            logger.info("Set course rating to {}",  newCourse.getRating());
+                            existingCourse.setRating(newCourse.getRating());
+                            logger.info("Set course rating to {}", newCourse.getRating());
                         } else {
-                            existingCourse.setRating(existingCourse.getRating() +  newCourse.getRating());
-                            logger.info("Updated course rating by adding {}",  newCourse.getRating());
+                            existingCourse.setRating(existingCourse.getRating() + newCourse.getRating());
+                            logger.info("Updated course rating by adding {}", newCourse.getRating());
                         }
 
                         logger.info("User {} rating updated to {}", username, user.getRating());
                         logger.info("Course {} rating updated to {}", existingCourse.getId(), existingCourse.getRating());
                     }
-
 
                     // Save updated user
                     userRepo.save(user);
@@ -198,7 +192,5 @@ private UserRepo userRepo;
             throw new RuntimeException("An error occurred while updating the course", e);
         }
     }
-
-
 
 }

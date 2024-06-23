@@ -1,6 +1,7 @@
 package com.example.WebSecurityExample.Pojo;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -15,10 +16,14 @@ import java.util.List;
 @Data
 @Document(collection = "Course")
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Course {
 
     @Id
+    @EqualsAndHashCode.Include
     private String id;
+
+    @EqualsAndHashCode.Include
     private String title;
     private String description;
     private Integer progress;

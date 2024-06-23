@@ -35,6 +35,12 @@ public class PublicController {
         return  userService.getAllUsers();
     }
 
+    @GetMapping("showUser/{username}")
+    public User getUsersbyUserName(@PathVariable String username) {
+        return  userService.findByName(username);
+    }
+
+
     @CrossOrigin(origins = {"https://code-with-challenge.vercel.app", "http://localhost:5173"})
     @PostMapping("/Create-User")
     public ResponseEntity<User> createUser(@RequestBody User user) {
