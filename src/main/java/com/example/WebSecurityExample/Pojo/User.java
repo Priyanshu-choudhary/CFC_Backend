@@ -10,7 +10,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 @Data
 @Document(collection = "users")
 public class User {
@@ -33,14 +32,18 @@ public class User {
     private Date lastModifiedUser;
     private transient int postCount;
 
-
     private List<String> roles;
 
-    // Getters and setters
     @DBRef
-    private List<Posts> posts=new ArrayList<>();
+    private List<Posts> posts = new ArrayList<>();
 
     @DBRef
-    private List<Course> courses=new ArrayList<>();
+    private List<Course> courses = new ArrayList<>();
 
+    // Add the constructor
+    public User(String name, String email, String password) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+    }
 }
