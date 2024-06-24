@@ -27,8 +27,9 @@ public class RegisterController {
     private void sendVerificationEmail(String email, String name,String password) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(email);
-        mailMessage.setSubject("Verify Your Email Address");
-        mailMessage.setText("Click the link below to verify your email address:\nhttp://localhost:5173/verify-email?email=" + email+"&name="+name+"&password="+password);
+        mailMessage.setSubject("Verify your account ");
+        mailMessage.setText("We’re excited you’ve joined CFC.\n" +
+                "As soon as you verify your email to confirm this is you, we can get started. \n Click the link below to verify your email address:\nhttps://code-with-challenge.vercel.app//verify-email?email=" + email+"&name="+name+"&password="+password);
 
         javaMailSender.send(mailMessage);
     }
