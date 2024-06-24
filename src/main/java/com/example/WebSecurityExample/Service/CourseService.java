@@ -115,17 +115,19 @@ private UserRepo userRepo;
                 if (user.getCourses().contains(existingCourse)) {
                     logger.debug("User {} owns course {}", username, existingCourse.getId());
 
-                    if (existingCourse.getPermission() != null) {
+                    if (newCourse.getPermission() != null) {
                         existingCourse.setPermission(newCourse.getPermission());
 
                     }
 
-                    if (existingCourse.getTotalQuestions() != null) {
+                    if (newCourse.getTotalQuestions() != null) {
                         existingCourse.setTotalQuestions(newCourse.getTotalQuestions());
+
                     }
 
-                    if (existingCourse.getDescription() != null) {
+                    if (newCourse.getDescription() != null) {
                         existingCourse.setDescription(newCourse.getDescription());
+
                     }
 
 
