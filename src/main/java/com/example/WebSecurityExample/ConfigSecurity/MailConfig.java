@@ -13,7 +13,7 @@ public class MailConfig {
     @Bean
     public JavaMailSender javaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost("smtp.sendgrid.com"); // Update with your SMTP host
+        mailSender.setHost("smtp.gmail.com"); // Update with your SMTP host
         mailSender.setPort(587); // Update with your SMTP port
 
         mailSender.setUsername("broyadi23@gmail.com"); // Update with your email
