@@ -46,8 +46,6 @@ public class Posts {
     private Course course;
 //    private List<Course> course=new ArrayList<>();
 
-
-    @NonNull
     private List<String> tags;
 
     private Map<String,String> testcase;

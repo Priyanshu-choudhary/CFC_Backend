@@ -43,49 +43,65 @@ public class PostController {
 
 
     @GetMapping
-    public ResponseEntity<?> getPostByUsername(@RequestHeader(value = "If-Modified-Since", required = false) String ifModifiedSince) {
+    public ResponseEntity<?> getAllPosts(@RequestHeader(value = "If-Modified-Since", required = false) String ifModifiedSince) {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
-            logger.info("Fetching posts for user: {}", username);
-            logger.info("ifModifiedSince: {}", ifModifiedSince);
-
             User users = userService.findByName(username);
-            if (users == null) {
-                logger.error("User not found: {}", username);
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
+            List<Posts> all = userService.getUserPosts(username);
+            return new ResponseEntity<>(all, HttpStatus.OK);
 
-            List<Posts> all = users.getPosts();
-            if (all == null || all.isEmpty()) {
-                logger.info("No posts found for user: {}", username);
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            logger.info("try to fetch lastModified ");
-            Date lastModified = postService.getLastModifiedForUser(username);
-            logger.info("lastModifyed : {}", lastModified);
-
-            if (ifModifiedSince != null) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
-                Date ifModifiedSinceDate = dateFormat.parse(ifModifiedSince);
-                if (!lastModified.after(ifModifiedSinceDate)) {
-                    logger.info("Posts not modified since: {}", ifModifiedSince);
-                    return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
-                }
-            }
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setLastModified(lastModified.getTime());
-            logger.info("Returning posts for user: {}", username);
-            return new ResponseEntity<>(all, headers, HttpStatus.OK);
-        } catch (ParseException e) {
-            logger.error("Error parsing If-Modified-Since header", e);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            logger.error("Error fetching posts by username", e);
+        }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+//    @GetMapping
+//    public ResponseEntity<?> getPostByUsername(@RequestHeader(value = "If-Modified-Since", required = false) String ifModifiedSince) {
+//        try {
+//            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//            String username = auth.getName();
+//            logger.info("Fetching posts for user: {}", username);
+//            logger.info("ifModifiedSince: {}", ifModifiedSince);
+//
+//            User users = userService.findByName(username);
+//            if (users == null) {
+//                logger.error("User not found: {}", username);
+//                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//            }
+//
+//            List<Posts> all = users.getPosts();
+//            if (all == null || all.isEmpty()) {
+//                logger.info("No posts found for user: {}", username);
+//                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//            }
+//            logger.info("try to fetch lastModified ");
+//            Date lastModified = postService.getLastModifiedForUser(username);
+//            logger.info("lastModifyed : {}", lastModified);
+//
+//            if (ifModifiedSince != null) {
+//                SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
+//                Date ifModifiedSinceDate = dateFormat.parse(ifModifiedSince);
+//                if (!lastModified.after(ifModifiedSinceDate)) {
+//                    logger.info("Posts not modified since: {}", ifModifiedSince);
+//                    return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+//                }
+//            }
+//
+//            HttpHeaders headers = new HttpHeaders();
+//            headers.setLastModified(lastModified.getTime());
+//            logger.info("Returning posts for user: {}", username);
+//            return new ResponseEntity<>(all, headers, HttpStatus.OK);
+//        } catch (ParseException e) {
+//            logger.error("Error parsing If-Modified-Since header", e);
+//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//        } catch (Exception e) {
+//            logger.error("Error fetching posts by username", e);
+//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
+
     @GetMapping("/filter")
     public ResponseEntity<?> getQuestionsByExactTags(@RequestParam List<String> tags, @RequestParam boolean exactMatch) {
         try {

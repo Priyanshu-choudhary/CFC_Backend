@@ -1,6 +1,9 @@
 package com.example.WebSecurityExample.Pojo;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -10,16 +13,21 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 @Data
+@NoArgsConstructor
 @Document(collection = "users")
 public class User {
     @Id
     private String id;
+
     @NonNull
     @Indexed(unique = true)
     private String name;
+
     @NonNull
     private String password;
+
     private String number;
     private String email;
     private String collage;
@@ -40,8 +48,13 @@ public class User {
     @DBRef
     private List<Course> courses = new ArrayList<>();
 
-    // Add the constructor
-    public User(String name, String email, String password) {
+    // Add a parameterized constructor
+    @JsonCreator
+    public User(
+            @JsonProperty("name") String name,
+            @JsonProperty("email") String email,
+            @JsonProperty("password") String password
+    ) {
         this.name = name;
         this.email = email;
         this.password = password;

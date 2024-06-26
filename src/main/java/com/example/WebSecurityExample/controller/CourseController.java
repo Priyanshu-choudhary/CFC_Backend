@@ -42,14 +42,13 @@ public class CourseController {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
-            User users = userService.findByName(username);
-            List<Course> all = users.getCourses();
+            List<Course> all = courseService.getUserCourses(username);
             if (all != null) {
                 return new ResponseEntity<>(all, HttpStatus.OK);
             }
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            logger.error("Error fetching posts by username", e);
+            logger.error("Error fetching courses by username", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

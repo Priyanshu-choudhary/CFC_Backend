@@ -10,6 +10,8 @@ import com.example.WebSecurityExample.controller.CourseController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +36,12 @@ private UserRepo userRepo;
     public List<Course> getAllCourses() {
         return courseRepo.findAll();
     }
-
+    @Cacheable(value = "userCoursesCache", key = "#username")
+    public List<Course> getUserCourses(String username) {
+        User users = userService.findByName(username);
+        return users.getCourses();
+    }
+    @CacheEvict(value = "userCoursesCache", allEntries = true)
     @Transactional
     public String createCourse(Course course, String inputUser) {
         try {
@@ -73,7 +80,7 @@ private UserRepo userRepo;
     public Course findCourseByTitleAndUser(String courseTitle, User user) {
         return courseRepo.findByTitle(courseTitle);
     }
-
+    @CacheEvict(value = "userCoursesCache", allEntries = true)
     @Transactional
     public boolean deleteUserById(String id, String name) {
         try {
@@ -92,7 +99,7 @@ private UserRepo userRepo;
         return false;
     }
 
-
+    @CacheEvict(value = "userCoursesCache", allEntries = true)
     @Transactional
     public Course updateCourse(String id, Course newCourse, String username) {
         try {

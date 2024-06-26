@@ -10,6 +10,8 @@ import com.example.WebSecurityExample.controller.PostController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +37,8 @@ public class PostService {
     @Autowired
     private CourseRepo courseRepo;
 
-    public List<Posts> getAllUsers() {
+    @Cacheable("Posts")
+    public List<Posts> getAllPosts() {
         return postRepo.findAll();
     }
 
@@ -57,6 +60,8 @@ public class PostService {
         }
         return new Date(0); // Return a default date if user or posts not found
     }
+
+    @CacheEvict(value = "Posts", allEntries = true)
     @Transactional
     public void createPost(Posts posts,String inputuser) {
         try{
@@ -72,7 +77,7 @@ public class PostService {
         }
     }
 
-
+    @CacheEvict(value = "Posts", allEntries = true)
     @Transactional
     public void createPostWithRefCourse(Posts post, String username) {
         try {
@@ -99,7 +104,7 @@ public class PostService {
     }
 
 
-
+    @CacheEvict(value = "Posts", allEntries = true)
     @Transactional
     public void deleteUserById(String id, String name) {
       try {
@@ -116,7 +121,7 @@ public class PostService {
       }
 
     }
-
+    @CacheEvict(value = "Posts", allEntries = true)
     @Transactional
     public Posts updatePost(String id, Posts newPost, String username) {
         try {
