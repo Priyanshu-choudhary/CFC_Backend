@@ -31,7 +31,7 @@ public class PublicController {
     }
     @GetMapping("HealthCheck2")
     public String sayHello2(){
-        return "Ok2!";
+        return "Ok-automated!";
     }
 
 
