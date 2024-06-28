@@ -15,7 +15,7 @@ public class CorsConfigClass {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("https://code-with-challenge.vercel.app");
+        config.addAllowedOrigin("https://code-for-challenge.vercel.app");
         config.addAllowedOrigin("http://localhost:5173");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
