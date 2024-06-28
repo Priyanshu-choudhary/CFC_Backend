@@ -35,7 +35,7 @@ public class RedisCacheConfig {
                 .clientResources(clientResources)
 //                .clientOptions(ClientOptions.builder().ssl(true).build())
                 .build();
-
+//testing
         return new LettuceConnectionFactory(redisConfig, clientConfig);
     }
 
