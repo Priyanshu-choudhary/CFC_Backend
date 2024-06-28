@@ -29,6 +29,11 @@ public class PublicController {
     public String sayHello(){
         return "Ok!";
     }
+    @GetMapping("HealthCheck2")
+    public String sayHello2(){
+        return "Ok!";
+    }
+
 
     @GetMapping("getUser")
     public List getAllUsersbyUserName() {
