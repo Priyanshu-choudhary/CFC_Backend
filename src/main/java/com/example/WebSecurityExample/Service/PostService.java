@@ -146,6 +146,7 @@ public class PostService {
                     existingPost.setOptionB(newPost.getOptionB() != null && !newPost.getOptionB().isEmpty() ? newPost.getOptionB() : existingPost.getOptionB());
                     existingPost.setOptionC(newPost.getOptionC() != null && !newPost.getOptionC().isEmpty() ? newPost.getOptionC() : existingPost.getOptionC());
                     existingPost.setOptionD(newPost.getOptionD() != null && !newPost.getOptionD().isEmpty() ? newPost.getOptionD() : existingPost.getOptionD());
+                    existingPost.setVideoUrl(newPost.getVideoUrl() != null && !newPost.getVideoUrl().isEmpty() ? newPost.getVideoUrl() : existingPost.getVideoUrl());
 
                     return postRepo.save(existingPost);
                 } else {
