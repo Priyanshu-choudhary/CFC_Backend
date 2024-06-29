@@ -161,15 +161,18 @@ private UserRepo userRepo;
                         logger.info("Updated completeQuestions list to {}", currentCompleteQuestions);
                     }
 
-                    // Update course progress
-                    if (newCourse.getProgress() != null) {
-                        Integer newProgress = newCourse.getProgress() + (existingCourse.getProgress() != null ? existingCourse.getProgress() : 0);
-                        existingCourse.setProgress(newProgress);
-                        logger.info("Updated course progress to {}", newProgress);
-                    }
 
                     // Update user's rating and course's rating if new unique questions are added
                     if (newUniqueQuestions > 0) {
+
+                        // Update course progress
+                        if (newCourse.getProgress() != null) {
+                            Integer newProgress = newCourse.getProgress() + (existingCourse.getProgress() != null ? existingCourse.getProgress() : 0);
+                            existingCourse.setProgress(newProgress);
+                            logger.info("Updated course progress to {}", newProgress);
+                        }
+
+
                         if (user.getRating() == null) {
                             user.setRating(newCourse.getRating());
                             logger.info("Set user rating to {}", newCourse.getRating());
