@@ -87,14 +87,6 @@ public class userController {
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
-    @DeleteMapping("/id/{id}")
-    public ResponseEntity<?> deleteUserById(@PathVariable String id) {
-        try {
-            userService.deleteUserById(id);
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+
 
 }
