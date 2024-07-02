@@ -37,11 +37,9 @@ public class CourseController {
     @Autowired
     private CourseRepo courseRepo;
 
-    @GetMapping
-    public ResponseEntity<?> getCourseByUserNameController() {
+    @GetMapping("/{usernme}")
+    public ResponseEntity<?> getCourseByUserNameController(@PathVariable String username) {
         try {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            String username = auth.getName();
             List<Course> all = courseService.getUserCourses(username);
             if (all != null) {
                 return new ResponseEntity<>(all, HttpStatus.OK);
