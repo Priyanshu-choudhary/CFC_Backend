@@ -48,7 +48,7 @@ public class PostController {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
 //            User users = userService.findByName(username);
-            logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^findByName^^^^^^^^^^^^^^^^^^^");
+            logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^findByName^^^^^^^^^^^^^^^^^^^");
             List<Posts> all = userService.getUserPosts(username);
             return new ResponseEntity<>(all, HttpStatus.OK);
 

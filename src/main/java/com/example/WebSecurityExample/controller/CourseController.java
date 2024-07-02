@@ -38,11 +38,11 @@ public class CourseController {
     private CourseRepo courseRepo;
 
     @GetMapping
-    public ResponseEntity<?> getCourseByUserName() {
+    public ResponseEntity<?> getCourseByUserNameController() {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
-            List<Course> all = courseService.getUserCourses(username);
+            List<Course> all = courseService.getUserCoursesUsingProjection(username);
             if (all != null) {
                 return new ResponseEntity<>(all, HttpStatus.OK);
             }

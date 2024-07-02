@@ -7,6 +7,7 @@ import com.example.WebSecurityExample.Pojo.Course;
 import com.example.WebSecurityExample.Pojo.Posts;
 import com.example.WebSecurityExample.Pojo.User;
 import com.example.WebSecurityExample.controller.CourseController;
+import com.example.WebSecurityExample.projections.CourseProjection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +41,15 @@ private UserRepo userRepo;
     @Cacheable(value = "userCoursesCache", key = "#username")
     public List<Course> getUserCourses(String username) {
         User users = userService.findByName(username);
+        logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^findByName^^^^^^^^^^^^^^^^^^^");
+
         return users.getCourses();
     }
-
-
+//    @Cacheable(value = "userCoursesCache", key = "#username")
+    public List<Course> getUserCoursesUsingProjection(String userName) {
+        User user = userRepo.findCoursesByName(userName);
+        return user.getCourses();
+    }
     @CacheEvict(value = "userCoursesCache", allEntries = true)
     @Transactional
     public String createCourse(Course course, String inputUser) {
