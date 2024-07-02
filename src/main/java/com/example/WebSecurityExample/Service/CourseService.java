@@ -26,8 +26,8 @@ public class CourseService {
 
     @Autowired
     private CourseRepo courseRepo;
-@Autowired
-private UserRepo userRepo;
+    @Autowired
+    private UserRepo userRepo;
     @Autowired
     private PostRepo postRepo;
 
@@ -45,11 +45,13 @@ private UserRepo userRepo;
 
         return users.getCourses();
     }
-//    @Cacheable(value = "userCoursesCache", key = "#username")
-    public List<Course> getUserCoursesUsingProjection(String userName) {
-        User user = userRepo.findCoursesByName(userName);
-        return user.getCourses();
+
+    public Optional<Course> getUserCoursesByID(String ID) {
+        Optional<Course> userOpt = courseRepo.findById(ID);
+        logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^findByName^^^^^^^^^^^^^^^^^^^");
+        return userOpt;
     }
+
     @CacheEvict(value = "userCoursesCache", allEntries = true)
     @Transactional
     public String createCourse(Course course, String inputUser) {

@@ -42,7 +42,7 @@ public class CourseController {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
-            List<Course> all = courseService.getUserCoursesUsingProjection(username);
+            List<Course> all = courseService.getUserCourses(username);
             if (all != null) {
                 return new ResponseEntity<>(all, HttpStatus.OK);
             }
@@ -52,6 +52,21 @@ public class CourseController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @GetMapping("/id/{id}")
+    public ResponseEntity<?> getCourseById(@PathVariable String id) {
+        try {
+
+            Optional<Course> all = courseService.getUserCoursesByID(id);
+            if (all.isPresent()) {
+                return new ResponseEntity<>(all, HttpStatus.OK);
+            }
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            logger.error("Error fetching courses by ID", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 
 

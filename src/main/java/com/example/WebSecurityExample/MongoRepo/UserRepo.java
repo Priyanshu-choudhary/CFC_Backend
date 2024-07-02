@@ -9,6 +9,5 @@ public interface UserRepo extends MongoRepository<User, String> {
 
     void deleteByName(String usermane);
 
-    @Query(value = "{ 'name' : ?0 }", fields = "{ 'courses' : 1 }")
-    User findCoursesByName(String name);
+
 }
