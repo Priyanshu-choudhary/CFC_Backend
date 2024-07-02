@@ -185,7 +185,9 @@ public class PostController {
             logger.info("Fetching posts for course '{}' for user: {}", courseName, username);
 
             // Find the user
+            logger.info("+++++++++++++++++++++++++Find by name ++++++++++++++++++++");
             User user = userService.findByName(username);
+            logger.info("+++++++++++++++++++++++++Find by name ++++++++++++++++++++");
             if (user == null) {
                 logger.error("User not found: {}", username);
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);

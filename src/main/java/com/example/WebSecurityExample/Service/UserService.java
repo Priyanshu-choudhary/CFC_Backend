@@ -64,6 +64,7 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
+    @Cacheable("users")
     public User findByName(String name){
         User user = userRepository.findByName(name);
         if (user != null) {
