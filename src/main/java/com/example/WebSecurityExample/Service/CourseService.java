@@ -36,11 +36,14 @@ private UserRepo userRepo;
     public List<Course> getAllCourses() {
         return courseRepo.findAll();
     }
+
     @Cacheable(value = "userCoursesCache", key = "#username")
     public List<Course> getUserCourses(String username) {
         User users = userService.findByName(username);
         return users.getCourses();
     }
+
+
     @CacheEvict(value = "userCoursesCache", allEntries = true)
     @Transactional
     public String createCourse(Course course, String inputUser) {
