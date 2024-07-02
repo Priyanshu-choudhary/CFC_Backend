@@ -254,11 +254,10 @@ public class PostController {
 
 
 
-    @PostMapping("/Course/{courseName}")
-    public ResponseEntity<?> createPostRefCourse(@PathVariable String courseName, @RequestBody Posts post) {
+    @PostMapping("/Course/{courseName}/username/{username}")
+    public ResponseEntity<?> createPostRefCourse(@PathVariable String username,@PathVariable String courseName, @RequestBody Posts post) {
         try {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            String username = auth.getName();
+
             logger.info("Creating new post ref to course for user: {}", username);
 
             // Fetch the user
