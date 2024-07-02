@@ -37,7 +37,7 @@ public class CourseController {
     @Autowired
     private CourseRepo courseRepo;
 
-    @GetMapping("/{usernme}")
+    @GetMapping("/{username}")
     public ResponseEntity<?> getCourseByUserNameController(@PathVariable String username) {
         try {
             List<Course> all = courseService.getUserCourses(username);
