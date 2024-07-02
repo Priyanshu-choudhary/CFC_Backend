@@ -178,11 +178,10 @@ public class PostController {
         }
     }
 
-    @GetMapping("/Course/{courseName}")
-    public ResponseEntity<?> getPostsByCourse(@PathVariable String courseName) {
+    @GetMapping("/Course/{courseName}/username/{username}")
+    public ResponseEntity<?> getPostsByCourse(@PathVariable String courseName ,@PathVariable String username)   {
         try {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            String username = auth.getName();
+
             logger.info("Fetching posts for course '{}' for user: {}", courseName, username);
 
             // Find the user

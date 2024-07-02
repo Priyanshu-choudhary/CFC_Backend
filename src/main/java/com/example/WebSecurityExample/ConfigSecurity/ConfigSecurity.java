@@ -24,7 +24,8 @@ public class ConfigSecurity {
                 .csrf().disable() // Disable CSRF protection
                 .authorizeHttpRequests(registery -> {
                     System.out.println("At this point security");
-                    registery.requestMatchers("/Posts/**","/users/**").authenticated();
+//                    registery.requestMatchers("/Posts/**","/users/**").authenticated();
+                    registery.requestMatchers("/users/**").authenticated();
                     registery.anyRequest().permitAll();
                 })
                 .formLogin(formlogin -> formlogin.permitAll())
