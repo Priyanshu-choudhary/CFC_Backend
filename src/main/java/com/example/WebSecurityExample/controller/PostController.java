@@ -278,7 +278,7 @@ public class PostController {
                 post.setCourse(course);
 
                 // Create the post
-                postService.createPostWithRefCourse(post, username);
+                postService.createPostWithRefCourse(post, user,username);
                 logger.info("Post ref to course created successfully for user: {}", username);
 
                 return new ResponseEntity<>(post, HttpStatus.CREATED);

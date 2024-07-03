@@ -79,9 +79,9 @@ public class PostService {
 
     @CacheEvict(value = "Posts", allEntries = true)
     @Transactional
-    public void createPostWithRefCourse(Posts post, String username) {
+    public void createPostWithRefCourse(Posts post, User user,String username) {
         try {
-            User user = userService.findByName(username);
+
             if (user == null) {
                 throw new RuntimeException("(Ref course)User not found");
             }
