@@ -42,11 +42,10 @@ public class PostController {
     private CourseService courseService;
 
 
-    @GetMapping
-    public ResponseEntity<?> getAllPosts(@RequestHeader(value = "If-Modified-Since", required = false) String ifModifiedSince) {
+    @GetMapping("/username/{username}")
+    public ResponseEntity<?> getAllPosts(@PathVariable String username,@RequestHeader(value = "If-Modified-Since", required = false) String ifModifiedSince) {
         try {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            String username = auth.getName();
+
 //            User users = userService.findByName(username);
             logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^findByName^^^^^^^^^^^^^^^^^^^");
             List<Posts> all = userService.getUserPosts(username);
