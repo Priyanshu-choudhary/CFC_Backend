@@ -62,7 +62,10 @@ public class PostService {
         return new Date(0); // Return a default date if user or posts not found
     }
 
-    @CacheEvict(value = "Posts", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "Posts", allEntries = true),
+            @CacheEvict(value = "users", allEntries = true)
+    })
     @Transactional
     public void createPost(Posts posts,String inputuser,User myuser) {
         try{
@@ -107,7 +110,10 @@ public class PostService {
     }
 
 
-    @CacheEvict(value = "Posts", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "Posts", allEntries = true),
+            @CacheEvict(value = "users", allEntries = true)
+    })
     @Transactional
     public void deleteUserById(String id, String name) {
       try {
@@ -124,7 +130,10 @@ public class PostService {
       }
 
     }
-    @CacheEvict(value = "Posts", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "Posts", allEntries = true),
+            @CacheEvict(value = "users", allEntries = true)
+    })
     @Transactional
     public Posts updatePost(String id, Posts newPost, String username) {
         try {
