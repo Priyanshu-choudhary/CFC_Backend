@@ -47,7 +47,7 @@ public class UserService {
         return userOpt;
     }
 
-//    @CacheEvict(value = "users", allEntries = true)
+    @CacheEvict(value = "users", allEntries = true)
     public User createNewUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 //        user.setRoles(Arrays.asList("USER"));
@@ -64,7 +64,7 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    @Cacheable("users")
+//    @Cacheable("users")
     public User findByName(String name){
         User user = userRepository.findByName(name);
         if (user != null) {
