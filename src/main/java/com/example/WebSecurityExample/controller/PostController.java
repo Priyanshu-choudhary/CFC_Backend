@@ -243,7 +243,7 @@ public class PostController {
             // Set the lastModified field to the current date and time
             post.setLastModified(new Date());
             userService.setLastdate(username);
-            postService.createPost(post, username);
+            postService.createPost(post, username,user);
             logger.info("Post created successfully for user: {}", username);
             return new ResponseEntity<>(post, HttpStatus.CREATED);
         } catch (Exception e) {

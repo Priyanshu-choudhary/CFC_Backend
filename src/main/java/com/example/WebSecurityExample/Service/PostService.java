@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,9 +64,8 @@ public class PostService {
 
     @CacheEvict(value = "Posts", allEntries = true)
     @Transactional
-    public void createPost(Posts posts,String inputuser) {
+    public void createPost(Posts posts,String inputuser,User myuser) {
         try{
-            User myuser = userService.findByName(inputuser);//get user
 
             Posts saved= postRepo.save(posts);//saved in posts DB
             myuser.getPosts().add(saved);
@@ -77,7 +77,10 @@ public class PostService {
         }
     }
 
-    @CacheEvict(value = "Posts", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "Posts", allEntries = true),
+            @CacheEvict(value = "users", allEntries = true)
+    })
     @Transactional
     public void createPostWithRefCourse(Posts post, User user,String username) {
         try {
