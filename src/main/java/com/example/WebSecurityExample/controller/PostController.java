@@ -221,11 +221,10 @@ public class PostController {
     }
 
 
-    @PostMapping
-    public ResponseEntity<Posts> createPost(@RequestBody Posts post) {
+    @PostMapping("/username/{username}")
+    public ResponseEntity<Posts> createPost(@PathVariable String username,@RequestBody Posts post) {
         try {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            String username = auth.getName();
+
             logger.info("Creating new post for user: {}", username);
 
             User user = userService.findByName(username);
