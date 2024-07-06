@@ -147,6 +147,10 @@ public class CourseService {
                         existingCourse.setDescription(newCourse.getDescription());
 
                     }
+                    if (newCourse.getLanguage() != null) {
+                        existingCourse.setLanguage(newCourse.getLanguage());
+
+                    }
 
 
                     int newUniqueQuestions = 0;

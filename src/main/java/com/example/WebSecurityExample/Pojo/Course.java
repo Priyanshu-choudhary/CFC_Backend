@@ -34,6 +34,7 @@ public class Course {
     private String image;
     private String type;
     private String permission;
+    private List<String> language=new ArrayList<>();
 
 
 
