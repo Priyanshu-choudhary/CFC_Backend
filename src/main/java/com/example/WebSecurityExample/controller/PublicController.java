@@ -37,13 +37,8 @@ public class PublicController {
     public String sayHello(){
         return "Ok!";
     }
-    @GetMapping("HealthCheck2")
-    public String sayHello2(){
-        return "Ok-automated!";
-    }
 
-
-    @GetMapping("getUser")
+    @GetMapping("getAllUser")
     public List getAllUsersbyUserName() {
         return  userService.getAllUsers();
     }

@@ -48,7 +48,7 @@ public class PostController {
 
 //            User users = userService.findByName(username);
             logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^findByName^^^^^^^^^^^^^^^^^^^");
-            List<Posts> all = userService.getUserPosts(username);
+            List<Posts> all = userService.findByName(username).getPosts();
             return new ResponseEntity<>(all, HttpStatus.OK);
 
         }catch (Exception e){
@@ -227,6 +227,7 @@ public class PostController {
             logger.info("Creating new post for user: {}", username);
 
             User user = userService.findByName(username);
+            logger.info(" user: {}", user);
             List<Posts> allPosts = user.getPosts();
 
             if (allPosts != null) {

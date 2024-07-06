@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,12 +36,8 @@ public class UserService {
         return users;
     }
 
-    @Cacheable(value = "userPostsCache", key = "#username")
-    public List<Posts> getUserPosts(String username) {
-        User users = findByName(username);
-        return users.getPosts();
-    }
-//    @CacheEvict(value = "users", allEntries = true)
+
+
     public Optional<User> getUserById(String id) {
         Optional<User> userOpt = userRepository.findById(id);
         userOpt.ifPresent(user -> user.setPostCount(user.getPosts().size()));
@@ -64,9 +61,9 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    @Cacheable("users")
-    public User findByName(String name){
-        User user = userRepository.findByName(name);
+    @CachePut(value = "users", key = "#username")
+    public User findByName(String username){
+        User user = userRepository.findByName(username);
         if (user != null) {
             user.setPostCount(user.getPosts().size());
         }
@@ -85,13 +82,11 @@ public class UserService {
     }
 
 
-    public void deleteByName(String name) {
-        userRepository.deleteByName(name);
-    }
 
-    public void updateUser(User user) {
-        userRepository.save(user);
-    }
+
+//    public void updateUser(User user) {
+//        userRepository.save(user);
+//    }
      // New method to check if a user exists by username
      public boolean existsByName(String username) {
         return userRepository.findByName(username) != null;

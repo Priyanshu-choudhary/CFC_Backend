@@ -35,6 +35,7 @@ public class User {
     private String year;
     private String skills;
     private String badges;
+    private String profileImg;
     private Integer rating;
     private String city;
     private Date lastModifiedUser;

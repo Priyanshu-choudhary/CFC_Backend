@@ -30,19 +30,19 @@ public class userController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
-    }
 
 
     @GetMapping("getUser")
-    public User getAllUsersbyUserName() {
+    public ResponseEntity<User> getOneUsersbyUserName() {
         Authentication auth= SecurityContextHolder.getContext().getAuthentication();
         String username= auth.getName();
-        return  userService.findByName(username);
+        try {
+            User user = userService.findByName(username);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        }catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
     }
-
 
 
     @PostMapping("/login")
@@ -80,13 +80,6 @@ public class userController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping
-    public ResponseEntity<?> deleteUserById() {
-        Authentication auth= SecurityContextHolder.getContext().getAuthentication();
-        userService.deleteByName(auth.getName());
-
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
 
 
 }
