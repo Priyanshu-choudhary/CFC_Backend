@@ -1,13 +1,12 @@
 package com.example.WebSecurityExample.Pojo;
 
+import com.example.WebSecurityExample.Pojo.Posts.Posts;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 import java.util.ArrayList;
@@ -35,8 +34,6 @@ public class Course {
     private String type;
     private String permission;
     private List<String> language=new ArrayList<>();
-
-
 
 
     @DBRef

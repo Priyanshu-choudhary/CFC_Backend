@@ -1,6 +1,5 @@
 package com.example.WebSecurityExample.controller;
 
-import com.example.WebSecurityExample.Pojo.Posts;
 import com.example.WebSecurityExample.Pojo.User;
 import com.example.WebSecurityExample.Service.CourseService;
 import com.example.WebSecurityExample.Service.PostService;
@@ -10,13 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -49,7 +44,7 @@ public class PublicController {
     }
 
 
-    @CrossOrigin(origins = {"https://code-for-challenge.vercel.app", "http://localhost:5173"})
+    @CrossOrigin(origins = {"https://www.codeforchallenge.online", "http://localhost:5173"})
     @PostMapping("/Create-User")
     public ResponseEntity<User> createUser(@RequestBody User user) {
         try {

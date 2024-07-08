@@ -1,7 +1,6 @@
 package com.example.WebSecurityExample.Service;
 
 import com.example.WebSecurityExample.MongoRepo.UserRepo;
-import com.example.WebSecurityExample.Pojo.Posts;
 import com.example.WebSecurityExample.Pojo.User;
 import com.example.WebSecurityExample.controller.PostController;
 import org.slf4j.Logger;
@@ -14,7 +13,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;

@@ -1,7 +1,7 @@
 package com.example.WebSecurityExample.controller;
 
 import com.example.WebSecurityExample.Pojo.Course;
-import com.example.WebSecurityExample.Pojo.Posts;
+import com.example.WebSecurityExample.Pojo.Posts.Posts;
 import com.example.WebSecurityExample.Pojo.User;
 import com.example.WebSecurityExample.Service.CourseService;
 import com.example.WebSecurityExample.Service.PostService;
@@ -20,15 +20,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @RestController
 @RequestMapping("/Posts")
-@CrossOrigin(origins = {"https://code-for-challeng-fuodp780u.vercel.app", "http://localhost:5173"})
+//@CrossOrigin(origins = {"https://www.codeforchallenge.online", "http://localhost:5173"})
 public class PostController {
     private static final Logger logger = LoggerFactory.getLogger(PostController.class);
 
@@ -192,14 +188,20 @@ public class PostController {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
 
-            // Find the course by name for this user
-            Optional<Course> courseOpt = user.getCourses().stream()
-                    .filter(c -> c.getTitle().equalsIgnoreCase(courseName))
-                    .findFirst();
+
+                // Find the course by name for this user
+                Optional<Course> courseOpt = user.getCourses().stream()
+                        .filter(c -> c.getTitle().equalsIgnoreCase(courseName))
+                        .findFirst();
+
+
 
             if (courseOpt.isPresent()) {
+                logger.info("course is not empty ");
                 Course course = courseOpt.get();
+                logger.info("course: {}", course);
                 List<Posts> posts = course.getPosts();
+                logger.info("posts: {}", posts);
 
                 if (posts == null || posts.isEmpty()) {
                     logger.info("No posts found for course: {}", courseName);
@@ -314,11 +316,11 @@ public class PostController {
         }
     }
 
-    @PutMapping("/id/{myId}")
-    public ResponseEntity<?> updatePostById(@PathVariable String myId, @RequestBody Posts newPost) {
+    @PutMapping("/username/{username}/id/{myId}")
+    public ResponseEntity<?> updatePostById(@PathVariable String myId,@PathVariable String username ,@RequestBody Posts newPost) {
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();
+//            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//            String username = authentication.getName();
             logger.info("Updating post with ID: {} for user: {}", myId, username);
 
             Posts updatedPost = postService.updatePost(myId, newPost, username);

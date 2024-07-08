@@ -1,5 +1,6 @@
 package com.example.WebSecurityExample.Pojo;
 
+import com.example.WebSecurityExample.Pojo.Posts.Posts;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.example.WebSecurityExample.Pojo;
+package com.example.WebSecurityExample.Pojo.Posts;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
@@ -8,9 +8,11 @@ import lombok.NonNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import com.example.WebSecurityExample.Pojo.Posts.HelperCode;
+import com.example.WebSecurityExample.Pojo.Course;
 
 import java.util.*;
-import java.util.List;
+
 @Data
 @Document(collection = "Posts")
 @NoArgsConstructor
@@ -27,13 +29,12 @@ public class Posts {
     private String description;
     private String Example;
     private String difficulty;
-    private String solution;
-    private String templateCode;
+    private Map<String, SolutionCode> solution;
+
     private String answer;
     private String constrain;
     private String timecomplixity;
     private String avgtime;
-    private String boilerCode;
     private Date lastModified;
     private String type;
     private String optionA;
@@ -45,10 +46,10 @@ public class Posts {
     @JsonIgnore
     @DBRef
     private Course course;
-//    private List<Course> course=new ArrayList<>();
 
     private List<String> tags;
 
-    private Map<String,String> testcase;
+    private Map<String, String> testcase;
 
+    private Map<String, HelperCode> codeTemplates;
 }
