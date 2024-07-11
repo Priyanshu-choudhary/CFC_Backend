@@ -31,7 +31,7 @@ public class Posts {
     private String difficulty;
     private Map<String, SolutionCode> solution;
 
-    private String answer;
+    private List<String> answer;
     private String constrain;
     private String timecomplixity;
     private String avgtime;
