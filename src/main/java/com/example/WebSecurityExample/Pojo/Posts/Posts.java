@@ -42,6 +42,7 @@ public class Posts {
     private String optionC;
     private String optionD;
     private String videoUrl;
+    private String sequence;
 
     @JsonIgnore
     @DBRef

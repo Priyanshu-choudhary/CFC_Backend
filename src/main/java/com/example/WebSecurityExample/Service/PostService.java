@@ -161,6 +161,7 @@ public class PostService {
                     existingPost.setOptionC(newPost.getOptionC() != null && !newPost.getOptionC().isEmpty() ? newPost.getOptionC() : existingPost.getOptionC());
                     existingPost.setOptionD(newPost.getOptionD() != null && !newPost.getOptionD().isEmpty() ? newPost.getOptionD() : existingPost.getOptionD());
                     existingPost.setVideoUrl(newPost.getVideoUrl() != null && !newPost.getVideoUrl().isEmpty() ? newPost.getVideoUrl() : existingPost.getVideoUrl());
+                    existingPost.setSequence(newPost.getSequence() != null && !newPost.getSequence().isEmpty() ? newPost.getSequence() : existingPost.getSequence());
 
                     // Update codeTemplates
                     if (newPost.getCodeTemplates() != null) {

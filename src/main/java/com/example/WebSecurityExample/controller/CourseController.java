@@ -71,8 +71,9 @@ public class CourseController {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
+            logger.error("creating course for username {}", username);
             String id = courseService.createCourse(course, username);
-
+            logger.error(" course id {}", id);
             // Wrap the ID in a JSON object
             Map<String, String> response = new HashMap<>();
             response.put("courseId", id);
