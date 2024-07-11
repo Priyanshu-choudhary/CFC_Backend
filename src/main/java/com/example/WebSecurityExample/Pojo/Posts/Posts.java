@@ -29,8 +29,8 @@ public class Posts {
     private String description;
     private String Example;
     private String difficulty;
-    private Map<String, SolutionCode> solution;
-    private List<String> answer;
+    private Map<String, SolutionCode> solution=new HashMap<>();;
+    private List<String> answer = new ArrayList<>();
     private String constrain;
     private String timecomplixity;
     private String avgtime;
@@ -48,9 +48,9 @@ public class Posts {
     @DBRef
     private Course course;
 
-    private List<String> tags;
+    private List<String> tags=new ArrayList<>();
 
-    private Map<String, String> testcase;
+    private Map<String, String> testcase = new HashMap<>();
 
-    private Map<String, HelperCode> codeTemplates;
+    private Map<String, HelperCode> codeTemplates = new HashMap<>();
 }
