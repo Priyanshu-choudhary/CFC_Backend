@@ -30,7 +30,6 @@ public class Posts {
     private String Example;
     private String difficulty;
     private Map<String, SolutionCode> solution;
-
     private List<String> answer;
     private String constrain;
     private String timecomplixity;
@@ -43,6 +42,7 @@ public class Posts {
     private String optionD;
     private String videoUrl;
     private String sequence;
+    private String input;
 
     @JsonIgnore
     @DBRef
