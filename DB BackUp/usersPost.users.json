@@ -1,0 +1,325 @@
+[{
+  "_id": {
+    "$oid": "668b968c4de8d35ac6a12ea0"
+  },
+  "name": "ProblemSet",
+  "password": "$2a$10$oI93ciTc.kYyY8a45qVn9uTFZ/pfAf5eMbkrHIzsHbVaEC9EQ9Oli",
+  "postCount": 0,
+  "roles": [
+    "ADMIN"
+  ],
+  "posts": [],
+  "courses": [],
+  "_class": "com.example.WebSecurityExample.Pojo.User"
+},
+{
+  "_id": {
+    "$oid": "668b9725b9a7ca18d5ccbfc0"
+  },
+  "name": "Yadi Choudhary",
+  "password": "$2a$10$dRQkn5qVmTW1FgvQx8hHquXDd0g3jUVQaS9PrbIKFR3jMI8KEdzv.",
+  "profileImg": "https://lh3.googleusercontent.com/a/ACg8ocKpldvTISPoVO2fKIpfC4cIa9FPXK0GnWKNOeRzK9J5yBL5IA0IqQ=s96-c",
+  "rating": 10,
+  "lastModifiedUser": {
+    "$date": "2024-07-08T07:48:02.048Z"
+  },
+  "postCount": 0,
+  "roles": [
+    "ADMIN"
+  ],
+  "posts": [],
+  "courses": [
+    {
+      "$ref": "Course",
+      "$id": {
+        "$oid": "668feecb984faf7537de292f"
+      }
+    }
+  ],
+  "_class": "com.example.WebSecurityExample.Pojo.User"
+},
+{
+  "_id": {
+    "$oid": "668b99f706e6f4200b3221c2"
+  },
+  "name": "OfficialCources",
+  "password": "$2a$10$PYZtpAuCNOXLLgSVwtT1VujiEUIA6bTVSznin/GfBWD0lEROBafHa",
+  "lastModifiedUser": {
+    "$date": "2024-07-12T08:50:41.464Z"
+  },
+  "postCount": 26,
+  "roles": [
+    "ADMIN"
+  ],
+  "posts": [
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "668fb42214410064acf5fed7"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "668fe1aab8ec0d6f02e0793a"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "668fe1e0b8ec0d6f02e0793b"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "668fe7ecb8ec0d6f02e0793c"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "668fede6984faf7537de292e"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "6690ddaa984faf7537de2932"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "6690de7a984faf7537de2933"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "6690df75984faf7537de2935"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "6690df7e984faf7537de2936"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "6690e02b984faf7537de2937"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "6690e0aa984faf7537de2938"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "6690e0bb984faf7537de2939"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "6690e1c4984faf7537de293a"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "6690e2f5984faf7537de293b"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "6690e32e984faf7537de293c"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "6690e3ce984faf7537de293d"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "6690e461984faf7537de293e"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "6690e57b984faf7537de293f"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "6690e635984faf7537de2940"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "6690e7b8984faf7537de2941"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "6690e8b9984faf7537de2942"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "6690e96e984faf7537de2943"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "6690e9ba984faf7537de2944"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "6690eb21984faf7537de2945"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "6690ec1e984faf7537de2946"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "6690ec4f984faf7537de2947"
+      }
+    },
+    {
+      "$ref": "Posts",
+      "$id": {
+        "$oid": "6690f1bb984faf7537de294a"
+      }
+    }
+  ],
+  "courses": [
+    {
+      "$ref": "Course",
+      "$id": {
+        "$oid": "668d93358c8e8d37e2fa5332"
+      }
+    }
+  ],
+  "_class": "com.example.WebSecurityExample.Pojo.User"
+},
+{
+  "_id": {
+    "$oid": "668bc41e8c8e8d37e2fa5328"
+  },
+  "name": "Kaal X",
+  "password": "$2a$10$3ebpNZ/I1xiOSeoRoi42welQzwHiA1gdfr/m0/X7v7jOgZVDW4zla",
+  "email": "kaalx0000@gmail.com",
+  "profileImg": "https://lh3.googleusercontent.com/a/ACg8ocJbjTNo4hQHxLjdxfl8XENc8v5yPvmv6MTse6Ro4TmIspkK2A=s96-c",
+  "postCount": 0,
+  "roles": [
+    "USER"
+  ],
+  "posts": [],
+  "courses": [],
+  "_class": "com.example.WebSecurityExample.Pojo.User"
+},
+{
+  "_id": {
+    "$oid": "668bc6728c8e8d37e2fa5329"
+  },
+  "name": "CodeForChallenge",
+  "password": "$2a$10$TbRk8s/Jo.TR10EdTO.6xeEv/4aGQPW4UmOfq5mq4T6G5TvA5lDQ6",
+  "email": "codeforchallenge@gmail.com",
+  "profileImg": "https://lh3.googleusercontent.com/a/ACg8ocLLN0OKVgjOhMpTgxA5Ec_qeFpTkZ_WJBnBr5A2kPHsQmM1Ig=s96-c",
+  "postCount": 0,
+  "roles": [
+    "USER"
+  ],
+  "posts": [],
+  "courses": [],
+  "_class": "com.example.WebSecurityExample.Pojo.User"
+},
+{
+  "_id": {
+    "$oid": "668cba518c8e8d37e2fa532f"
+  },
+  "name": "Hemchandra Jha",
+  "password": "$2a$10$NuYUz6E3BfaEuuEkPwd7lOpw91DTE/DicXDAMh4Qs0IyiZ9Gi07wO",
+  "profileImg": "https://lh3.googleusercontent.com/a/ACg8ocLHbgmhbdGNiADRX69nLItHTMrHZWtOdna9g6rgFxQgzcM5dhs=s96-c",
+  "rating": 30,
+  "lastModifiedUser": {
+    "$date": "2024-07-09T07:40:44.467Z"
+  },
+  "postCount": 0,
+  "roles": [
+    "ADMIN"
+  ],
+  "posts": [],
+  "courses": [
+    {
+      "$ref": "Course",
+      "$id": {
+        "$oid": "6690264d984faf7537de2930"
+      }
+    }
+  ],
+  "_class": "com.example.WebSecurityExample.Pojo.User"
+},
+{
+  "_id": {
+    "$oid": "668fdbc8b8ec0d6f02e07939"
+  },
+  "name": "PRINCE GUPTA",
+  "password": "$2a$10$9S9oJ4caSL8Nieeu7JS.nurcKdd6aZmOZWL96aawHh5wAU7uitTgu",
+  "email": "princegupta0132004@gmail.com",
+  "profileImg": "https://lh3.googleusercontent.com/a/ACg8ocICf0voIh4SGFHDwHOiRazo_2SRTzK5P41H9HKUd3kmv3gsN3Jl=s96-c",
+  "rating": 10,
+  "postCount": 0,
+  "roles": [
+    "ADMIN"
+  ],
+  "posts": [],
+  "courses": [
+    {
+      "$ref": "Course",
+      "$id": {
+        "$oid": "6690dea6984faf7537de2934"
+      }
+    }
+  ],
+  "_class": "com.example.WebSecurityExample.Pojo.User"
+},
+{
+  "_id": {
+    "$oid": "6690d5c4984faf7537de2931"
+  },
+  "name": "Harendra Singh",
+  "password": "$2a$10$EXnk.M.z39jW9pyCjtOeWeGr0BHHM11ng/rpk.3Zg4EYt7qInp/Iq",
+  "email": "harendrasingh100000@gmail.com",
+  "profileImg": "https://lh3.googleusercontent.com/a/ACg8ocICnHLIT0aTycPmmuIGFZTOzZsqDHtf9Dg1B4K1xFAN8FnEE-sD=s96-c",
+  "postCount": 0,
+  "roles": [
+    "USER"
+  ],
+  "posts": [],
+  "courses": [],
+  "_class": "com.example.WebSecurityExample.Pojo.User"
+}]
