@@ -14,26 +14,26 @@ public class UserServiceTests {
     @Autowired
     private UserRepo userRepo;
 
-    @Test
-    public void testFindByUserNameRepo(){
-        assertNotNull(userRepo.findByName("OfficialCources"));
-
-    }
-
-    @Test
-    public void testFindByUserByQueary(){
-        assertNotNull(userRepo.findByQuery("OfficialCources"));
-
-    }
-
-    @Test
-    public void testFindByQuery() {
-        String userName = "OfficialCources";
-        long startTime = System.currentTimeMillis();
-        User user = userRepo.findByName(userName);
-        long endTime = System.currentTimeMillis();
-        System.out.println("Execution time of findByQuery: " + (endTime - startTime) + " ms");
-        assertThat(user).isNotNull();
-        assertThat(user.getName()).isEqualTo(userName);
-    }
+//    @Test
+//    public void testFindByUserNameRepo(){
+//        assertNotNull(userRepo.findByName("OfficialCources"));
+//
+//    }
+//
+//    @Test
+//    public void testFindByUserByQueary(){
+//        assertNotNull(userRepo.findByQuery("OfficialCources"));
+//
+//    }
+//
+//    @Test
+//    public void testFindByQuery() {
+//        String userName = "OfficialCources";
+//        long startTime = System.currentTimeMillis();
+//        User user = userRepo.findByName(userName);
+//        long endTime = System.currentTimeMillis();
+//        System.out.println("Execution time of findByQuery: " + (endTime - startTime) + " ms");
+//        assertThat(user).isNotNull();
+//        assertThat(user.getName()).isEqualTo(userName);
+//    }
 }

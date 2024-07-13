@@ -84,7 +84,7 @@ public class PostService {
             @CacheEvict(value = "Posts", allEntries = true),
             @CacheEvict(value = "users", allEntries = true)
     })
-    @Transactional
+//    @Transactional
     public void createPostWithRefCourse(Posts post, User user,String username) {
         try {
 
@@ -114,7 +114,7 @@ public class PostService {
             @CacheEvict(value = "Posts", allEntries = true),
             @CacheEvict(value = "users", allEntries = true)
     })
-    @Transactional
+//    @Transactional
     public void deleteUserById(String id, String name) {
         try {
             User myuser = userService.findByName(name);
@@ -136,7 +136,7 @@ public class PostService {
     })
 
 
-    @Transactional
+//    @Transactional
     public Posts updatePost(String id, Posts newPost, String username) {
         try {
             User user = userService.findByName(username);

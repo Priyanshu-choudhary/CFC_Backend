@@ -59,7 +59,7 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-//    @CachePut(value = "users", key = "#username")
+    @CachePut(value = "users", key = "#username")
     public User findByName(String username){
         logger.info("user service findByName {}",username);
         User user = userRepository.findByName(username);

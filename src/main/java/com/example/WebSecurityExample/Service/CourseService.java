@@ -51,7 +51,7 @@ public class CourseService {
     }
 
     @CacheEvict(value = "userCoursesCache", allEntries = true)
-    @Transactional
+//    @Transactional
     public String createCourse(Course course, String inputUser) {
         try {
             // Fetch the user
@@ -90,7 +90,7 @@ public class CourseService {
         return courseRepo.findByTitle(courseTitle);
     }
     @CacheEvict(value = "userCoursesCache", allEntries = true)
-    @Transactional
+//    @Transactional
     public boolean deleteUserById(String id, String name) {
         try {
             User myuser = userService.findByName(name);
@@ -109,7 +109,7 @@ public class CourseService {
     }
 
     @CacheEvict(value = "userCoursesCache", allEntries = true)
-    @Transactional
+//    @Transactional
     public Course updateCourse(String id, Course newCourse, String username) {
         try {
             logger.info("Updating course with ID {} for user {}", id, username);
