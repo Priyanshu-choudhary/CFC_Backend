@@ -50,6 +50,9 @@ public class User {
     @DBRef
     private List<Course> courses = new ArrayList<>();
 
+    @DBRef
+    private List<Contest> contests = new ArrayList<>();
+
     // Add a parameterized constructor
     @JsonCreator
     public User(
