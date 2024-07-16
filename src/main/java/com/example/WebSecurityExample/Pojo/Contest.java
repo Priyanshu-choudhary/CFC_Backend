@@ -30,7 +30,7 @@ public class Contest {
     private String bannerImage;
     private String logo;
     private String type;
-//    private List<User> user =new ArrayList<>();
+    private List<String> registeredUser =new ArrayList<>();
     private List<String> team =new ArrayList<>();
     private String fee ;
     private List<String> eligibility =new ArrayList<>();
@@ -40,6 +40,7 @@ public class Contest {
     private List<String> faqAnswer =new ArrayList<>();
     private List<String> rules =new ArrayList<>();
     private List<String> winners =new ArrayList<>();
+
 
 
     @DBRef
