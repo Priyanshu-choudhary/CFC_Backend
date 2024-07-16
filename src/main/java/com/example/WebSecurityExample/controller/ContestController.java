@@ -4,6 +4,8 @@ import com.example.WebSecurityExample.MongoRepo.ContestRepo;
 import com.example.WebSecurityExample.MongoRepo.CourseRepo;
 import com.example.WebSecurityExample.Pojo.Contest;
 import com.example.WebSecurityExample.Pojo.Course;
+import com.example.WebSecurityExample.Pojo.Posts.Posts;
+import com.example.WebSecurityExample.Pojo.User;
 import com.example.WebSecurityExample.Service.ContestService;
 import com.example.WebSecurityExample.Service.CourseService;
 import com.example.WebSecurityExample.Service.PostService;
@@ -17,10 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/Contest")
@@ -105,6 +104,50 @@ public class ContestController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+    @PostMapping("/{contestName}/username/{username}")
+    public ResponseEntity<?> createPostRefCourse(@PathVariable String username,@PathVariable String contestName, @RequestBody Posts post) {
+        try {
+
+            logger.info("Creating new post ref to contest for user: {}", username);
+
+            // Fetch the user
+            User user = userService.findByName(username);
+            logger.info("user.getContests {}", user.getContests());
+            // Find the course by name for this user
+            Optional<Contest> contestOpt = user.getContests().stream()
+
+                    .filter(c -> c.getNameOfContest().equals(contestName))
+                    .findFirst();
+
+            if (contestOpt.isPresent()) {
+
+                Contest contest = contestOpt.get();
+
+                // Set the lastModified field to the current date and time
+                post.setLastModified(new Date());
+
+                // Reference the course in the post
+                post.setContest(contest);
+
+                // Create the post
+                postService.createPostWithRefContest(post, user,username);
+
+                logger.info("Post ref to course created successfully for user: {}", username);
+
+                return new ResponseEntity<>(post, HttpStatus.CREATED);
+            } else {
+                logger.error("constest not found: {}", contestName);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+        } catch (Exception e) {
+            logger.error("Error creating post ref to contest", e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
 
     @DeleteMapping("/id/{id}")
     public ResponseEntity<Map<String, String>> deleteContestById(@PathVariable String id) {

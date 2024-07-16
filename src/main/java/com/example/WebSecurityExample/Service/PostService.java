@@ -1,7 +1,9 @@
 package com.example.WebSecurityExample.Service;
+import com.example.WebSecurityExample.MongoRepo.ContestRepo;
 import com.example.WebSecurityExample.MongoRepo.CourseRepo;
 import com.example.WebSecurityExample.MongoRepo.PostRepo;
 import com.example.WebSecurityExample.MongoRepo.UserRepo;
+import com.example.WebSecurityExample.Pojo.Contest;
 import com.example.WebSecurityExample.Pojo.Course;
 import com.example.WebSecurityExample.Pojo.Posts.Posts;
 import com.example.WebSecurityExample.Pojo.User;
@@ -36,6 +38,8 @@ public class PostService {
     private UserRepo userRepo;
     @Autowired
     private CourseRepo courseRepo;
+    @Autowired
+    private ContestRepo contestRepo;
 
     @Cacheable("Posts")
     public List<Posts> getAllPosts() {
@@ -108,7 +112,29 @@ public class PostService {
             throw new RuntimeException("(Ref course)Error creating post", e);
         }
     }
+    public void createPostWithRefContest(Posts post, User user,String username) {
+        try {
 
+            if (user == null) {
+                throw new RuntimeException("(Ref contest)User not found");
+            }
+
+            postRepo.save(post);
+            user.getPosts().add(post);
+            userRepo.save(user);
+
+            Contest contest = post.getContest();
+            if (contest != null) {
+                contest.getPosts().add(post);
+                contestRepo.save(contest);
+            }
+
+            logger.info("(Ref constest)Post created successfully for user: {}", username);
+        } catch (Exception e) {
+            logger.error("(Ref constest)Error creating post for user: {}", username, e);
+            throw new RuntimeException("(Ref course)Error creating post", e);
+        }
+    }
 
     @Caching(evict = {
             @CacheEvict(value = "Posts", allEntries = true),

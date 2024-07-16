@@ -1,5 +1,6 @@
 package com.example.WebSecurityExample.Pojo.Posts;
 
+import com.example.WebSecurityExample.Pojo.Contest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -47,6 +48,10 @@ public class Posts {
     @JsonIgnore
     @DBRef
     private Course course;
+
+    @JsonIgnore
+    @DBRef
+    private Contest contest;
 
     private List<String> tags=new ArrayList<>();
 
