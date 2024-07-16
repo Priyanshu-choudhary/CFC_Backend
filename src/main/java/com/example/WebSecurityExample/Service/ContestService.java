@@ -153,6 +153,7 @@ public class ContestService {
                         existingContest.setFaq(newContest.getFaq() != null && !newContest.getFaq().isEmpty() ? newContest.getFaq() : existingContest.getFaq());
                         existingContest.setFaqAnswer(newContest.getFaqAnswer() != null && !newContest.getFaqAnswer().isEmpty() ? newContest.getFaqAnswer() : existingContest.getFaqAnswer());
                         existingContest.setWinners(newContest.getWinners() != null && !newContest.getWinners().isEmpty() ? newContest.getWinners() : existingContest.getWinners());
+                        existingContest.setRegisteredUser(newContest.getRegisteredUser() != null && !newContest.getRegisteredUser().isEmpty() ? newContest.getRegisteredUser() : existingContest.getRegisteredUser());
 
                         return contestRepo.save(existingContest);
                     } else {
