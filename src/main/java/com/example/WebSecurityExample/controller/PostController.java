@@ -1,5 +1,6 @@
 package com.example.WebSecurityExample.controller;
 
+import com.example.WebSecurityExample.Pojo.Contest;
 import com.example.WebSecurityExample.Pojo.Course;
 import com.example.WebSecurityExample.Pojo.Posts.Posts;
 import com.example.WebSecurityExample.Pojo.User;
@@ -221,6 +222,53 @@ public class PostController {
         }
     }
 
+    @GetMapping("/Contest/{contestName}/username/{username}")
+    public ResponseEntity<?> getPostsByContest(@PathVariable String contestName ,@PathVariable String username)   {
+        try {
+
+            logger.info("Fetching posts for course '{}' for user: {}", contestName, username);
+
+            // Find the user
+            logger.info("+++++++++++++++++++++++++Find by name +++++++++++++++++++++");
+            User user = userService.findByName(username);
+            logger.info("+++++++++++++++++++++++++Find by name +++++++++++++++++++++");
+            if (user == null) {
+                logger.error("User not found: {}", username);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+
+            // Find the course by name for this user
+            Optional<Contest> contestOpt = user.getContests().stream()
+                    .filter(c -> c.getNameOfContest().equalsIgnoreCase(contestName))
+                    .findFirst();
+
+
+
+            if (contestOpt.isPresent()) {
+                logger.info("course is not empty ");
+                Contest contest = contestOpt.get();
+                logger.info("course: {}", contest);
+                List<Posts> posts = contest.getPosts();
+                logger.info("posts: {}", posts);
+
+                if (posts == null || posts.isEmpty()) {
+                    logger.info("No posts found for course: {}", contestName);
+                    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                }
+
+                logger.info("Returning posts for course '{}' for user: {}", contestName, username);
+                return new ResponseEntity<>(posts, HttpStatus.OK);
+            } else {
+                logger.error("Course not found: {}", contestName);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+        } catch (Exception e) {
+            logger.error("Error fetching posts by course", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @PostMapping("/username/{username}")
     public ResponseEntity<Posts> createPost(@PathVariable String username,@RequestBody Posts post) {
