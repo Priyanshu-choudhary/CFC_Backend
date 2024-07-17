@@ -40,7 +40,8 @@ public class Contest {
     private List<String> faqAnswer =new ArrayList<>();
     private List<String> rules =new ArrayList<>();
     private List<String> winners =new ArrayList<>();
-
+    private List<String> language=new ArrayList<>();
+    private String timeDuration;
 
 
     @DBRef

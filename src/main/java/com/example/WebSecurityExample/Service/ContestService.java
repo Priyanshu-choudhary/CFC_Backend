@@ -154,6 +154,8 @@ public class ContestService {
                         existingContest.setFaqAnswer(newContest.getFaqAnswer() != null && !newContest.getFaqAnswer().isEmpty() ? newContest.getFaqAnswer() : existingContest.getFaqAnswer());
                         existingContest.setWinners(newContest.getWinners() != null && !newContest.getWinners().isEmpty() ? newContest.getWinners() : existingContest.getWinners());
                         existingContest.setRegisteredUser(newContest.getRegisteredUser() != null && !newContest.getRegisteredUser().isEmpty() ? newContest.getRegisteredUser() : existingContest.getRegisteredUser());
+                        existingContest.setLanguage(newContest.getLanguage() != null && !newContest.getLanguage().isEmpty() ? newContest.getLanguage() : existingContest.getLanguage());
+                        existingContest.setTimeDuration(newContest.getTimeDuration() != null && !newContest.getTimeDuration().isEmpty() ? newContest.getTimeDuration() : existingContest.getTimeDuration());
 
                         return contestRepo.save(existingContest);
                     } else {
