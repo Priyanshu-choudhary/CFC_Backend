@@ -53,6 +53,9 @@ public class User {
     @DBRef
     private List<Contest> contests = new ArrayList<>();
 
+    @DBRef
+    private List<UserContestDetails> userContestDetails = new ArrayList<>();
+
     // Add a parameterized constructor
     @JsonCreator
     public User(
