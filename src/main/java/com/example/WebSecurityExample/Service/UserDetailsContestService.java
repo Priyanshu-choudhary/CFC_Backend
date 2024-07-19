@@ -1,11 +1,11 @@
 package com.example.WebSecurityExample.Service;
 
 import com.example.WebSecurityExample.MongoRepo.*;
-import com.example.WebSecurityExample.Pojo.Contest;
 import com.example.WebSecurityExample.Pojo.Posts.Posts;
 import com.example.WebSecurityExample.Pojo.User;
 import com.example.WebSecurityExample.Pojo.UserContestDetails;
 import com.example.WebSecurityExample.controller.CourseController;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,7 +124,7 @@ public class UserDetailsContestService {
             }
 
             postRepo.save(post);
-            user.getPosts().add(post);
+//            user.getPosts().add(post);
             userRepo.save(user);
 
             UserContestDetails userContestDetails = post.getUserContestDetails();
@@ -140,7 +140,9 @@ public class UserDetailsContestService {
         }
     }
 
-
+    public List<Document> getUsersByContestName(String contestName) {
+        return userRepo.findUsersByContestName(contestName);
+    }
 //    public Contest updateContest(String id, Contest newContest, String username) {
 //        try {
 //            logger.info("Updating course with ID {} for user {}", id, username);

@@ -5,6 +5,7 @@ import com.example.WebSecurityExample.Pojo.UserContestDetails;
 import com.example.WebSecurityExample.Service.UserDetailsContestService;
 import com.example.WebSecurityExample.Service.PostService;
 import com.example.WebSecurityExample.Service.UserService;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +59,10 @@ public class UserContestDetailsController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    @GetMapping("/findby/{contestName}")
+    public List<Document> getUsersByContestName(@PathVariable String contestName) {
+        return userDetailsContestService.getUsersByContestName(contestName);
+    }
 
     @GetMapping("/id/{id}")
     public ResponseEntity<?> getContestDetailsById(@PathVariable String id) {

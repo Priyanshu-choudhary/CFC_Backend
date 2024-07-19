@@ -120,7 +120,7 @@ public class PostService {
             }
 
             postRepo.save(post);
-            user.getPosts().add(post);
+//            user.getPosts().add(post);
             userRepo.save(user);
 
             Contest contest = post.getContest();
