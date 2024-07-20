@@ -75,6 +75,7 @@ public class userController {
             userIndb.setNumber(updatedUser.getNumber());
             userIndb.setSkills(updatedUser.getSkills());
             userIndb.setRoles(updatedUser.getRoles());
+            userIndb.setProfileImg(updatedUser.getProfileImg());
             userIndb.setLastModifiedUser(new Date());
 
             // Save the updated user back to the database
