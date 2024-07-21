@@ -99,6 +99,8 @@ public class ContestService {
     public boolean deleteContestById(String id, String name) {
         try {
             User myuser = userService.findByName(name);
+            System.out.println(">>>>>>>>>>>user details "+myuser.getUserContestDetails());
+            logger.info("<<<<<<<<<<<user Details"+myuser.getContests());
             boolean b = myuser.getContests().removeIf(x -> x.getId().equals(id));
 //            boolean b = myuser.getCourses().removeIf(x -> x.getId().equals(id));
             if (b) {
