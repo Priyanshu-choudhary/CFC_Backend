@@ -34,6 +34,8 @@ public class UserContestDetails {
     private List<String> winners =new ArrayList<>();
     private List<String> language=new ArrayList<>();
     private String timeTaken;
+    private Date endTime;
+
 
 
     @DBRef

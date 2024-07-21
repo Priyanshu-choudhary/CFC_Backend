@@ -72,16 +72,16 @@ public class UserDetailsContestService {
 
             if (existingUserDetailsContestOpt.isPresent()) {
                 // Contest already exists, return the existing course ID
-                logger.info("Contest with the same title already exists for this user. Returning existing course ID.");
+                logger.info("User Details with the same title already exists for this user. Returning existing course ID.");
                 return existingUserDetailsContestOpt;
             } else {
-                // Associate the contest with the user
-                logger.info("Try to save contest ");
+                // Associate the User Details with the user
+                logger.info("Try to save User Details ");
                 UserContestDetails savedUserDetailsContest = userContestDetailRepo.save(details);
-                logger.info("Contest saving done ");
+                logger.info("User Details saving done ");
 
-                // Update user's contest list
-                logger.info("Update user's contest list ");
+                // Update user's User Details list
+                logger.info("Update user's User Details list ");
                 myUser.getUserContestDetails().add(savedUserDetailsContest);
                 logger.info("Done Update ");
 
@@ -93,8 +93,8 @@ public class UserDetailsContestService {
                 return saveDetails;
             }
         } catch (Exception e) {
-            logger.error("An error occurred while saving the entry of Contest", e);
-            throw new RuntimeException("An error occurred while saving the entry of Contest", e);
+            logger.error("An error occurred while saving the entry of User Details", e);
+            throw new RuntimeException("An error occurred while saving the entry of User Details", e);
         }
     }
 
@@ -145,67 +145,60 @@ public class UserDetailsContestService {
     public List<Document> getUsersByContestName(String contestName) {
         return userRepo.findUsersByContestName(contestName);
     }
-//    public Contest updateContest(String id, Contest newContest, String username) {
-//        try {
-//            logger.info("Updating course with ID {} for user {}", id, username);
-//
-//            // Fetch user from service
-//            User user = userService.findByName(username);
-//            logger.info("Fetched user {} for updating course", username);
-//
-//            // Find existing course
-//            Optional<Contest> existingContestOpt = contestRepo.findById(id);
-//            logger.info("Fetched course with ID {}", id);
-//
-//                // Check if course exists
-//                if (existingContestOpt.isPresent()) {
-//                    Contest existingContest = existingContestOpt.get();
-//                    logger.info("Found existing course with ID {}", id);
-//
-//                    // Check if user owns the course
-//                    if (user.getContests().contains(existingContest)) {
-//                        logger.debug("User {} owns course {}", username, existingContest.getId());
-//
-//
-//                        existingContest.setNameOfContest(newContest.getNameOfContest() != null && !newContest.getNameOfContest().isEmpty() ? newContest.getNameOfContest() : existingContest.getNameOfContest());
-//                        existingContest.setNameOfOrganization(newContest.getNameOfOrganization() != null && !newContest.getNameOfOrganization().isEmpty() ? newContest.getNameOfOrganization() : existingContest.getNameOfOrganization());
-//                        existingContest.setDate(newContest.getDate() != null ? newContest.getDate() : existingContest.getDate());
-//                        existingContest.setDescription(newContest.getDescription() != null && !newContest.getDescription().isEmpty() ? newContest.getDescription() : existingContest.getDescription());
-//                        existingContest.setBannerImage(newContest.getBannerImage() != null && !newContest.getBannerImage().isEmpty() ? newContest.getBannerImage() : existingContest.getBannerImage());
-//                        existingContest.setLogo(newContest.getLogo() != null && !newContest.getLogo().isEmpty() ? newContest.getLogo() : existingContest.getLogo());
-//                        existingContest.setType(newContest.getType() != null && !newContest.getType().isEmpty() ? newContest.getType() : existingContest.getType());
-//                        existingContest.setNameOfContest(newContest.getNameOfContest() != null && !newContest.getNameOfContest().isEmpty() ? newContest.getNameOfContest() : existingContest.getNameOfContest());
-//                        existingContest.setTeam(newContest.getTeam() != null && !newContest.getTeam().isEmpty() ? newContest.getTeam() : existingContest.getTeam());
-//                        existingContest.setFee(newContest.getFee() != null && !newContest.getFee().isEmpty() ? newContest.getFee() : existingContest.getFee());
-//                        existingContest.setEligibility(newContest.getEligibility() != null && !newContest.getEligibility().isEmpty() ? newContest.getEligibility() : existingContest.getEligibility());
-//                        existingContest.setRounds(newContest.getRounds() != null && !newContest.getRounds().isEmpty() ? newContest.getRounds() : existingContest.getRounds());
-//                        existingContest.setRules(newContest.getRules() != null && !newContest.getRules().isEmpty() ? newContest.getRules() : existingContest.getRules());
-//                        existingContest.setRewards(newContest.getRewards() != null && !newContest.getRewards().isEmpty() ? newContest.getRewards() : existingContest.getRewards());
-//                        existingContest.setFaq(newContest.getFaq() != null && !newContest.getFaq().isEmpty() ? newContest.getFaq() : existingContest.getFaq());
-//                        existingContest.setFaqAnswer(newContest.getFaqAnswer() != null && !newContest.getFaqAnswer().isEmpty() ? newContest.getFaqAnswer() : existingContest.getFaqAnswer());
-//                        existingContest.setWinners(newContest.getWinners() != null && !newContest.getWinners().isEmpty() ? newContest.getWinners() : existingContest.getWinners());
-//                        existingContest.setRegisteredUser(newContest.getRegisteredUser() != null && !newContest.getRegisteredUser().isEmpty() ? newContest.getRegisteredUser() : existingContest.getRegisteredUser());
-//                        existingContest.setLanguage(newContest.getLanguage() != null && !newContest.getLanguage().isEmpty() ? newContest.getLanguage() : existingContest.getLanguage());
-//                        existingContest.setTimeDuration(newContest.getTimeDuration() != null && !newContest.getTimeDuration().isEmpty() ? newContest.getTimeDuration() : existingContest.getTimeDuration());
-//
-//                        return contestRepo.save(existingContest);
-//                    } else {
-//                        logger.error("Contest update logic error ID {}", id);
-//                        throw new RuntimeException("Contest update logic error");
-//                    }
-//                }else {
-//                    logger.error("Contest does not update {}", id);
-//                    throw new RuntimeException("Contest does not update");
-//                }
-//        }catch(Exception e){
-//            logger.error("Error updating Contest with ID {}", id, e);
-//            throw new RuntimeException("An error occurred while updating the Contest", e);
-//        }
-//
-//
-//
-//
-//    }
+    
+    public UserContestDetails updateContestDetails(String id, UserContestDetails newDetails, String username) {
+        try {
+            logger.info("Updating course with ID {} for user {}", id, username);
+
+            // Fetch user from service
+            User user = userService.findByName(username);
+            logger.info("Fetched user {} for updating course", username);
+
+            // Find existing course
+            Optional<UserContestDetails> existingDetailsOpt = userContestDetailRepo.findById(id);
+            logger.info("Fetched course with ID {}", id);
+
+                // Check if course exists
+                if (existingDetailsOpt.isPresent()) {
+                    UserContestDetails existingDetails = existingDetailsOpt.get();
+                    logger.info("Found existing course with ID {}", id);
+
+                    // Check if user owns the course
+                    if (user.getUserContestDetails().contains(existingDetails)) {
+                        logger.debug("User {} owns course {}", username, existingDetails.getId());
+
+
+                        existingDetails.setNameOfContest(newDetails.getNameOfContest() != null && !newDetails.getNameOfContest().isEmpty() ? newDetails.getNameOfContest() : existingDetails.getNameOfContest());
+                        existingDetails.setNameOfOrganization(newDetails.getNameOfOrganization() != null && !newDetails.getNameOfOrganization().isEmpty() ? newDetails.getNameOfOrganization() : existingDetails.getNameOfOrganization());
+                        existingDetails.setDate(newDetails.getDate() != null ? newDetails.getDate() : existingDetails.getDate());
+                        existingDetails.setType(newDetails.getType() != null && !newDetails.getType().isEmpty() ? newDetails.getType() : existingDetails.getType());
+                        existingDetails.setNameOfContest(newDetails.getNameOfContest() != null && !newDetails.getNameOfContest().isEmpty() ? newDetails.getNameOfContest() : existingDetails.getNameOfContest());
+                        existingDetails.setTeam(newDetails.getTeam() != null && !newDetails.getTeam().isEmpty() ? newDetails.getTeam() : existingDetails.getTeam());
+                        existingDetails.setFee(newDetails.getFee() != null && !newDetails.getFee().isEmpty() ? newDetails.getFee() : existingDetails.getFee());
+                        existingDetails.setEndTime(newDetails.getEndTime() != null  ? newDetails.getEndTime() : existingDetails.getEndTime());
+                        existingDetails.setRounds(newDetails.getRounds() != null && !newDetails.getRounds().isEmpty() ? newDetails.getRounds() : existingDetails.getRounds());
+                        existingDetails.setRewards(newDetails.getRewards() != null && !newDetails.getRewards().isEmpty() ? newDetails.getRewards() : existingDetails.getRewards());
+                        existingDetails.setWinners(newDetails.getWinners() != null && !newDetails.getWinners().isEmpty() ? newDetails.getWinners() : existingDetails.getWinners());
+                        existingDetails.setLanguage(newDetails.getLanguage() != null && !newDetails.getLanguage().isEmpty() ? newDetails.getLanguage() : existingDetails.getLanguage());
+
+                        return userContestDetailRepo.save(existingDetails);
+                    } else {
+                        logger.error("User Details update logic error ID {}", id);
+                        throw new RuntimeException("User Details update logic error");
+                    }
+                }else {
+                    logger.error("User Details does not update {}", id);
+                    throw new RuntimeException("User Details does not update");
+                }
+        }catch(Exception e){
+            logger.error("Error updating User Details with ID {}", id, e);
+            throw new RuntimeException("An error occurred while updating the User Details", e);
+        }
+
+
+
+
+    }
 
 
 }

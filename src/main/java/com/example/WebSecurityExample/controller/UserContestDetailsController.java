@@ -169,19 +169,19 @@ public class UserContestDetailsController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-//    @PutMapping("/id/{myId}")
-//    public ResponseEntity<?> updateCourseById(@PathVariable String myId, @RequestBody Contest newContest) {
-//        try {
-//            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//            String username = authentication.getName();
-//            logger.error("Try to updating contest by ID");
-//            Contest updatedContest = userDetailsContestService.updateContest(myId, newContest, username);
-//            return new ResponseEntity<>(updatedContest, HttpStatus.OK);
-//        } catch (RuntimeException e) {
-//            logger.error("Error updating contest by ID", e);
-//            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-//        }
-//    }
+    @PutMapping("/id/{myId}")
+    public ResponseEntity<?> updateCourseById(@PathVariable String myId, @RequestBody UserContestDetails newContestDetails) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+            logger.error("Try to updating user details contest by ID");
+            UserContestDetails updatedContest = userDetailsContestService.updateContestDetails(myId, newContestDetails, username);
+            return new ResponseEntity<>(updatedContest, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            logger.error("Error updating user details contest by ID", e);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
 
 
 
