@@ -110,7 +110,7 @@ Logger logger = LoggerFactory.getLogger(this.getClass());
 
             // Print user contest details using logger
             if (myuser.getContests() != null) {
-                logger.info("User contest >>: {}", myuser.getContests());
+                logger.info("User contest >>: ");
             } else {
                 logger.warn("User contest are null");
             }
