@@ -109,10 +109,10 @@ Logger logger = LoggerFactory.getLogger(this.getClass());
             }
 
             // Print user contest details using logger
-            if (myuser.getUserContestDetails() != null) {
-                logger.info("User contest details: {}", myuser.getUserContestDetails());
+            if (myuser.getContests() != null) {
+                logger.info("User contest >>: {}", myuser.getContests());
             } else {
-                logger.warn("User contest details are null");
+                logger.warn("User contest are null");
             }
 
             // Check if contests is not null and remove the contest by id
