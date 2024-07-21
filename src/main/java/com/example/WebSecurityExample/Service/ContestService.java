@@ -114,17 +114,9 @@ Logger logger = LoggerFactory.getLogger(this.getClass());
             } else {
                 logger.warn("User contest are null");
             }
-contestRepo.deleteById(id);
+            contestRepo.deleteById(id);
             // Check if contests is not null and remove the contest by id
-            if (myuser.getContests() != null && !myuser.getContests().isEmpty()) {
-                boolean b = myuser.getContests().removeIf(x -> x.getId().equals(id));
-                if (b) {
-                    userService.createUser(myuser);
-                    return true;
-                }
-            } else {
-                logger.warn("User contests are null or empty");
-            }
+
 
         } catch (Exception e) {
             logger.error("Error deleting contest for user {}", name, e);
