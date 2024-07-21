@@ -149,10 +149,11 @@ public class UserContestDetailsController {
     public ResponseEntity<Map<String, String>> deleteContestById(@PathVariable String id) {
         Map<String, String> response = new HashMap<>();
         try {
-
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String username = auth.getName();
 
             // Assuming courseService.deleteUserById(id, username) returns a boolean indicating success
-            boolean deleted = userDetailsContestService.deleteUserContestDetailsById(id);
+            boolean deleted = userDetailsContestService.deleteUserContestDetailsById(id, username);
 
             if (deleted) {
                 response.put("message", "Contest deleted successfully");
