@@ -103,6 +103,7 @@ public class UserDetailsContestService {
     public boolean deleteUserContestDetailsById(String id) {
         try {
             User myuser = userService.findByName("Contest");
+            logger.info("contest details {}",myuser.getUserContestDetails());
             boolean b = myuser.getUserContestDetails().removeIf(x -> x.getId().equals(id));
             if (b) {
                 userService.createUser(myuser);
