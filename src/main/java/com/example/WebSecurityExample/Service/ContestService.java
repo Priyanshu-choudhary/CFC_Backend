@@ -22,8 +22,8 @@ import java.util.Optional;
 
 @Service
 public class ContestService {
-    private static final Logger logger = LoggerFactory.getLogger(CourseController.class);
-
+//    private static final Logger logger = LoggerFactory.getLogger(CourseController.class);
+Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private CourseRepo courseRepo;
     @Autowired
@@ -97,25 +97,41 @@ public class ContestService {
 
 
     public boolean deleteContestById(String id, String name) {
+        Logger logger = LoggerFactory.getLogger(this.getClass());
+
         try {
             User myuser = userService.findByName(name);
-            System.out.println(">>>>>>>>>>>user details "+myuser.getUserContestDetails());
-//            logger.info("<<<<<<<<<<<user Details"+myuser.getContests());
-            boolean b = myuser.getContests().removeIf(x -> x.getId().equals(id));
-//            boolean b = myuser.getCourses().removeIf(x -> x.getId().equals(id));
-            if (b) {
-                userService.createUser(myuser);
-               return b;
+
+            // Check if myuser or myuser.getContests() is null
+            if (myuser == null) {
+                logger.error("User not found with name {}", name);
+                return false;
             }
+
+            // Print user contest details using logger
+            if (myuser.getUserContestDetails() != null) {
+                logger.info("User contest details: {}", myuser.getUserContestDetails());
+            } else {
+                logger.warn("User contest details are null");
+            }
+
+            // Check if contests is not null and remove the contest by id
+            if (myuser.getContests() != null && !myuser.getContests().isEmpty()) {
+                boolean b = myuser.getContests().removeIf(x -> x.getId().equals(id));
+                if (b) {
+                    userService.createUser(myuser);
+                    return true;
+                }
+            } else {
+                logger.warn("User contests are null or empty");
+            }
+
         } catch (Exception e) {
-
-            System.out.println(e);
+            logger.error("Error deleting contest for user {}", name, e);
             return false;
-
         }
         return false;
     }
-
 
     public Contest updateContest(String id, Contest newContest, String username) {
         try {
