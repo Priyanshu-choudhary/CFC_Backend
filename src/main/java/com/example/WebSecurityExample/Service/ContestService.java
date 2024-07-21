@@ -107,7 +107,7 @@ Logger logger = LoggerFactory.getLogger(this.getClass());
                 logger.error("User not found with name {}", name);
                 return false;
             }
-            System.out.println(">>>>>>>>"+myuser.getContests().getFirst());
+//            System.out.println(">>>>>>>>"+myuser.getContests().getFirst());
             // Print user contest details using logger
             if (myuser.getContests() != null) {
                 logger.info("User contest >>: ");
