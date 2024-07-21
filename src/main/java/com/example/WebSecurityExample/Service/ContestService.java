@@ -97,7 +97,7 @@ Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     public boolean deleteContestById(String id, String name) {
-        Logger logger = LoggerFactory.getLogger(this.getClass());
+        Logger logger = LoggerFactory.getLogger(Contest.class);
 
         try {
             User myuser = userService.findByName(name);
