@@ -100,7 +100,7 @@ Logger logger = LoggerFactory.getLogger(this.getClass());
         Logger logger = LoggerFactory.getLogger(Contest.class);
 
         try {
-            User myuser = userService.findByName(name);
+            User myuser = userService.findByName("Contest");
 
             // Check if myuser or myuser.getContests() is null
             if (myuser == null) {
