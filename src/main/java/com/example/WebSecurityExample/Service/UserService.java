@@ -26,7 +26,7 @@ public class UserService {
 
     private static final PasswordEncoder passwordEncoder= new BCryptPasswordEncoder();
 
-    @Cacheable("users")
+//    @Cacheable("users")
     public List<User> getAllUsers() {
         List<User> users = userRepository.findAll();
         users.forEach(user -> user.setPostCount(user.getPosts().size()));
