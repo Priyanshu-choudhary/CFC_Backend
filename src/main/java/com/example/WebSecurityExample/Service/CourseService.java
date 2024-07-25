@@ -39,14 +39,14 @@ public class CourseService {
     @Cacheable(value = "userCoursesCache", key = "#username")
     public List<Course> getUserCourses(String username) {
         User users = userService.findByName(username);
-        logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^findByName^^^^^^^^^^^^^^^^^^^");
+//        logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^findByName^^^^^^^^^^^^^^^^^^^");
 
         return users.getCourses();
     }
 
     public Optional<Course> getUserCoursesByID(String ID) {
         Optional<Course> userOpt = courseRepo.findById(ID);
-        logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^findByName^^^^^^^^^^^^^^^^^^^");
+//        logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^findByName^^^^^^^^^^^^^^^^^^^");
         return userOpt;
     }
 
@@ -147,6 +147,10 @@ public class CourseService {
                     }
                     if (newCourse.getLanguage() != null) {
                         existingCourse.setLanguage(newCourse.getLanguage());
+
+                    }
+                    if (newCourse.getImage() != null) {
+                        existingCourse.setImage(newCourse.getImage());
 
                     }
 
