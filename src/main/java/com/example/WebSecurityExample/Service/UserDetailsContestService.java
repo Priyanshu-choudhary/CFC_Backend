@@ -6,7 +6,7 @@ import com.example.WebSecurityExample.Pojo.User;
 import com.example.WebSecurityExample.Pojo.UserContestDetails;
 import com.example.WebSecurityExample.controller.CourseController;
 import org.bson.Document;
-import org.slf4j.Logger;
+//import org.slf4j.// logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserDetailsContestService {
-    private static final Logger logger = LoggerFactory.getLogger(CourseController.class);
+//    private static final // logger // logger = LoggerFactory.getLogger(CourseController.class);
 
     @Autowired
     private CourseRepo courseRepo;
@@ -72,28 +72,28 @@ public class UserDetailsContestService {
 
             if (existingUserDetailsContestOpt.isPresent()) {
                 // Contest already exists, return the existing course ID
-                logger.info("User Details with the same title already exists for this user. Returning existing course ID.");
+                // logger.info("User Details with the same title already exists for this user. Returning existing course ID.");
                 return existingUserDetailsContestOpt;
             } else {
                 // Associate the User Details with the user
-                logger.info("Try to save User Details ");
+                // logger.info("Try to save User Details ");
                 UserContestDetails savedUserDetailsContest = userContestDetailRepo.save(details);
-                logger.info("User Details saving done ");
+                // logger.info("User Details saving done ");
 
                 // Update user's User Details list
-                logger.info("Update user's User Details list ");
+                // logger.info("Update user's User Details list ");
                 myUser.getUserContestDetails().add(savedUserDetailsContest);
-                logger.info("Done Update ");
+                // logger.info("Done Update ");
 
-                logger.info("Create new user ");
+                // logger.info("Create new user ");
                 userService.createUser(myUser); // Save the user to update the contests
-                logger.info("Done ");
+                // logger.info("Done ");
 
                 Optional<UserContestDetails> saveDetails = Optional.of(savedUserDetailsContest);
                 return saveDetails;
             }
         } catch (Exception e) {
-            logger.error("An error occurred while saving the entry of User Details", e);
+            // logger.error("An error occurred while saving the entry of User Details", e);
             throw new RuntimeException("An error occurred while saving the entry of User Details", e);
         }
     }
@@ -135,9 +135,9 @@ public class UserDetailsContestService {
                 userContestDetailRepo.save(userContestDetails);
             }
 
-            logger.info("(Ref constest)Post created successfully for user: {}", username);
+            // logger.info("(Ref constest)Post created successfully for user: {}", username);
         } catch (Exception e) {
-            logger.error("(Ref constest)Error creating post for user: {}", username, e);
+            // logger.error("(Ref constest)Error creating post for user: {}", username, e);
             throw new RuntimeException("(Ref course)Error creating post", e);
         }
     }
@@ -148,24 +148,24 @@ public class UserDetailsContestService {
     
     public UserContestDetails updateContestDetails(String id, UserContestDetails newDetails, String username) {
         try {
-            logger.info("Updating course with ID {} for user {}", id, username);
+            // logger.info("Updating course with ID {} for user {}", id, username);
 
             // Fetch user from service
             User user = userService.findByName(username);
-            logger.info("Fetched user {} for updating course", username);
+            // logger.info("Fetched user {} for updating course", username);
 
             // Find existing course
             Optional<UserContestDetails> existingDetailsOpt = userContestDetailRepo.findById(id);
-            logger.info("Fetched course with ID {}", id);
+            // logger.info("Fetched course with ID {}", id);
 
                 // Check if course exists
                 if (existingDetailsOpt.isPresent()) {
                     UserContestDetails existingDetails = existingDetailsOpt.get();
-                    logger.info("Found existing course with ID {}", id);
+                    // logger.info("Found existing course with ID {}", id);
 
                     // Check if user owns the course
                     if (user.getUserContestDetails().contains(existingDetails)) {
-                        logger.debug("User {} owns course {}", username, existingDetails.getId());
+                        // logger.debug("User {} owns course {}", username, existingDetails.getId());
 
 
                         existingDetails.setNameOfContest(newDetails.getNameOfContest() != null && !newDetails.getNameOfContest().isEmpty() ? newDetails.getNameOfContest() : existingDetails.getNameOfContest());
@@ -183,15 +183,15 @@ public class UserDetailsContestService {
 
                         return userContestDetailRepo.save(existingDetails);
                     } else {
-                        logger.error("User Details update logic error ID {}", id);
+                        // logger.error("User Details update logic error ID {}", id);
                         throw new RuntimeException("User Details update logic error");
                     }
                 }else {
-                    logger.error("User Details does not update {}", id);
+                    // logger.error("User Details does not update {}", id);
                     throw new RuntimeException("User Details does not update");
                 }
         }catch(Exception e){
-            logger.error("Error updating User Details with ID {}", id, e);
+            // logger.error("Error updating User Details with ID {}", id, e);
             throw new RuntimeException("An error occurred while updating the User Details", e);
         }
 

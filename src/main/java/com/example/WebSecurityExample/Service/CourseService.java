@@ -6,7 +6,7 @@ import com.example.WebSecurityExample.MongoRepo.UserRepo;
 import com.example.WebSecurityExample.Pojo.Course;
 import com.example.WebSecurityExample.Pojo.User;
 import com.example.WebSecurityExample.controller.CourseController;
-import org.slf4j.Logger;
+//import org.slf4j.// logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -20,7 +20,7 @@ import java.util.Optional;
 
 @Service
 public class CourseService {
-    private static final Logger logger = LoggerFactory.getLogger(CourseController.class);
+//    private static final // logger // logger = LoggerFactory.getLogger(CourseController.class);
 
     @Autowired
     private CourseRepo courseRepo;
@@ -39,14 +39,14 @@ public class CourseService {
     @Cacheable(value = "userCoursesCache", key = "#username")
     public List<Course> getUserCourses(String username) {
         User users = userService.findByName(username);
-//        logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^findByName^^^^^^^^^^^^^^^^^^^");
+//        // logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^findByName^^^^^^^^^^^^^^^^^^^");
 
         return users.getCourses();
     }
 
     public Optional<Course> getUserCoursesByID(String ID) {
         Optional<Course> userOpt = courseRepo.findById(ID);
-//        logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^findByName^^^^^^^^^^^^^^^^^^^");
+//        // logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^findByName^^^^^^^^^^^^^^^^^^^");
         return userOpt;
     }
 
@@ -64,7 +64,7 @@ public class CourseService {
 
             if (existingCourseOpt.isPresent()) {
                 // Course already exists, return the existing course ID
-                logger.info("Course with the same title already exists for this user. Returning existing course ID.");
+                // logger.info("Course with the same title already exists for this user. Returning existing course ID.");
                 return existingCourseOpt.get().getId();
             } else {
                 // Associate the course with the user
@@ -80,7 +80,7 @@ public class CourseService {
             }
 
         } catch (Exception e) {
-            logger.error("An error occurred while saving the entry", e);
+            // logger.error("An error occurred while saving the entry", e);
             throw new RuntimeException("An error occurred while saving the entry", e);
         }
     }
@@ -112,24 +112,24 @@ public class CourseService {
 //    @Transactional
     public Course updateCourse(String id, Course newCourse, String username) {
         try {
-            logger.info("Updating course with ID {} for user {}", id, username);
+            // logger.info("Updating course with ID {} for user {}", id, username);
 
             // Fetch user from service
             User user = userService.findByName(username);
-            logger.info("Fetched user {} for updating course", username);
+            // logger.info("Fetched user {} for updating course", username);
 
             // Find existing course
             Optional<Course> existingCourseOpt = courseRepo.findById(id);
-            logger.info("Fetched course with ID {}", id);
+            // logger.info("Fetched course with ID {}", id);
 
             // Check if course exists
             if (existingCourseOpt.isPresent()) {
                 Course existingCourse = existingCourseOpt.get();
-                logger.info("Found existing course with ID {}", id);
+                // logger.info("Found existing course with ID {}", id);
 
                 // Check if user owns the course
                 if (user.getCourses().contains(existingCourse)) {
-                    logger.debug("User {} owns course {}", username, existingCourse.getId());
+                    // logger.debug("User {} owns course {}", username, existingCourse.getId());
 
                     if (newCourse.getPermission() != null) {
                         existingCourse.setPermission(newCourse.getPermission());
@@ -163,19 +163,19 @@ public class CourseService {
                         if (currentCompleteQuestions == null) {
                             currentCompleteQuestions = new ArrayList<>();
                             existingCourse.setCompleteQuestions(currentCompleteQuestions);
-                            logger.debug("Initialized new completeQuestions list");
+                            // logger.debug("Initialized new completeQuestions list");
                         }
                         for (String questionId : newCourse.getCompleteQuestions()) {
                             if (!currentCompleteQuestions.contains(questionId)) {
                                 currentCompleteQuestions.add(questionId);
                                 newUniqueQuestions++;
-                                logger.info("Added question ID {} to completeQuestions list", questionId);
+                                // logger.info("Added question ID {} to completeQuestions list", questionId);
                             } else {
-                                logger.debug("Question ID {} is already in completeQuestions list", questionId);
+                                // logger.debug("Question ID {} is already in completeQuestions list", questionId);
                             }
                         }
                         existingCourse.setCompleteQuestions(currentCompleteQuestions);
-                        logger.info("Updated completeQuestions list to {}", currentCompleteQuestions);
+                        // logger.info("Updated completeQuestions list to {}", currentCompleteQuestions);
                     }
 
 
@@ -186,48 +186,48 @@ public class CourseService {
                         if (newCourse.getProgress() != null) {
                             Integer newProgress = newCourse.getProgress() + (existingCourse.getProgress() != null ? existingCourse.getProgress() : 0);
                             existingCourse.setProgress(newProgress);
-                            logger.info("Updated course progress to {}", newProgress);
+                            // logger.info("Updated course progress to {}", newProgress);
                         }
 
 
                         if (user.getRating() == null) {
                             user.setRating(newCourse.getRating());
-                            logger.info("Set user rating to {}", newCourse.getRating());
+                            // logger.info("Set user rating to {}", newCourse.getRating());
                         } else {
                             user.setRating(user.getRating() + newCourse.getRating());
-                            logger.info("Updated user rating by adding {}", newCourse.getRating());
+                            // logger.info("Updated user rating by adding {}", newCourse.getRating());
                         }
 
                         if (existingCourse.getRating() == null) {
                             existingCourse.setRating(newCourse.getRating());
-                            logger.info("Set course rating to {}", newCourse.getRating());
+                            // logger.info("Set course rating to {}", newCourse.getRating());
                         } else {
                             existingCourse.setRating(existingCourse.getRating() + newCourse.getRating());
-                            logger.info("Updated course rating by adding {}", newCourse.getRating());
+                            // logger.info("Updated course rating by adding {}", newCourse.getRating());
                         }
 
-                        logger.info("User {} rating updated to {}", username, user.getRating());
-                        logger.info("Course {} rating updated to {}", existingCourse.getId(), existingCourse.getRating());
+                        // logger.info("User {} rating updated to {}", username, user.getRating());
+                        // logger.info("Course {} rating updated to {}", existingCourse.getId(), existingCourse.getRating());
                     }
 
                     // Save updated user
                     userRepo.save(user);
-                    logger.debug("User {} updated successfully", username);
+                    // logger.debug("User {} updated successfully", username);
 
                     // Save updated course
                     Course updatedCourse = courseRepo.save(existingCourse);
-                    logger.info("Course {} updated successfully", updatedCourse.getId());
+                    // logger.info("Course {} updated successfully", updatedCourse.getId());
                     return updatedCourse;
                 } else {
-                    logger.error("User {} does not own course {}", username, id);
+                    // logger.error("User {} does not own course {}", username, id);
                     throw new RuntimeException("Course does not belong to the user");
                 }
             } else {
-                logger.error("Course with ID {} not found", id);
+                // logger.error("Course with ID {} not found", id);
                 throw new RuntimeException("Course not found");
             }
         } catch (Exception e) {
-            logger.error("Error updating course with ID {}", id, e);
+            // logger.error("Error updating course with ID {}", id, e);
             throw new RuntimeException("An error occurred while updating the course", e);
         }
     }

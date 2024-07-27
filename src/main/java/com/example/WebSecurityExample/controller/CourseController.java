@@ -5,7 +5,7 @@ import com.example.WebSecurityExample.Pojo.Course;
 import com.example.WebSecurityExample.Service.CourseService;
 import com.example.WebSecurityExample.Service.PostService;
 import com.example.WebSecurityExample.Service.UserService;
-import org.slf4j.Logger;
+//import org.slf4j.// logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,7 +20,7 @@ import java.util.*;
 @RequestMapping("/Course")
 //@CrossOrigin(origins = {"https://code-with-challenge.vercel.app", "http://localhost:5173"})
 public class CourseController {
-    private static final Logger logger = LoggerFactory.getLogger(CourseController.class);
+//    private static final // logger // logger = LoggerFactory.getLogger(CourseController.class);
 
     @Autowired
     private PostService postService;
@@ -43,7 +43,7 @@ public class CourseController {
             }
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            logger.error("Error fetching courses by username", e);
+            // logger.error("Error fetching courses by username", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -57,7 +57,7 @@ public class CourseController {
             }
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            logger.error("Error fetching courses by ID", e);
+            // logger.error("Error fetching courses by ID", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -71,16 +71,16 @@ public class CourseController {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
-            logger.error("creating course for username {}", username);
+            // logger.error("creating course for username {}", username);
             String id = courseService.createCourse(course, username);
-            logger.error(" course id {}", id);
+            // logger.error(" course id {}", id);
             // Wrap the ID in a JSON object
             Map<String, String> response = new HashMap<>();
             response.put("courseId", id);
 
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception e) {
-            logger.error("Error creating Course", e);
+            // logger.error("Error creating Course", e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
@@ -104,7 +104,7 @@ public class CourseController {
             }
 
         } catch (Exception e) {
-            logger.error("Error deleting course by ID", e);
+            // logger.error("Error deleting course by ID", e);
             response.put("message", "Error deleting course");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
@@ -114,11 +114,11 @@ public class CourseController {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String username = authentication.getName();
-            logger.error("Try to updating course by ID");
+            // logger.error("Try to updating course by ID");
             Course updatedCourse = courseService.updateCourse(myId, newdata, username);
             return new ResponseEntity<>(updatedCourse, HttpStatus.OK);
         } catch (RuntimeException e) {
-            logger.error("Error updating post by ID", e);
+            // logger.error("Error updating post by ID", e);
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }

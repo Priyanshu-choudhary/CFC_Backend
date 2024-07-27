@@ -3,7 +3,7 @@ package com.example.WebSecurityExample.Service;
 import com.example.WebSecurityExample.MongoRepo.UserRepo;
 import com.example.WebSecurityExample.Pojo.User;
 import com.example.WebSecurityExample.controller.PostController;
-import org.slf4j.Logger;
+//import org.slf4j.// logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -19,7 +19,7 @@ import java.util.Optional;
 
 @Service
 public class UserService {
-    private static final Logger logger = LoggerFactory.getLogger(PostController.class);
+//    private static final // logger // logger = LoggerFactory.getLogger(PostController.class);
 
     @Autowired
     private UserRepo userRepository;
@@ -61,9 +61,9 @@ public class UserService {
 
     @CachePut(value = "users", key = "#username")
     public User findByName(String username){
-        logger.info("user service findByName {}",username);
+        // logger.info("user service findByName {}",username);
         User user = userRepository.findByName(username);
-        logger.info("get user from service findByName {}",username);
+        // logger.info("get user from service findByName {}",username);
         if (user != null) {
             user.setPostCount(user.getPosts().size());
         }
@@ -73,10 +73,10 @@ public class UserService {
     public void setLastdate(String name){
         User user = userRepository.findByName(name);
         if (user != null) {
-            logger.info("Set new date in user");
+            // logger.info("Set new date in user");
             user.setLastModifiedUser(new Date());
             userRepository.save(user);
-            logger.info("Updated!");
+            // logger.info("Updated!");
 
         }
     }

@@ -48,7 +48,7 @@ public class ContestController {
             }
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            logger.error("Error fetching Contest by username", e);
+//            logger.error("Error fetching Contest by username", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -62,7 +62,7 @@ public class ContestController {
             }
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            logger.error("Error fetching Contest by username", e);
+//            logger.error("Error fetching Contest by username", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -77,7 +77,7 @@ public class ContestController {
             }
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            logger.error("Error fetching Contest by ID", e);
+//            logger.error("Error fetching Contest by ID", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -91,16 +91,16 @@ public class ContestController {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
-            logger.error("creating course for username {}", username);
+//            logger.error("creating course for username {}", username);
             String id = contestService.createContest(contest, username);
-            logger.error(" Contest id {}", id);
+//            logger.error(" Contest id {}", id);
             // Wrap the ID in a JSON object
             Map<String, String> response = new HashMap<>();
             response.put("ContestID", id);
 
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception e) {
-            logger.error("Error creating Course", e);
+//            logger.error("Error creating Course", e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
@@ -109,11 +109,11 @@ public class ContestController {
     public ResponseEntity<?> createPostRefCourse(@PathVariable String username,@PathVariable String contestName, @RequestBody Posts post) {
         try {
 
-            logger.info("Creating new post ref to contest for user: {}", username);
+//            logger.info("Creating new post ref to contest for user: {}", username);
 
             // Fetch the user
             User user = userService.findByName(username);
-            logger.info("user.getContests {}", user.getContests());
+//            logger.info("user.getContests {}", user.getContests());
             // Find the course by name for this user
             Optional<Contest> contestOpt = user.getContests().stream()
 
@@ -133,16 +133,16 @@ public class ContestController {
                 // Create the post
                 postService.createPostWithRefContest(post, user,username);
 
-                logger.info("Post ref to course created successfully for user: {}", username);
+//                logger.info("Post ref to course created successfully for user: {}", username);
 
                 return new ResponseEntity<>(post, HttpStatus.CREATED);
             } else {
-                logger.error("constest not found: {}", contestName);
+//                logger.error("constest not found: {}", contestName);
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
 
         } catch (Exception e) {
-            logger.error("Error creating post ref to contest", e);
+//            logger.error("Error creating post ref to contest", e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
@@ -168,7 +168,7 @@ public class ContestController {
             }
 
         } catch (Exception e) {
-            logger.error("Error deleting Contest by ID", e);
+//            logger.error("Error deleting Contest by ID", e);
             response.put("message", "Error deleting Contest");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
@@ -178,11 +178,11 @@ public class ContestController {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String username = authentication.getName();
-            logger.error("Try to updating contest by ID");
+//            logger.error("Try to updating contest by ID");
             Contest updatedContest = contestService.updateContest(myId, newContest, username);
             return new ResponseEntity<>(updatedContest, HttpStatus.OK);
         } catch (RuntimeException e) {
-            logger.error("Error updating contest by ID", e);
+//            logger.error("Error updating contest by ID", e);
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }

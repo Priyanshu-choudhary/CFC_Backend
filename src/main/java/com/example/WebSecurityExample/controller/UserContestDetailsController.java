@@ -6,7 +6,7 @@ import com.example.WebSecurityExample.Service.UserDetailsContestService;
 import com.example.WebSecurityExample.Service.PostService;
 import com.example.WebSecurityExample.Service.UserService;
 import org.bson.Document;
-import org.slf4j.Logger;
+//import org.slf4j.// logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,7 +21,7 @@ import java.util.*;
 @RequestMapping("/UserDetailsContest")
 //@CrossOrigin(origins = {"https://code-with-challenge.vercel.app", "http://localhost:5173"})
 public class UserContestDetailsController {
-    private static final Logger logger = LoggerFactory.getLogger(UserContestDetailsController.class);
+//    private static final // logger // logger = LoggerFactory.getLogger(UserContestDetailsController.class);
 
     @Autowired
     private PostService postService;
@@ -41,7 +41,7 @@ public class UserContestDetailsController {
             }
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            logger.error("Error fetching Contest by username", e);
+            // logger.error("Error fetching Contest by username", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -55,7 +55,7 @@ public class UserContestDetailsController {
             }
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            logger.error("Error fetching Contest by username", e);
+            // logger.error("Error fetching Contest by username", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -74,7 +74,7 @@ public class UserContestDetailsController {
             }
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            logger.error("Error fetching Contest by ID", e);
+            // logger.error("Error fetching Contest by ID", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -88,15 +88,15 @@ public class UserContestDetailsController {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
-            logger.error("creating course for username {}", username);
+            // logger.error("creating course for username {}", username);
             Optional<UserContestDetails> detailsResponse= userDetailsContestService.createUserContestDetails(userContestDetails, username);
-            logger.error(" Contest details {}", detailsResponse);
+            // logger.error(" Contest details {}", detailsResponse);
 
 
 
             return new ResponseEntity<>(detailsResponse, HttpStatus.CREATED);
         } catch (Exception e) {
-            logger.error("Error creating User contest details ", e);
+            // logger.error("Error creating User contest details ", e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
@@ -105,11 +105,11 @@ public class UserContestDetailsController {
     public ResponseEntity<?> createUserDetailsPostRefContest(@PathVariable String username,@PathVariable String contestName, @RequestBody Posts post) {
         try {
 
-            logger.info("Creating new post ref to contest for user: {}", username);
+            // logger.info("Creating new post ref to contest for user: {}", username);
 
             // Fetch the user
             User user = userService.findByName(username);
-            logger.info("user.getContests {}", user.getUserContestDetails());
+            // logger.info("user.getContests {}", user.getUserContestDetails());
             // Find the course by name for this user
             Optional<UserContestDetails> userContestDetailsOpt = user.getUserContestDetails().stream()
 
@@ -129,16 +129,16 @@ public class UserContestDetailsController {
                 // Create the post
                 userDetailsContestService.createPostWithRefUserDetailContest(post, user,username);
 
-                logger.info("Post ref to User Contest detail created successfully for user: {}", username);
+                // logger.info("Post ref to User Contest detail created successfully for user: {}", username);
 
                 return new ResponseEntity<>(post, HttpStatus.CREATED);
             } else {
-                logger.error("constest not found: {}", contestName);
+                // logger.error("constest not found: {}", contestName);
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
 
         } catch (Exception e) {
-            logger.error("Error creating post ref to contest", e);
+            // logger.error("Error creating post ref to contest", e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
@@ -164,7 +164,7 @@ public class UserContestDetailsController {
             }
 
         } catch (Exception e) {
-            logger.error("Error deleting Contest by ID", e);
+            // logger.error("Error deleting Contest by ID", e);
             response.put("message", "Error deleting Contest");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
@@ -174,11 +174,11 @@ public class UserContestDetailsController {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String username = authentication.getName();
-            logger.error("Try to updating user details contest by ID");
+            // logger.error("Try to updating user details contest by ID");
             UserContestDetails updatedContest = userDetailsContestService.updateContestDetails(myId, newContestDetails, username);
             return new ResponseEntity<>(updatedContest, HttpStatus.OK);
         } catch (RuntimeException e) {
-            logger.error("Error updating user details contest by ID", e);
+            // logger.error("Error updating user details contest by ID", e);
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }

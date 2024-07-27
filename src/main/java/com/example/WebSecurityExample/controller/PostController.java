@@ -7,7 +7,7 @@ import com.example.WebSecurityExample.Pojo.User;
 import com.example.WebSecurityExample.Service.CourseService;
 import com.example.WebSecurityExample.Service.PostService;
 import com.example.WebSecurityExample.Service.UserService;
-import org.slf4j.Logger;
+//import org.slf4j.// logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,7 +27,7 @@ import java.util.Date;
 @RequestMapping("/Posts")
 //@CrossOrigin(origins = {"https://www.codeforchallenge.online", "http://localhost:5173"})
 public class PostController {
-    private static final Logger logger = LoggerFactory.getLogger(PostController.class);
+//    private static final // logger // logger = LoggerFactory.getLogger(PostController.class);
 
     @Autowired
     private PostService postService;
@@ -44,7 +44,7 @@ public class PostController {
         try {
 
 //            User users = userService.findByName(username);
-            logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^findByName^^^^^^^^^^^^^^^^^^^");
+            // logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^findByName^^^^^^^^^^^^^^^^^^^");
             List<Posts> all = userService.findByName(username).getPosts();
             return new ResponseEntity<>(all, HttpStatus.OK);
 
@@ -59,42 +59,42 @@ public class PostController {
 //        try {
 //            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 //            String username = auth.getName();
-//            logger.info("Fetching posts for user: {}", username);
-//            logger.info("ifModifiedSince: {}", ifModifiedSince);
+//            // logger.info("Fetching posts for user: {}", username);
+//            // logger.info("ifModifiedSince: {}", ifModifiedSince);
 //
 //            User users = userService.findByName(username);
 //            if (users == null) {
-//                logger.error("User not found: {}", username);
+//                // logger.error("User not found: {}", username);
 //                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 //            }
 //
 //            List<Posts> all = users.getPosts();
 //            if (all == null || all.isEmpty()) {
-//                logger.info("No posts found for user: {}", username);
+//                // logger.info("No posts found for user: {}", username);
 //                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 //            }
-//            logger.info("try to fetch lastModified ");
+//            // logger.info("try to fetch lastModified ");
 //            Date lastModified = postService.getLastModifiedForUser(username);
-//            logger.info("lastModifyed : {}", lastModified);
+//            // logger.info("lastModifyed : {}", lastModified);
 //
 //            if (ifModifiedSince != null) {
 //                SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
 //                Date ifModifiedSinceDate = dateFormat.parse(ifModifiedSince);
 //                if (!lastModified.after(ifModifiedSinceDate)) {
-//                    logger.info("Posts not modified since: {}", ifModifiedSince);
+//                    // logger.info("Posts not modified since: {}", ifModifiedSince);
 //                    return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
 //                }
 //            }
 //
 //            HttpHeaders headers = new HttpHeaders();
 //            headers.setLastModified(lastModified.getTime());
-//            logger.info("Returning posts for user: {}", username);
+//            // logger.info("Returning posts for user: {}", username);
 //            return new ResponseEntity<>(all, headers, HttpStatus.OK);
 //        } catch (ParseException e) {
-//            logger.error("Error parsing If-Modified-Since header", e);
+//            // logger.error("Error parsing If-Modified-Since header", e);
 //            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 //        } catch (Exception e) {
-//            logger.error("Error fetching posts by username", e);
+//            // logger.error("Error fetching posts by username", e);
 //            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
@@ -104,12 +104,12 @@ public class PostController {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
-            logger.info("Filtering posts for user: {}", username);
-            logger.info("Request tags: {}", tags);
+            // logger.info("Filtering posts for user: {}", username);
+            // logger.info("Request tags: {}", tags);
 
             User user = userService.findByName(username);
             if (user == null) {
-                logger.error("User not found: {}", username);
+                // logger.error("User not found: {}", username);
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
 
@@ -119,23 +119,23 @@ public class PostController {
                         Set<String> postTags = post.getTags() != null ? new HashSet<>(post.getTags()) : new HashSet<>();
                         boolean isMatch = postTags.containsAll(requestTags);
                         if (isMatch) {
-                            logger.info("Match found: Post ID = {}", post.getId());
+                            // logger.info("Match found: Post ID = {}", post.getId());
                         }
                         return isMatch;
                     })
                     .collect(Collectors.toList());
 
-            logger.info("Filtered posts count: {}", filteredPosts.size());
+            // logger.info("Filtered posts count: {}", filteredPosts.size());
 
             if (filteredPosts.isEmpty()) {
-                logger.info("No posts found matching the tags: {}", tags);
+                // logger.info("No posts found matching the tags: {}", tags);
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
 
-            logger.info("Returning filtered posts for user: {}", username);
+            // logger.info("Returning filtered posts for user: {}", username);
             return new ResponseEntity<>(filteredPosts, HttpStatus.OK);
         } catch (Exception e) {
-            logger.error("Error filtering posts by tags", e);
+            // logger.error("Error filtering posts by tags", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -146,30 +146,30 @@ public class PostController {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
-            logger.info("Fetching post by ID: {} for user: {}", myid, username);
+            // logger.info("Fetching post by ID: {} for user: {}", myid, username);
 
             User users = userService.findByName(username);
             if (users == null) {
-                logger.error("User not found: {}", username);
+                // logger.error("User not found: {}", username);
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
 
             List<Posts> collect = users.getPosts().stream().filter(x -> x.getId().equals(myid)).collect(Collectors.toList());
             if (collect.isEmpty()) {
-                logger.info("Post not found with ID: {}", myid);
+                // logger.info("Post not found with ID: {}", myid);
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
 
             Optional<Posts> userById = postService.getUserById(myid);
             if (userById.isPresent()) {
-                logger.info("Returning post with ID: {}", myid);
+                // logger.info("Returning post with ID: {}", myid);
                 return new ResponseEntity<>(userById.get(), HttpStatus.OK);
             } else {
-                logger.info("Post not found in database with ID: {}", myid);
+                // logger.info("Post not found in database with ID: {}", myid);
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {
-            logger.error("Error fetching post by ID", e);
+            // logger.error("Error fetching post by ID", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -178,14 +178,14 @@ public class PostController {
     public ResponseEntity<?> getPostsByCourse(@PathVariable String courseName ,@PathVariable String username)   {
         try {
 
-            logger.info("Fetching posts for course '{}' for user: {}", courseName, username);
+            // logger.info("Fetching posts for course '{}' for user: {}", courseName, username);
 
             // Find the user
-            logger.info("+++++++++++++++++++++++++Find by name +++++++++++++++++++++");
+            // logger.info("+++++++++++++++++++++++++Find by name +++++++++++++++++++++");
             User user = userService.findByName(username);
-            logger.info("+++++++++++++++++++++++++Find by name +++++++++++++++++++++");
+            // logger.info("+++++++++++++++++++++++++Find by name +++++++++++++++++++++");
             if (user == null) {
-                logger.error("User not found: {}", username);
+                // logger.error("User not found: {}", username);
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
 
@@ -198,26 +198,26 @@ public class PostController {
 
 
             if (courseOpt.isPresent()) {
-                logger.info("course is not empty ");
+                // logger.info("course is not empty ");
                 Course course = courseOpt.get();
-                logger.info("course: {}", course);
+                // logger.info("course: {}", course);
                 List<Posts> posts = course.getPosts();
-                logger.info("posts: {}", posts);
+                // logger.info("posts: {}", posts);
 
                 if (posts == null || posts.isEmpty()) {
-                    logger.info("No posts found for course: {}", courseName);
+                    // logger.info("No posts found for course: {}", courseName);
                     return new ResponseEntity<>(HttpStatus.NOT_FOUND);
                 }
 
-                logger.info("Returning posts for course '{}' for user: {}", courseName, username);
+                // logger.info("Returning posts for course '{}' for user: {}", courseName, username);
                 return new ResponseEntity<>(posts, HttpStatus.OK);
             } else {
-                logger.error("Course not found: {}", courseName);
+                // logger.error("Course not found: {}", courseName);
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
 
         } catch (Exception e) {
-            logger.error("Error fetching posts by course", e);
+            // logger.error("Error fetching posts by course", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -226,14 +226,14 @@ public class PostController {
     public ResponseEntity<?> getPostsByContest(@PathVariable String contestName ,@PathVariable String username)   {
         try {
 
-            logger.info("Fetching posts for course '{}' for user: {}", contestName, username);
+            // logger.info("Fetching posts for course '{}' for user: {}", contestName, username);
 
             // Find the user
-            logger.info("+++++++++++++++++++++++++Find by name +++++++++++++++++++++");
+            // logger.info("+++++++++++++++++++++++++Find by name +++++++++++++++++++++");
             User user = userService.findByName(username);
-            logger.info("+++++++++++++++++++++++++Find by name +++++++++++++++++++++");
+            // logger.info("+++++++++++++++++++++++++Find by name +++++++++++++++++++++");
             if (user == null) {
-                logger.error("User not found: {}", username);
+                // logger.error("User not found: {}", username);
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
 
@@ -246,26 +246,26 @@ public class PostController {
 
 
             if (contestOpt.isPresent()) {
-                logger.info("course is not empty ");
+                // logger.info("course is not empty ");
                 Contest contest = contestOpt.get();
-                logger.info("course: {}", contest);
+                // logger.info("course: {}", contest);
                 List<Posts> posts = contest.getPosts();
-                logger.info("posts: {}", posts);
+                // logger.info("posts: {}", posts);
 
                 if (posts == null || posts.isEmpty()) {
-                    logger.info("No posts found for course: {}", contestName);
+                    // logger.info("No posts found for course: {}", contestName);
                     return new ResponseEntity<>(HttpStatus.NOT_FOUND);
                 }
 
-                logger.info("Returning posts for course '{}' for user: {}", contestName, username);
+                // logger.info("Returning posts for course '{}' for user: {}", contestName, username);
                 return new ResponseEntity<>(posts, HttpStatus.OK);
             } else {
-                logger.error("Course not found: {}", contestName);
+                // logger.error("Course not found: {}", contestName);
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
 
         } catch (Exception e) {
-            logger.error("Error fetching posts by course", e);
+            // logger.error("Error fetching posts by course", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -274,16 +274,16 @@ public class PostController {
     public ResponseEntity<Posts> createPost(@PathVariable String username,@RequestBody Posts post) {
         try {
 
-            logger.info("Creating new post for user: {}", username);
+            // logger.info("Creating new post for user: {}", username);
 
             User user = userService.findByName(username);
-            logger.info(" user: {}", user);
+            // logger.info(" user: {}", user);
             List<Posts> allPosts = user.getPosts();
 
             if (allPosts != null) {
                 for (Posts existingPost : allPosts) {
                     if (existingPost.getTitle().equals(post.getTitle())) {
-                        logger.warn("Duplicate post creation attempt for user: {}", username);
+                        // logger.warn("Duplicate post creation attempt for user: {}", username);
                         return new ResponseEntity<>(HttpStatus.CONFLICT); // 409 Conflict
                     }
                 }
@@ -293,10 +293,10 @@ public class PostController {
             post.setLastModified(new Date());
             userService.setLastdate(username);
             postService.createPost(post, username,user);
-            logger.info("Post created successfully for user: {}", username);
+            // logger.info("Post created successfully for user: {}", username);
             return new ResponseEntity<>(post, HttpStatus.CREATED);
         } catch (Exception e) {
-            logger.error("Error creating post", e);
+            // logger.error("Error creating post", e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
@@ -307,7 +307,7 @@ public class PostController {
     public ResponseEntity<?> createPostRefCourse(@PathVariable String username,@PathVariable String courseName, @RequestBody Posts post) {
         try {
 
-            logger.info("Creating new post ref to course for user: {}", username);
+            // logger.info("Creating new post ref to course for user: {}", username);
 
             // Fetch the user
             User user = userService.findByName(username);
@@ -328,16 +328,16 @@ public class PostController {
 
                 // Create the post
                 postService.createPostWithRefCourse(post, user,username);
-                logger.info("Post ref to course created successfully for user: {}", username);
+                // logger.info("Post ref to course created successfully for user: {}", username);
 
                 return new ResponseEntity<>(post, HttpStatus.CREATED);
             } else {
-                logger.error("Course not found: {}", courseName);
+                // logger.error("Course not found: {}", courseName);
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
 
         } catch (Exception e) {
-            logger.error("Error creating post ref to course", e);
+            // logger.error("Error creating post ref to course", e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
@@ -351,15 +351,15 @@ public class PostController {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
-            logger.info("Deleting post with ID: {} for user: {}", id, username);
+            // logger.info("Deleting post with ID: {} for user: {}", id, username);
 
             postService.deleteUserById(id, username);
 
             userService.setLastdate(username);
-            logger.info("Post deleted successfully with ID: {} for user: {}", id, username);
+            // logger.info("Post deleted successfully with ID: {} for user: {}", id, username);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
-            logger.error("Error deleting post by ID", e);
+            // logger.error("Error deleting post by ID", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -369,14 +369,14 @@ public class PostController {
         try {
 //            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 //            String username = authentication.getName();
-            logger.info("Updating post with ID: {} for user: {}", myId, username);
+            // logger.info("Updating post with ID: {} for user: {}", myId, username);
 
             Posts updatedPost = postService.updatePost(myId, newPost, username);
             userService.setLastdate(username);
-            logger.info("Post updated successfully with ID: {} for user: {}", myId, username);
+            // logger.info("Post updated successfully with ID: {} for user: {}", myId, username);
             return new ResponseEntity<>(updatedPost, HttpStatus.OK);
         } catch (RuntimeException e) {
-            logger.error("Error updating post by ID", e);
+            // logger.error("Error updating post by ID", e);
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }

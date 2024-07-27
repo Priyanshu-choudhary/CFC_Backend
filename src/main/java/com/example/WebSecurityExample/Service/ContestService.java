@@ -9,7 +9,7 @@ import com.example.WebSecurityExample.Pojo.Course;
 import com.example.WebSecurityExample.Pojo.Posts.Posts;
 import com.example.WebSecurityExample.Pojo.User;
 import com.example.WebSecurityExample.controller.CourseController;
-import org.slf4j.Logger;
+//import org.slf4j.// logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -22,8 +22,8 @@ import java.util.Optional;
 
 @Service
 public class ContestService {
-//    private static final Logger logger = LoggerFactory.getLogger(CourseController.class);
-Logger logger = LoggerFactory.getLogger(this.getClass());
+//    private static final // logger // logger = LoggerFactory.getLogger(CourseController.class);
+// logger // logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private CourseRepo courseRepo;
     @Autowired
@@ -68,28 +68,28 @@ Logger logger = LoggerFactory.getLogger(this.getClass());
 
             if (existingContestOpt.isPresent()) {
                 // Contest already exists, return the existing course ID
-                logger.info("Contest with the same title already exists for this user. Returning existing course ID.");
+                // logger.info("Contest with the same title already exists for this user. Returning existing course ID.");
                 return existingContestOpt.get().getId();
             } else {
                 // Associate the contest with the user
-                logger.info("Try to save contest ");
+                // logger.info("Try to save contest ");
                 Contest savedContest = contestRepo.save(contest);
-                logger.info("Contest saving done ");
+                // logger.info("Contest saving done ");
 
                 // Update user's contest list
-                logger.info("Update user's contest list ");
+                // logger.info("Update user's contest list ");
                 myUser.getContests().add(savedContest);
-                logger.info("Done Update ");
+                // logger.info("Done Update ");
 
-                logger.info("Create new user ");
+                // logger.info("Create new user ");
                 userService.createUser(myUser); // Save the user to update the contests
-                logger.info("Done ");
+                // logger.info("Done ");
 
                 // Return the new contest ID
                 return savedContest.getId();
             }
         } catch (Exception e) {
-            logger.error("An error occurred while saving the entry of Contest", e);
+            // logger.error("An error occurred while saving the entry of Contest", e);
             throw new RuntimeException("An error occurred while saving the entry of Contest", e);
         }
     }
@@ -97,29 +97,29 @@ Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     public boolean deleteContestById(String id, String name) {
-        Logger logger = LoggerFactory.getLogger(Contest.class);
+        // logger // logger = LoggerFactory.getLogger(Contest.class);
 
         try {
             User myuser = userService.findByName("Contest");
 
             // Check if myuser or myuser.getContests() is null
             if (myuser == null) {
-                logger.error("User not found with name {}", name);
+                // logger.error("User not found with name {}", name);
                 return false;
             }
 //            System.out.println(">>>>>>>>"+myuser.getContests().getFirst());
-            // Print user contest details using logger
+            // Print user contest details using // logger
             if (myuser.getContests() != null) {
-                logger.info("User contest >>: ");
+                // logger.info("User contest >>: ");
             } else {
-                logger.warn("User contest are null");
+                // logger.warn("User contest are null");
             }
             contestRepo.deleteById(id);
             // Check if contests is not null and remove the contest by id
 
 
         } catch (Exception e) {
-            logger.error("Error deleting contest for user {}", name, e);
+            // logger.error("Error deleting contest for user {}", name, e);
             return false;
         }
         return false;
@@ -127,24 +127,24 @@ Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public Contest updateContest(String id, Contest newContest, String username) {
         try {
-            logger.info("Updating course with ID {} for user {}", id, username);
+            // logger.info("Updating course with ID {} for user {}", id, username);
 
             // Fetch user from service
             User user = userService.findByName(username);
-            logger.info("Fetched user {} for updating course", username);
+            // logger.info("Fetched user {} for updating course", username);
 
             // Find existing course
             Optional<Contest> existingContestOpt = contestRepo.findById(id);
-            logger.info("Fetched course with ID {}", id);
+            // logger.info("Fetched course with ID {}", id);
 
                 // Check if course exists
                 if (existingContestOpt.isPresent()) {
                     Contest existingContest = existingContestOpt.get();
-                    logger.info("Found existing course with ID {}", id);
+                    // logger.info("Found existing course with ID {}", id);
 
                     // Check if user owns the course
                     if (user.getContests().contains(existingContest)) {
-                        logger.debug("User {} owns course {}", username, existingContest.getId());
+                        // logger.debug("User {} owns course {}", username, existingContest.getId());
 
 
                         existingContest.setNameOfContest(newContest.getNameOfContest() != null && !newContest.getNameOfContest().isEmpty() ? newContest.getNameOfContest() : existingContest.getNameOfContest());
@@ -170,15 +170,15 @@ Logger logger = LoggerFactory.getLogger(this.getClass());
 
                         return contestRepo.save(existingContest);
                     } else {
-                        logger.error("Contest update logic error ID {}", id);
+                        // logger.error("Contest update logic error ID {}", id);
                         throw new RuntimeException("Contest update logic error");
                     }
                 }else {
-                    logger.error("Contest does not update {}", id);
+                    // logger.error("Contest does not update {}", id);
                     throw new RuntimeException("Contest does not update");
                 }
         }catch(Exception e){
-            logger.error("Error updating Contest with ID {}", id, e);
+            // logger.error("Error updating Contest with ID {}", id, e);
             throw new RuntimeException("An error occurred while updating the Contest", e);
         }
 

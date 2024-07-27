@@ -3,7 +3,7 @@ package com.example.WebSecurityExample.controller;
 import com.example.WebSecurityExample.MongoRepo.UserRepo;
 import com.example.WebSecurityExample.Pojo.User;
 import com.example.WebSecurityExample.Service.UserService;
-import org.slf4j.Logger;
+//import org.slf4j.// logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,7 +25,7 @@ import java.util.Optional;
 
 public class userController {
 
-    private static final Logger logger = LoggerFactory.getLogger(PostController.class);
+//    private static final // logger // logger = LoggerFactory.getLogger(PostController.class);
     @Autowired
     private UserService userService;
     @Autowired
@@ -63,7 +63,7 @@ public class userController {
         Authentication auth= SecurityContextHolder.getContext().getAuthentication();
         String username= auth.getName();
         User userIndb= userService.findByName(username);
-        logger.info(" for user: {}", username);
+        // logger.info(" for user: {}", username);
         if(userIndb!=null){
             userIndb.setName(updatedUser.getName());
             userIndb.setPassword(updatedUser.getPassword());

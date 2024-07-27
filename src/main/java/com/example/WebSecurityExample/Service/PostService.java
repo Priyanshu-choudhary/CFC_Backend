@@ -8,7 +8,7 @@ import com.example.WebSecurityExample.Pojo.Course;
 import com.example.WebSecurityExample.Pojo.Posts.Posts;
 import com.example.WebSecurityExample.Pojo.User;
 import com.example.WebSecurityExample.controller.PostController;
-import org.slf4j.Logger;
+//import org.slf4j.// logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -24,7 +24,7 @@ import java.util.Optional;
 @Service
 public class PostService {
 
-    private static final Logger logger = LoggerFactory.getLogger(PostController.class);
+//    private static final // logger // logger = LoggerFactory.getLogger(PostController.class);
 
     @Autowired
     private PostRepo postRepo;
@@ -57,9 +57,9 @@ public class PostService {
     public Date getLastModifiedForUser(String username) {
         User user = userService.findByName(username);
         if (user != null && user.getPosts() != null && !user.getPosts().isEmpty()) {
-            logger.info("try to get it inside function lastModifyed ");
+            // logger.info("try to get it inside function lastModifyed ");
             Date date = user.getLastModifiedUser();
-            logger.info("date>>> :{}",date);
+            // logger.info("date>>> :{}",date);
             return date;
         }
         return new Date(0); // Return a default date if user or posts not found
@@ -106,9 +106,9 @@ public class PostService {
                 courseRepo.save(course);
             }
 
-            logger.info("(Ref course)Post created successfully for user: {}", username);
+            // logger.info("(Ref course)Post created successfully for user: {}", username);
         } catch (Exception e) {
-            logger.error("(Ref course)Error creating post for user: {}", username, e);
+            // logger.error("(Ref course)Error creating post for user: {}", username, e);
             throw new RuntimeException("(Ref course)Error creating post", e);
         }
     }
@@ -129,9 +129,9 @@ public class PostService {
                 contestRepo.save(contest);
             }
 
-            logger.info("(Ref constest)Post created successfully for user: {}", username);
+            // logger.info("(Ref constest)Post created successfully for user: {}", username);
         } catch (Exception e) {
-            logger.error("(Ref constest)Error creating post for user: {}", username, e);
+            // logger.error("(Ref constest)Error creating post for user: {}", username, e);
             throw new RuntimeException("(Ref course)Error creating post", e);
         }
     }
@@ -169,10 +169,10 @@ public class PostService {
             Optional<Posts> existingPostOpt = postRepo.findById(id);
 
             if (existingPostOpt.isPresent()) {
-                logger.error("existing post found: {}", username);
+                // logger.error("existing post found: {}", username);
                 Posts existingPost = existingPostOpt.get();
                 if (user.getPosts().contains(existingPost)) {
-                    logger.error("user {} contain post found: {}", username,existingPost);
+                    // logger.error("user {} contain post found: {}", username,existingPost);
                     existingPost.setTitle(newPost.getTitle() != null && !newPost.getTitle().isEmpty() ? newPost.getTitle() : existingPost.getTitle());
                     existingPost.setDescription(newPost.getDescription() != null && !newPost.getDescription().isEmpty() ? newPost.getDescription() : existingPost.getDescription());
                     existingPost.setAnswer(newPost.getAnswer() != null && !newPost.getAnswer().isEmpty() ? newPost.getAnswer() : existingPost.getAnswer());
@@ -214,7 +214,7 @@ public class PostService {
                     throw new RuntimeException("Post does not belong to the user");
                 }
             } else {
-                logger.error("existing post not found: {}", username);
+                // logger.error("existing post not found: {}", username);
                 throw new RuntimeException("Post not found");
             }
         } catch (Exception e) {

@@ -23,7 +23,6 @@ public class ConfigSecurity {
         return http
                 .csrf().disable() // Disable CSRF protection
                 .authorizeHttpRequests(registery -> {
-                    System.out.println("At this point security");
 //                    registery.requestMatchers("/Posts/**","/users/**").authenticated();
                     registery.requestMatchers("/users/**").authenticated();
                     registery.anyRequest().permitAll();
@@ -37,7 +36,6 @@ public class ConfigSecurity {
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth, PasswordEncoder passwordEncoder) throws Exception {
-        System.out.println("At this point password");
         auth.userDetailsService(userDetailServicesImp).passwordEncoder(passwordEncoder);
     }
 
