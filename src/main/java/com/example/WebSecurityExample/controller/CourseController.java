@@ -1,70 +1,130 @@
-package com.example.WebSecurityExample.controller.fileUpload;
+package com.example.WebSecurityExample.controller;
 
-import org.slf4j.Logger;
+import com.example.WebSecurityExample.MongoRepo.CourseRepo;
+import com.example.WebSecurityExample.Pojo.Course;
+import com.example.WebSecurityExample.Service.CourseService;
+import com.example.WebSecurityExample.Service.PostService;
+import com.example.WebSecurityExample.Service.UserService;
+//import org.slf4j.// logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @RestController
-@RequestMapping("/Files")
-@CrossOrigin(origins = {"https://codeforchallenge.online", "http://localhost:5173"})
-public class FileUploadController {
+@RequestMapping("/Course")
+//@CrossOrigin(origins = {"https://code-with-challenge.vercel.app", "http://localhost:5173"})
+public class CourseController {
+//    private static final // logger // logger = LoggerFactory.getLogger(CourseController.class);
 
-    private static final Logger logger = LoggerFactory.getLogger(FileUploadController.class);
+    @Autowired
+    private PostService postService;
 
-    @Value("${upload.dir}")
-    private String uploadDir;
+    @Autowired
+    private UserService userService;
 
-    @Value("${server.port:8080}") // Default port is 8080 if not specified
-    private String serverPort;
+    @Autowired
+    private CourseService courseService;
 
-    @Value("${server.servlet.context-path:/}") // Default context path is root if not specified
-    private String contextPath;
+    @Autowired
+    private CourseRepo courseRepo;
 
-    @PostMapping("/upload")
-    public ResponseEntity<Map<String, String>> uploadFile(@RequestParam("file") MultipartFile file) {
-        // Ensure the upload directory exists
-        File directory = new File(uploadDir);
-        if (!directory.exists()) {
-            if (!directory.mkdirs()) {
-                logger.error("Failed to create directory: {}", uploadDir);
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(createResponse("Failed to create directory", null));
-            }
-            logger.info("Directory created: {}", uploadDir);
-        }
-
-        // Save the file
+    @GetMapping("/{username}/{skip}/{limit}")
+    public ResponseEntity<?> getCourseByUserNameController(@PathVariable String username, @PathVariable int skip ,@PathVariable int limit) {
         try {
-            Path path = Paths.get(uploadDir + File.separator + file.getOriginalFilename());
-            Files.write(path, file.getBytes());
-            String fileName = file.getOriginalFilename();
-            String fileUrl = "https://hytechlabs.online:" + serverPort + contextPath + "images/" + fileName;
-            logger.info("File uploaded successfully: {}", path.toString());
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(createResponse("File uploaded successfully", fileUrl));
-        } catch (IOException e) {
-            logger.error("Failed to upload file", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(createResponse("Failed to upload file", null));
+//            List<Course> all = courseService.getUserCourses(username);
+            List<Course> all = courseService.getUserOneCourses(username,  skip ,  limit);
+
+            if (all != null) {
+                return new ResponseEntity<>(all, HttpStatus.OK);
+            }
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            // logger.error("Error fetching courses by username", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @GetMapping("/id/{id}")
+    public ResponseEntity<?> getCourseById(@PathVariable String id) {
+        try {
+
+            Optional<Course> all = courseService.getUserCoursesByID(id);
+            if (all.isPresent()) {
+                return new ResponseEntity<>(all, HttpStatus.OK);
+            }
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            // logger.error("Error fetching courses by ID", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    private Map<String, String> createResponse(String message, String fileUrl) {
-        Map<String, String> response = new HashMap<>();
-        response.put("message", message);
-        response.put("fileUrl", fileUrl);
-        return response;
+
+
+
+
+    @PostMapping
+    public ResponseEntity<?> createCourse(@RequestBody Course course) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String username = auth.getName();
+            // logger.error("creating course for username {}", username);
+            String id = courseService.createCourse(course, username);
+            // logger.error(" course id {}", id);
+            // Wrap the ID in a JSON object
+            Map<String, String> response = new HashMap<>();
+            response.put("courseId", id);
+
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (Exception e) {
+            // logger.error("Error creating Course", e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
+
+    @DeleteMapping("/id/{id}")
+    public ResponseEntity<Map<String, String>> deleteUserById(@PathVariable String id) {
+        Map<String, String> response = new HashMap<>();
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String username = auth.getName();
+
+            // Assuming courseService.deleteUserById(id, username) returns a boolean indicating success
+            boolean deleted = courseService.deleteUserById(id, username);
+
+            if (deleted) {
+                response.put("message", "Course deleted successfully");
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("message", "Course not found or you do not have permission to delete it");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+
+        } catch (Exception e) {
+            // logger.error("Error deleting course by ID", e);
+            response.put("message", "Error deleting course");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+    @PutMapping("/id/{myId}")
+    public ResponseEntity<?> updateCourseById(@PathVariable String myId, @RequestBody Course newdata) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+            // logger.error("Try to updating course by ID");
+            Course updatedCourse = courseService.updateCourse(myId, newdata, username);
+            return new ResponseEntity<>(updatedCourse, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            // logger.error("Error updating post by ID", e);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+
+
 }
