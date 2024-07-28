@@ -17,26 +17,26 @@ public class ConfigSecurity {
     @Autowired
     private UserDetailServicesImp userDetailServicesImp;
 
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf().disable() // Disable CSRF protection
-                .authorizeHttpRequests(registery -> {
-//                    registery.requestMatchers("/Posts/**","/users/**").authenticated();
-                    registery.requestMatchers("/users/**").authenticated();
-                    registery.anyRequest().permitAll();
+                .authorizeHttpRequests(authorizeRequests -> {
+                    // Allow access to static resources
+                    authorizeRequests.requestMatchers("/images/**", "/css/**", "/js/**", "/webjars/**").permitAll();
+
+                    // Restrict access to other endpoints
+                    authorizeRequests.requestMatchers("/users/**").authenticated();
+                    authorizeRequests.anyRequest().permitAll();
                 })
-                .formLogin(formlogin -> formlogin.permitAll())
+                .formLogin(formLogin -> formLogin.permitAll())
                 .httpBasic() // Enable Basic Auth
                 .and()
                 .build();
     }
 
-
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth, PasswordEncoder passwordEncoder) throws Exception {
         auth.userDetailsService(userDetailServicesImp).passwordEncoder(passwordEncoder);
     }
-
 }
