@@ -39,9 +39,12 @@ public class CourseService {
     @Cacheable(value = "userCoursesCache", key = "#username")
     public List<Course> getUserCourses(String username) {
         User users = userService.findByName(username);
-//        // logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^findByName^^^^^^^^^^^^^^^^^^^");
-
         return users.getCourses();
+    }
+    public List<Course> getUserOneCourses(String username, int skip , int limit) {
+        List users = userRepo.findOfficialCoursesByName(username, skip , limit);
+        System.out.println("correct method");
+        return users;
     }
 
     public Optional<Course> getUserCoursesByID(String ID) {

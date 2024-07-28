@@ -34,10 +34,12 @@ public class CourseController {
     @Autowired
     private CourseRepo courseRepo;
 
-    @GetMapping("/{username}")
-    public ResponseEntity<?> getCourseByUserNameController(@PathVariable String username) {
+    @GetMapping("/{username}/{skip}/{limit}")
+    public ResponseEntity<?> getCourseByUserNameController(@PathVariable String username, @PathVariable int skip ,@PathVariable int limit) {
         try {
-            List<Course> all = courseService.getUserCourses(username);
+//            List<Course> all = courseService.getUserCourses(username);
+            List<Course> all = courseService.getUserOneCourses(username,  skip ,  limit);
+
             if (all != null) {
                 return new ResponseEntity<>(all, HttpStatus.OK);
             }
