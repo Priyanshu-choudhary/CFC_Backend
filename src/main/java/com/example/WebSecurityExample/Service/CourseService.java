@@ -43,7 +43,7 @@ public class CourseService {
     }
     public List<Course> getUserOneCourses(String username, int skip , int limit) {
         List users = userRepo.findOfficialCoursesByName(username, skip , limit);
-        System.out.println("correct method");
+//        System.out.println("correct method");
         return users;
     }
 
