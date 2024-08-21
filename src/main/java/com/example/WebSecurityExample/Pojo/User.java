@@ -1,5 +1,6 @@
 package com.example.WebSecurityExample.Pojo;
 
+import com.example.WebSecurityExample.Pojo.Lecture.Lecture;
 import com.example.WebSecurityExample.Pojo.Posts.Posts;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -56,6 +57,9 @@ public class User {
     @DBRef
     private List<UserContestDetails> userContestDetails = new ArrayList<>();
 
+    @DBRef
+    private List<Lecture> lectures = new ArrayList<>();
+
     // Add a parameterized constructor
     @JsonCreator
     public User(
@@ -68,3 +72,5 @@ public class User {
         this.password = password;
     }
 }
+
+
