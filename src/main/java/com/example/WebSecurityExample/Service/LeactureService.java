@@ -48,7 +48,7 @@ private static final Logger logger = LoggerFactory.getLogger(LeactureService.cla
 //        logger.warn(" found with username '{}'", users);
 
         return users.getLectures().stream()
-                .filter(l -> l.getId().equals(lectureTitle))
+                .filter(l -> l.getTitle().equals(lectureTitle))
                 .findFirst();
     }
 
