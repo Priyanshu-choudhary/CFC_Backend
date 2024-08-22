@@ -84,7 +84,12 @@ public class LectureController {
         }
     }
 
-
+    @GetMapping("/Findby/{username}/{lectureTitle}")
+    public ResponseEntity<Lecture> getLectureByUserAndTitle(@PathVariable String username,@PathVariable String lectureTitle) {
+        Optional<Lecture> lecture = lectureService.getUserLectureWithTitle(username, lectureTitle);
+        return lecture.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 
 
 

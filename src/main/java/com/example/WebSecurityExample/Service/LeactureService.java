@@ -1,21 +1,23 @@
 package com.example.WebSecurityExample.Service;
 
 import com.example.WebSecurityExample.MongoRepo.*;
-import com.example.WebSecurityExample.Pojo.Contest;
 import com.example.WebSecurityExample.Pojo.Lecture.Lecture;
 import com.example.WebSecurityExample.Pojo.User;
+import com.example.WebSecurityExample.controller.LectureController;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 @Service
 public class LeactureService {
 //    private static final // logger // logger = LoggerFactory.getLogger(Lecture.class);
 // logger // logger = LoggerFactory.getLogger(this.getClass());
+private static final Logger logger = LoggerFactory.getLogger(LeactureService.class);
+
     @Autowired
     private CourseRepo courseRepo;
     @Autowired
@@ -39,6 +41,19 @@ public class LeactureService {
     public List<Lecture> getUserLecture(String username) {
         User users = userService.findByName(username);
         return users.getLectures();
+
+    }
+    public Optional<Lecture> getUserLectureWithTitle(String username, String lectureTitle) {
+        User users = userService.findByName(username);
+//        logger.warn(" found with username '{}'", users);
+
+        return users.getLectures().stream()
+                .filter(l -> l.getId().equals(lectureTitle))
+                .findFirst();
+    }
+
+    public Optional<Lecture> getLectureByUserAndTitle(String username, String lectureTitle) {
+        return lectureRepo.findLectureByUsernameAndTitle(username, lectureTitle);
     }
 
     public Optional<Lecture> getUserLectureByID(String ID) {
