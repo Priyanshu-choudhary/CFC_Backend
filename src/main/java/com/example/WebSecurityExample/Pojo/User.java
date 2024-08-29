@@ -2,6 +2,7 @@ package com.example.WebSecurityExample.Pojo;
 
 import com.example.WebSecurityExample.Pojo.Lecture.Lecture;
 import com.example.WebSecurityExample.Pojo.Posts.Posts;
+import com.example.WebSecurityExample.Pojo.TopicWiseSkills.TopicSkill;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -59,6 +60,9 @@ public class User {
 
     @DBRef
     private List<Lecture> lectures = new ArrayList<>();
+
+    @DBRef
+    private List<TopicSkill> topicSkill = new ArrayList<>();
 
     // Add a parameterized constructor
     @JsonCreator
