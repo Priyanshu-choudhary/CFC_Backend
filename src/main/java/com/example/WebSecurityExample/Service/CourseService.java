@@ -138,6 +138,9 @@ public class CourseService {
                         existingCourse.setPermission(newCourse.getPermission());
 
                     }
+                    if (newCourse.getTitle() != null) {
+                        existingCourse.setTitle(newCourse.getTitle());
+                    }
 
                     if (newCourse.getTotalQuestions() != null) {
                         existingCourse.setTotalQuestions(newCourse.getTotalQuestions());

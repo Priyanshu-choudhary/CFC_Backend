@@ -73,12 +73,12 @@ private static final Logger logger = LoggerFactory.getLogger(LeactureService.cla
 
             // Check if a Lecture with the same title already exists for this user
             Optional<Lecture> existingLectureOpt = myUser.getLectures().stream()
-                    .filter(c -> c.getTitle().equalsIgnoreCase(lecture.getTitle()))
+                    .filter(c -> c.getId().equalsIgnoreCase(lecture.getId()))
                     .findFirst();
 
             if (existingLectureOpt.isPresent()) {
                 // Lecture already exists, return the existing course ID
-                // logger.info("Lecture with the same title already exists for this user. Returning existing course ID.");
+                logger.info("Lecture with the same title already exists for this user. Returning existing course ID.");
                 return existingLectureOpt.get().getId();
             } else {
                 // Associate the Lecture with the user
