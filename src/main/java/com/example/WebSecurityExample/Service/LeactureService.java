@@ -138,35 +138,54 @@ private static final Logger logger = LoggerFactory.getLogger(LeactureService.cla
                 // Check if user owns the lecture
                 if (user.getLectures().contains(existingLecture)) {
 
-                    // Update title and subtitle if provided
+                    // Update title if provided
                     if (newLecture.getTitle() != null && !newLecture.getTitle().isEmpty()) {
                         existingLecture.setTitle(newLecture.getTitle());
                     }
 
-                    if (newLecture.getSubtitle() != null && !newLecture.getSubtitle().isEmpty()) {
-                        existingLecture.setSubtitle(newLecture.getSubtitle());
+                    // Update author if provided
+                    if (newLecture.getAuthor() != null && !newLecture.getAuthor().isEmpty()) {
+                        existingLecture.setAuthor(newLecture.getAuthor());
                     }
 
-                    // Update sections if provided
-                    if (newLecture.getSections() != null && !newLecture.getSections().isEmpty()) {
-                        // Iterate over new sections and update existing ones or add new sections
-                        for (Lecture.Section newSection : newLecture.getSections()) {
-                            boolean sectionFound = false;
+                    // Update headings if provided
+                    if (newLecture.getHeadings() != null && !newLecture.getHeadings().isEmpty()) {
+                        // Iterate over new headings and update existing ones or add new headings
+                        for (Lecture.Heading newHeading : newLecture.getHeadings()) {
+                            boolean headingFound = false;
 
-                            // Check if the section exists in the existing lecture
-                            for (Lecture.Section existingSection : existingLecture.getSections()) {
-                                if (existingSection.getId().equals(newSection.getId())) {
-                                    // Update section details
-                                    existingSection.setHeading(newSection.getHeading() != null ? newSection.getHeading() : existingSection.getHeading());
-                                    existingSection.setContent(newSection.getContent() != null ? newSection.getContent() : existingSection.getContent());
-                                    sectionFound = true;
+                            // Check if the heading exists in the existing lecture
+                            for (Lecture.Heading existingHeading : existingLecture.getHeadings()) {
+                                if (existingHeading.getTitle().equals(newHeading.getTitle())) {
+                                    // Update subheadings if provided
+                                    if (newHeading.getSubHeadings() != null && !newHeading.getSubHeadings().isEmpty()) {
+                                        for (Lecture.SubHeading newSubHeading : newHeading.getSubHeadings()) {
+                                            boolean subHeadingFound = false;
+
+                                            // Check if the subheading exists in the existing heading
+                                            for (Lecture.SubHeading existingSubHeading : existingHeading.getSubHeadings()) {
+                                                if (existingSubHeading.getTitle().equals(newSubHeading.getTitle())) {
+                                                    // Update subheading content
+                                                    existingSubHeading.setContent(newSubHeading.getContent() != null ? newSubHeading.getContent() : existingSubHeading.getContent());
+                                                    subHeadingFound = true;
+                                                    break;
+                                                }
+                                            }
+
+                                            // If subheading is new, add it to the list
+                                            if (!subHeadingFound) {
+                                                existingHeading.getSubHeadings().add(newSubHeading);
+                                            }
+                                        }
+                                    }
+                                    headingFound = true;
                                     break;
                                 }
                             }
 
-                            // If section is new, add it to the list
-                            if (!sectionFound) {
-                                existingLecture.getSections().add(newSection);
+                            // If heading is new, add it to the list
+                            if (!headingFound) {
+                                existingLecture.getHeadings().add(newHeading);
                             }
                         }
                     }
