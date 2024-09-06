@@ -41,7 +41,7 @@ public class PostService {
     @Autowired
     private ContestRepo contestRepo;
 
-    @Cacheable("Posts")
+//    @Cacheable("Posts")
     public List<Posts> getAllPosts() {
         return postRepo.findAll();
     }
