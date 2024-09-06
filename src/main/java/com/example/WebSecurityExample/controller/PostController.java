@@ -38,6 +38,16 @@ public class PostController {
     @Autowired
     private CourseService courseService;
 
+    @GetMapping("/ProblemSet")
+    public ResponseEntity<?> getAllPosts() {
+        try {
+            List<Posts> all = postService.getAllPosts();
+            return new ResponseEntity<>(all, HttpStatus.OK);
+
+        }catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @GetMapping("/username/{username}")
     public ResponseEntity<?> getAllPosts(@PathVariable String username,@RequestHeader(value = "If-Modified-Since", required = false) String ifModifiedSince) {
