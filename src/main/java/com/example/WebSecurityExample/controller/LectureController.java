@@ -3,6 +3,7 @@ package com.example.WebSecurityExample.controller;
 import com.example.WebSecurityExample.MongoRepo.ContestRepo;
 import com.example.WebSecurityExample.Pojo.Contest;
 import com.example.WebSecurityExample.Pojo.Lecture.Lecture;
+import com.example.WebSecurityExample.Pojo.Lecture.RemoveHeadingsWapper;
 import com.example.WebSecurityExample.Pojo.Posts.Posts;
 import com.example.WebSecurityExample.Pojo.User;
 import com.example.WebSecurityExample.Service.ContestService;
@@ -181,12 +182,28 @@ public class LectureController {
         }
     }
     @PutMapping("/id/{myId}")
-    public ResponseEntity<?> updateCourseById(@PathVariable String myId, @RequestBody Lecture newLecture) {
+    public ResponseEntity<?> updateCourseById(@PathVariable String myId, @RequestBody Lecture newLecture ) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String username = authentication.getName();
 //            logger.error("Try to updating Lecture by ID");
             Lecture updatedLecture = lectureService.updateLecture(myId, newLecture, username);
+            return new ResponseEntity<>(updatedLecture, HttpStatus.OK);
+        } catch (RuntimeException e) {
+//            logger.error("Error updating Lecture by ID", e);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PutMapping("/removeHeadings/id/{myId}")
+    public ResponseEntity<?> removeHeadingAndSubHeadingById(@PathVariable String myId, @RequestBody RemoveHeadingsWapper removeHeadingsWapper ) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+//            logger.error("Try to updating Lecture by ID");
+            List<String> headingsToRemove = removeHeadingsWapper.getHeadingsToRemove();
+            List<String> subHeadingsToRemove = removeHeadingsWapper.getSubHeadingsToRemove();
+            Lecture updatedLecture = lectureService.removeHeadingInTheLecture(myId, username, headingsToRemove, subHeadingsToRemove);
             return new ResponseEntity<>(updatedLecture, HttpStatus.OK);
         } catch (RuntimeException e) {
 //            logger.error("Error updating Lecture by ID", e);

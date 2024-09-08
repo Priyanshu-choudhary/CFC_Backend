@@ -206,4 +206,48 @@ private static final Logger logger = LoggerFactory.getLogger(LeactureService.cla
     }
 
 
+    public Lecture removeHeadingInTheLecture(String id, String username, List<String> headingsToRemove, List<String> subHeadingsToRemove) {
+        try {
+            // Fetch user from service
+            User user = userService.findByName(username);
+
+            // Find existing lecture
+            Optional<Lecture> existingLectureOpt = lectureRepo.findById(id);
+
+            // Check if lecture exists
+            if (existingLectureOpt.isPresent()) {
+                Lecture existingLecture = existingLectureOpt.get();
+
+                // Check if user owns the lecture
+                if (user.getLectures().contains(existingLecture)) {
+
+                    // Remove specific headings if requested
+                    if (headingsToRemove != null && !headingsToRemove.isEmpty()) {
+                        existingLecture.getHeadings().removeIf(heading -> headingsToRemove.contains(heading.getTitle()));
+                    }
+
+                    // Remove specific subheadings if requested
+                    if (subHeadingsToRemove != null && !subHeadingsToRemove.isEmpty()) {
+                        for (Lecture.Heading heading : existingLecture.getHeadings()) {
+                            heading.getSubHeadings().removeIf(subHeading -> subHeadingsToRemove.contains(subHeading.getTitle()));
+                        }
+                    }
+
+                    // Save and return the updated lecture
+                    return lectureRepo.save(existingLecture);
+
+                } else {
+                    throw new RuntimeException("User does not own the lecture");
+                }
+            } else {
+                throw new RuntimeException("Lecture not found");
+            }
+        } catch (Exception e) {
+            e.printStackTrace(); // Print the stack trace to understand the error
+            throw new RuntimeException("An error occurred while updating the Lecture: " + e.getMessage(), e);
+        }
+    }
+
+
+
 }
