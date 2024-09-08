@@ -33,6 +33,8 @@ public class Posts {
     private String difficulty;
     private Map<String, SolutionCode> solution=new HashMap<>();;
     private List<String> answer = new ArrayList<>();
+    private List<String> companies = new ArrayList<>();
+    private String accuracy ;
     private String constrain;
     private String timecomplixity;
     private String avgtime;
