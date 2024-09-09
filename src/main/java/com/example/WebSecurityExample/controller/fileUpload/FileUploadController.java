@@ -65,6 +65,7 @@ public class FileUploadController {
         Map<String, String> response = new HashMap<>();
         response.put("message", message);
         response.put("fileUrl", fileUrl);
+        response.put("location", fileUrl);
         return response;
     }
 }
