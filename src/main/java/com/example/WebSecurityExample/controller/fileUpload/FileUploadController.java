@@ -63,8 +63,6 @@ public class FileUploadController {
 
     private Map<String, String> createResponse(String message, String fileUrl) {
         Map<String, String> response = new HashMap<>();
-        response.put("message", message);
-        response.put("fileUrl", fileUrl);
         response.put("location", fileUrl);
         return response;
     }
