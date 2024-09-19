@@ -1,5 +1,6 @@
 package com.example.WebSecurityExample.controller;
 
+import com.example.WebSecurityExample.MongoRepo.PostRepo;
 import com.example.WebSecurityExample.Pojo.Contest;
 import com.example.WebSecurityExample.Pojo.Course;
 import com.example.WebSecurityExample.Pojo.Posts.Posts;
@@ -38,6 +39,9 @@ public class PostController {
 
     @Autowired
     private CourseService courseService;
+
+    @Autowired
+    private PostRepo postRepo;
 
     @GetMapping("/ProblemSet")
     public ResponseEntity<?> getAllPosts() {
@@ -165,11 +169,10 @@ public class PostController {
     }
 
 
-    @GetMapping("/id/{myid}")
-    public ResponseEntity<?> getUserById(@PathVariable String myid) {
+    @GetMapping("/user/id/{myid}")
+    public ResponseEntity<?> getUserById(@PathVariable String myid, @RequestParam String username) {
         try {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            String username = auth.getName();
+
             // logger.info("Fetching post by ID: {} for user: {}", myid, username);
 
             User users = userService.findByName(username);
@@ -179,6 +182,7 @@ public class PostController {
             }
 
             List<Posts> collect = users.getPosts().stream().filter(x -> x.getId().equals(myid)).collect(Collectors.toList());
+
             if (collect.isEmpty()) {
                 // logger.info("Post not found with ID: {}", myid);
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -194,6 +198,25 @@ public class PostController {
             }
         } catch (Exception e) {
             // logger.error("Error fetching post by ID", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/id/{myid}")
+    public ResponseEntity<?> getPostsById(@PathVariable String myid) {
+        try {
+            // Fetch the post by ID using postRepository
+            Optional<Posts> post = postRepo.findById(myid);
+
+            if (post.isPresent()) {
+                // Return the found post
+                return new ResponseEntity<>(post.get(), HttpStatus.OK);
+            } else {
+                // Return 404 if the post is not found
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            // Return 500 in case of an error
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
