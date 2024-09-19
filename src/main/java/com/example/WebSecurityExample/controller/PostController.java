@@ -10,6 +10,7 @@ import com.example.WebSecurityExample.Service.UserService;
 //import org.slf4j.// logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -59,6 +60,19 @@ public class PostController {
             return new ResponseEntity<>(all, HttpStatus.OK);
 
         }catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @GetMapping("/username/{username}/posts")
+    public ResponseEntity<?> getAllPosts(
+            @PathVariable String username,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            // Fetch paginated posts directly from the database
+            Page<Posts> postsPage = postService.findPostsByUsername(username, page, size);
+            return new ResponseEntity<>(postsPage, HttpStatus.OK);
+        } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

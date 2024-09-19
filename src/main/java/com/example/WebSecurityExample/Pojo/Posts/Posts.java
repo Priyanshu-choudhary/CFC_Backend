@@ -29,6 +29,7 @@ public class Posts {
     private String title;
     @NonNull
     private String description;
+    private String userName;
     private String Example;
     private String difficulty;
     private Map<String, SolutionCode> solution=new HashMap<>();;
