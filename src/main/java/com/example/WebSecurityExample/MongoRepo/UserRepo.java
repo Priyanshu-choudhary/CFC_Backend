@@ -20,5 +20,5 @@ public interface UserRepo extends MongoRepository<User, String>, FilterUsersName
 //    @Query(value = "{ 'name': ?0 }", fields = "{ '_class': 0, 'contests': 0, 'userContestDetails': 0, 'posts': 0, 'name': 0, 'password': 0, 'postCount': 0, 'roles': 0, 'courses': { '$slice': [0, 1000] } }")
 //    List<User> findOfficialCoursesByNameRandom(String name);
 
-
+    Page<User> findAll(Pageable pageable);
 }

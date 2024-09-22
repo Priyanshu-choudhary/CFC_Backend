@@ -1,10 +1,14 @@
 package com.example.WebSecurityExample.Service;
 
 import com.example.WebSecurityExample.MongoRepo.UserRepo;
+import com.example.WebSecurityExample.Pojo.Posts.UserDTO.UserDTO;
 import com.example.WebSecurityExample.Pojo.User;
 import com.example.WebSecurityExample.controller.PostController;
 //import org.slf4j.// logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -27,12 +31,19 @@ public class UserService {
     private static final PasswordEncoder passwordEncoder= new BCryptPasswordEncoder();
 
 //    @Cacheable("users")
-    public List<User> getAllUsers() {
-        List<User> users = userRepository.findAll();
-        users.forEach(user -> user.setPostCount(user.getPosts().size()));
+public Page<UserDTO> getAllUsers(Pageable pageable) {
+    Page<User> usersPage = userRepository.findAll(pageable);
 
-        return users;
-    }
+    return usersPage.map(user -> {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(user.getId());
+        userDTO.setName(user.getName());
+        userDTO.setProfileImg(user.getProfileImg());
+        userDTO.setRating(user.getRating());
+        userDTO.setPostCount(user.getPosts().size());
+        return userDTO;
+    });
+}
 
 
 

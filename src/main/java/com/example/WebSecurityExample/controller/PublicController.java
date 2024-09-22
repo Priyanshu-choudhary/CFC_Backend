@@ -1,5 +1,6 @@
 package com.example.WebSecurityExample.controller;
 
+import com.example.WebSecurityExample.Pojo.Posts.UserDTO.UserDTO;
 import com.example.WebSecurityExample.Pojo.User;
 import com.example.WebSecurityExample.Service.CourseService;
 import com.example.WebSecurityExample.Service.PostService;
@@ -8,6 +9,9 @@ import com.mongodb.client.MongoClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -85,11 +89,12 @@ public class PublicController {
             return bytes / (1024 * 1024 * 1024) + " GB";
         }
     }
-    @GetMapping("getAllUser")
-    public List getAllUsersbyUserName() {
-        return  userService.getAllUsers();
+    @GetMapping("getAllUsers")
+    public Page<UserDTO> getAllUsers(@RequestParam(defaultValue = "0") int page,
+                                     @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return userService.getAllUsers(pageable);
     }
-
     @GetMapping("showUser/{username}")
     public User getUsersbyUserName(@PathVariable String username) {
         return  userService.findByName(username);
