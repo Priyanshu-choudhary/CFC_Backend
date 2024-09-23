@@ -10,8 +10,7 @@ import lombok.NonNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-import com.example.WebSecurityExample.Pojo.Posts.HelperCode;
-import com.example.WebSecurityExample.Pojo.Course;
+import com.example.WebSecurityExample.Pojo.Course.Course;
 
 import java.util.*;
 

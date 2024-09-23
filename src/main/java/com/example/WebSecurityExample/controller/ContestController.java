@@ -1,13 +1,10 @@
 package com.example.WebSecurityExample.controller;
 
 import com.example.WebSecurityExample.MongoRepo.ContestRepo;
-import com.example.WebSecurityExample.MongoRepo.CourseRepo;
 import com.example.WebSecurityExample.Pojo.Contest;
-import com.example.WebSecurityExample.Pojo.Course;
 import com.example.WebSecurityExample.Pojo.Posts.Posts;
 import com.example.WebSecurityExample.Pojo.User;
 import com.example.WebSecurityExample.Service.ContestService;
-import com.example.WebSecurityExample.Service.CourseService;
 import com.example.WebSecurityExample.Service.PostService;
 import com.example.WebSecurityExample.Service.UserService;
 import org.slf4j.Logger;

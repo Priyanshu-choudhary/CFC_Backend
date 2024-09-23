@@ -2,14 +2,13 @@ package com.example.WebSecurityExample.controller;
 
 import com.example.WebSecurityExample.MongoRepo.PostRepo;
 import com.example.WebSecurityExample.Pojo.Contest;
-import com.example.WebSecurityExample.Pojo.Course;
+import com.example.WebSecurityExample.Pojo.Course.Course;
 import com.example.WebSecurityExample.Pojo.Posts.Posts;
 import com.example.WebSecurityExample.Pojo.User;
 import com.example.WebSecurityExample.Service.CourseService;
 import com.example.WebSecurityExample.Service.PostService;
 import com.example.WebSecurityExample.Service.UserService;
 //import org.slf4j.// logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;

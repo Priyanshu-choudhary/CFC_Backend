@@ -1,13 +1,14 @@
 package com.example.WebSecurityExample.controller;
 
 import com.example.WebSecurityExample.MongoRepo.CourseRepo;
-import com.example.WebSecurityExample.Pojo.Course;
+import com.example.WebSecurityExample.Pojo.Course.Course;
+import com.example.WebSecurityExample.Pojo.Course.CourseDTO.CourseDTO;
 import com.example.WebSecurityExample.Service.CourseService;
 import com.example.WebSecurityExample.Service.PostService;
 import com.example.WebSecurityExample.Service.UserService;
 //import org.slf4j.// logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -34,6 +35,21 @@ public class CourseController {
     @Autowired
     private CourseRepo courseRepo;
 
+    @GetMapping
+    public Page<CourseDTO> getAllCourses(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return courseService.getAllCourses(page, size);
+    }
+
+    @GetMapping("/user")
+    public Page<CourseDTO> getCoursesByUserName(
+            @RequestParam String userName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return courseService.getCoursesByUserName(userName, page, size);
+    }
+
     @GetMapping("/{username}/{skip}/{limit}")
     public ResponseEntity<?> getCourseByUserNameController(@PathVariable String username, @PathVariable int skip ,@PathVariable int limit) {
         try {
@@ -49,6 +65,7 @@ public class CourseController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     @GetMapping("/id/{id}")
     public ResponseEntity<?> getCourseById(@PathVariable String id) {
         try {

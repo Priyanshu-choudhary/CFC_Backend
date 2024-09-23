@@ -1,5 +1,6 @@
 package com.example.WebSecurityExample.Pojo;
 
+import com.example.WebSecurityExample.Pojo.Course.Course;
 import com.example.WebSecurityExample.Pojo.Lecture.Lecture;
 import com.example.WebSecurityExample.Pojo.Posts.Posts;
 import com.example.WebSecurityExample.Pojo.TopicWiseSkills.TopicSkill;

@@ -5,18 +5,11 @@ import com.example.WebSecurityExample.MongoRepo.CourseRepo;
 import com.example.WebSecurityExample.MongoRepo.PostRepo;
 import com.example.WebSecurityExample.MongoRepo.UserRepo;
 import com.example.WebSecurityExample.Pojo.Contest;
-import com.example.WebSecurityExample.Pojo.Course;
-import com.example.WebSecurityExample.Pojo.Posts.Posts;
 import com.example.WebSecurityExample.Pojo.User;
-import com.example.WebSecurityExample.controller.CourseController;
 //import org.slf4j.// logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 

@@ -3,16 +3,17 @@ package com.example.WebSecurityExample.Service;
 import com.example.WebSecurityExample.MongoRepo.CourseRepo;
 import com.example.WebSecurityExample.MongoRepo.PostRepo;
 import com.example.WebSecurityExample.MongoRepo.UserRepo;
-import com.example.WebSecurityExample.Pojo.Course;
+import com.example.WebSecurityExample.Pojo.Course.Course;
+import com.example.WebSecurityExample.Pojo.Course.CourseDTO.CourseDTO;
 import com.example.WebSecurityExample.Pojo.User;
-import com.example.WebSecurityExample.controller.CourseController;
 //import org.slf4j.// logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,10 +33,31 @@ public class CourseService {
     @Autowired
     private UserService userService;
 
-    public List<Course> getAllCourses() {
-        return courseRepo.findAll();
+    // Paginated method to get all courses with specific fields
+    public Page<CourseDTO> getAllCourses(int page, int size) {
+        Page<Course> coursesPage = courseRepo.findAll(PageRequest.of(page, size));
+        return coursesPage.map(this::convertToDTO);
     }
 
+    // Get courses by userName
+    public Page<CourseDTO> getCoursesByUserName(String userName, int page, int size) {
+        Page<Course> coursesPage = courseRepo.findByUserName(userName, PageRequest.of(page, size));
+        return coursesPage.map(this::convertToDTO);
+    }
+
+    // Convert Course to CourseDTO
+    private CourseDTO convertToDTO(Course course) {
+        return new CourseDTO(
+                course.getId(),
+                course.getTitle(),
+                course.getProgress(),
+                course.getTotalQuestions(),
+                course.getRating(),
+                course.getImage(),
+                course.getType(),
+                course.getPermission()
+        );
+    }
     @Cacheable(value = "userCoursesCache", key = "#username")
     public List<Course> getUserCourses(String username) {
         User users = userService.findByName(username);
@@ -136,6 +158,10 @@ public class CourseService {
 
                     if (newCourse.getPermission() != null) {
                         existingCourse.setPermission(newCourse.getPermission());
+
+                    }
+                    if (newCourse.getUserName() != null) {
+                        existingCourse.setUserName(newCourse.getUserName());
 
                     }
                     if (newCourse.getTitle() != null) {

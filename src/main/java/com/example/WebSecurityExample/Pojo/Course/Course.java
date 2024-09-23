@@ -1,4 +1,4 @@
-package com.example.WebSecurityExample.Pojo;
+package com.example.WebSecurityExample.Pojo.Course;
 
 import com.example.WebSecurityExample.Pojo.Posts.Posts;
 import lombok.Data;
@@ -25,6 +25,7 @@ public class Course {
     @EqualsAndHashCode.Include
     private String title;
     private String description;
+    private String userName;
     private Integer progress;
     private String totalQuestions;
     private List<String> completeQuestions=new ArrayList<>();
