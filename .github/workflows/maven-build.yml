@@ -54,3 +54,5 @@ jobs:
           scp -i private_key.pem target/Basic_CRUD_Oprations-0.0.1-SNAPSHOT.jar $USER@$HOST:/home/ubuntu/CFC_Backend/target/Basic_CRUD_Oprations-0.0.1-SNAPSHOT.jar
           ssh -i private_key.pem $USER@$HOST "sudo systemctl restart my-spring-app"
 
+
+
