@@ -53,24 +53,24 @@ public Page<UserDTO> getAllUsers(Pageable pageable) {
         return userOpt;
     }
 
-    @CacheEvict(value = "users", allEntries = true)
+
     public User createNewUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 //        user.setRoles(Arrays.asList("USER"));
 
         return userRepository.save(user);
     }
-    @CacheEvict(value = "users", allEntries = true)
+
     public User createUser(User user) {
         return userRepository.save(user);
     }
 
-    @CacheEvict(value = "users", allEntries = true)
+
     public void deleteUserById(String id) {
         userRepository.deleteById(id);
     }
 
-    @CachePut(value = "users", key = "#username")
+
     public User findByName(String username){
         // logger.info("user service findByName {}",username);
         User user = userRepository.findByName(username);
