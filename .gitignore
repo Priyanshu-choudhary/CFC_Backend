@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### CFC Secrets ###
+.env
+*.p12
+*.jks
+src/main/resources/application-local.properties
+src/main/resources/application-prod.properties

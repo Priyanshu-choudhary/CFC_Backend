@@ -19,10 +19,13 @@ public class UserDetailServicesImp implements UserDetailsService {
         User user = userRepo.findByName(username);
 //        System.out.println("security Using Find By name....");
         if (user != null) {
+            String[] roles = (user.getRoles() != null && !user.getRoles().isEmpty())
+                    ? user.getRoles().toArray(new String[0])
+                    : new String[]{"USER"};
             return org.springframework.security.core.userdetails.User.builder()
                     .username(user.getName())
                     .password(user.getPassword())
-                    .roles(user.getRoles().toArray(new String[0]))
+                    .roles(roles)
                     .build();
         }
         throw new UsernameNotFoundException("User not found from security: " + username);

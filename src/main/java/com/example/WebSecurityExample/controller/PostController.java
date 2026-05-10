@@ -317,32 +317,30 @@ public class PostController {
     }
 
     @PostMapping("/username/{username}")
-    public ResponseEntity<Posts> createPost(@PathVariable String username,@RequestBody Posts post) {
+    public ResponseEntity<Posts> createPost(@PathVariable String username, @RequestBody Posts post) {
         try {
-
-            // logger.info("Creating new post for user: {}", username);
+            // Verify the caller is the same user named in the URL (prevents posting as another user)
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (!auth.getName().equals(username)) {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
 
             User user = userService.findByName(username);
-            // logger.info(" user: {}", user);
             List<Posts> allPosts = user.getPosts();
 
             if (allPosts != null) {
                 for (Posts existingPost : allPosts) {
                     if (existingPost.getTitle().equals(post.getTitle())) {
-                        // logger.warn("Duplicate post creation attempt for user: {}", username);
-                        return new ResponseEntity<>(HttpStatus.CONFLICT); // 409 Conflict
+                        return new ResponseEntity<>(HttpStatus.CONFLICT);
                     }
                 }
             }
 
-            // Set the lastModified field to the current date and time
             post.setLastModified(new Date());
             userService.setLastdate(username);
-            postService.createPost(post, username,user);
-            // logger.info("Post created successfully for user: {}", username);
+            postService.createPost(post, username, user);
             return new ResponseEntity<>(post, HttpStatus.CREATED);
         } catch (Exception e) {
-            // logger.error("Error creating post", e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
@@ -397,15 +395,21 @@ public class PostController {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
-            // logger.info("Deleting post with ID: {} for user: {}", id, username);
+
+            // Verify the post belongs to the authenticated user
+            Optional<Posts> postOpt = postRepo.findById(id);
+            if (postOpt.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            Posts post = postOpt.get();
+            if (!post.getUserName().equals(username)) {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
 
             postService.deleteUserById(id, username);
-
             userService.setLastdate(username);
-            // logger.info("Post deleted successfully with ID: {} for user: {}", id, username);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
-            // logger.error("Error deleting post by ID", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

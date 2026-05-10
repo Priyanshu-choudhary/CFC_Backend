@@ -18,7 +18,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/Files")
-@CrossOrigin(origins = {"https://codeforchallenge.online", "http://localhost:5173"})
+@CrossOrigin(origins = { "https://codeforchallenge.online", "http://localhost:5173" })
 public class FileUploadController {
 
     private static final Logger logger = LoggerFactory.getLogger(FileUploadController.class);
@@ -50,7 +50,7 @@ public class FileUploadController {
             Path path = Paths.get(uploadDir + File.separator + file.getOriginalFilename());
             Files.write(path, file.getBytes());
             String fileName = file.getOriginalFilename();
-            String fileUrl = "https://hytechlabs.online:" + serverPort + contextPath + "images/" + fileName;
+            String fileUrl = "http://localhost:" + serverPort + contextPath + "images/" + fileName;
             logger.info("File uploaded successfully: {}", path.toString());
             return ResponseEntity.status(HttpStatus.OK)
                     .body(createResponse("File uploaded successfully", fileUrl));

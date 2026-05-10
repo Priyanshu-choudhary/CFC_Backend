@@ -11,8 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
+
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,7 +20,8 @@ import java.util.Optional;
 
 @Service
 public class CourseService {
-//    private static final // logger // logger = LoggerFactory.getLogger(CourseController.class);
+    // private static final // logger // logger =
+    // LoggerFactory.getLogger(CourseController.class);
 
     @Autowired
     private CourseRepo courseRepo;
@@ -55,28 +55,28 @@ public class CourseService {
                 course.getRating(),
                 course.getImage(),
                 course.getType(),
-                course.getPermission()
-        );
+                course.getPermission());
     }
-    @Cacheable(value = "userCoursesCache", key = "#username")
+
     public List<Course> getUserCourses(String username) {
         User users = userService.findByName(username);
         return users.getCourses();
     }
-    public List<Course> getUserOneCourses(String username, int skip , int limit) {
-        List users = userRepo.findOfficialCoursesByName(username, skip , limit);
-//        System.out.println("correct method");
+
+    public List<Course> getUserOneCourses(String username, int skip, int limit) {
+        List users = userRepo.findOfficialCoursesByName(username, skip, limit);
+        // System.out.println("correct method");
         return users;
     }
 
     public Optional<Course> getUserCoursesByID(String ID) {
         Optional<Course> userOpt = courseRepo.findById(ID);
-//        // logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^findByName^^^^^^^^^^^^^^^^^^^");
+        // //
+        // logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^findByName^^^^^^^^^^^^^^^^^^^");
         return userOpt;
     }
 
-    @CacheEvict(value = "userCoursesCache", allEntries = true)
-//    @Transactional
+    // @Transactional
     public String createCourse(Course course, String inputUser) {
         try {
             // Fetch the user
@@ -89,11 +89,12 @@ public class CourseService {
 
             if (existingCourseOpt.isPresent()) {
                 // Course already exists, return the existing course ID
-                // logger.info("Course with the same title already exists for this user. Returning existing course ID.");
+                // logger.info("Course with the same title already exists for this user.
+                // Returning existing course ID.");
                 return existingCourseOpt.get().getId();
             } else {
                 // Associate the course with the user
-//                course.setUser(myUser);
+                // course.setUser(myUser);
                 Course savedCourse = courseRepo.save(course);
 
                 // Update user's course list
@@ -110,19 +111,18 @@ public class CourseService {
         }
     }
 
-
     public Course findCourseByTitleAndUser(String courseTitle, User user) {
         return courseRepo.findByTitle(courseTitle);
     }
-    @CacheEvict(value = "userCoursesCache", allEntries = true)
-//    @Transactional
+
+    // @Transactional
     public boolean deleteUserById(String id, String name) {
         try {
             User myuser = userService.findByName(name);
             boolean b = myuser.getCourses().removeIf(x -> x.getId().equals(id));
             if (b) {
                 userService.createUser(myuser);
-               return b;
+                return b;
             }
         } catch (Exception e) {
 
@@ -133,8 +133,7 @@ public class CourseService {
         return false;
     }
 
-    @CacheEvict(value = "userCoursesCache", allEntries = true)
-//    @Transactional
+    // @Transactional
     public Course updateCourse(String id, Course newCourse, String username) {
         try {
             // logger.info("Updating course with ID {} for user {}", id, username);
@@ -186,7 +185,6 @@ public class CourseService {
 
                     }
 
-
                     int newUniqueQuestions = 0;
 
                     // Update completeQuestions if provided
@@ -203,24 +201,25 @@ public class CourseService {
                                 newUniqueQuestions++;
                                 // logger.info("Added question ID {} to completeQuestions list", questionId);
                             } else {
-                                // logger.debug("Question ID {} is already in completeQuestions list", questionId);
+                                // logger.debug("Question ID {} is already in completeQuestions list",
+                                // questionId);
                             }
                         }
                         existingCourse.setCompleteQuestions(currentCompleteQuestions);
-                        // logger.info("Updated completeQuestions list to {}", currentCompleteQuestions);
+                        // logger.info("Updated completeQuestions list to {}",
+                        // currentCompleteQuestions);
                     }
-
 
                     // Update user's rating and course's rating if new unique questions are added
                     if (newUniqueQuestions > 0) {
 
                         // Update course progress
                         if (newCourse.getProgress() != null) {
-                            Integer newProgress = newCourse.getProgress() + (existingCourse.getProgress() != null ? existingCourse.getProgress() : 0);
+                            Integer newProgress = newCourse.getProgress()
+                                    + (existingCourse.getProgress() != null ? existingCourse.getProgress() : 0);
                             existingCourse.setProgress(newProgress);
                             // logger.info("Updated course progress to {}", newProgress);
                         }
-
 
                         if (user.getRating() == null) {
                             user.setRating(newCourse.getRating());
@@ -239,7 +238,8 @@ public class CourseService {
                         }
 
                         // logger.info("User {} rating updated to {}", username, user.getRating());
-                        // logger.info("Course {} rating updated to {}", existingCourse.getId(), existingCourse.getRating());
+                        // logger.info("Course {} rating updated to {}", existingCourse.getId(),
+                        // existingCourse.getRating());
                     }
 
                     // Save updated user

@@ -56,8 +56,9 @@ public Page<UserDTO> getAllUsers(Pageable pageable) {
 
     public User createNewUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-//        user.setRoles(Arrays.asList("USER"));
-
+        if (user.getRoles() == null || user.getRoles().isEmpty()) {
+            user.setRoles(java.util.Arrays.asList("USER"));
+        }
         return userRepository.save(user);
     }
 

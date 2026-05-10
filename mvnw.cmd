@@ -27,6 +27,9 @@
 @REM   MVNW_VERBOSE - true: enable verbose log; others: silence the output
 @REM ----------------------------------------------------------------------------
 
+@REM Force Java 17 — JAVA_HOME on this machine points to Corretto 24 which breaks maven security
+@IF EXIST "C:\Program Files\Java\jdk-17" SET "JAVA_HOME=C:\Program Files\Java\jdk-17"
+
 @IF "%__MVNW_ARG0_NAME__%"=="" (SET __MVNW_ARG0_NAME__=%~nx0)
 @SET __MVNW_CMD__=
 @SET __MVNW_ERROR__=

@@ -1,4 +1,5 @@
 package com.example.WebSecurityExample.Service;
+
 import com.example.WebSecurityExample.MongoRepo.ContestRepo;
 import com.example.WebSecurityExample.MongoRepo.CourseRepo;
 import com.example.WebSecurityExample.MongoRepo.PostRepo;
@@ -9,8 +10,7 @@ import com.example.WebSecurityExample.Pojo.Posts.Posts;
 import com.example.WebSecurityExample.Pojo.User;
 //import org.slf4j.// logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Caching;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,10 +20,12 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.List;
 import java.util.Optional;
+
 @Service
 public class PostService {
 
-//    private static final // logger // logger = LoggerFactory.getLogger(PostController.class);
+    // private static final // logger // logger =
+    // LoggerFactory.getLogger(PostController.class);
 
     @Autowired
     private PostRepo postRepo;
@@ -40,7 +42,7 @@ public class PostService {
     @Autowired
     private ContestRepo contestRepo;
 
-//    @Cacheable("Posts")
+    // @Cacheable("Posts")
     public List<Posts> getAllPosts() {
         return postRepo.findAll();
     }
@@ -49,10 +51,10 @@ public class PostService {
         return postRepo.findByTagsIn(tags);
     }
 
-
     public Optional<Posts> getUserById(String id) {
         return postRepo.findById(id);
     }
+
     public Date getLastModifiedForUser(String username) {
         User user = userService.findByName(username);
         if (user != null && user.getPosts() != null && !user.getPosts().isEmpty()) {
@@ -63,36 +65,28 @@ public class PostService {
         }
         return new Date(0); // Return a default date if user or posts not found
     }
+
     public Page<Posts> findPostsByUsername(String username, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         return postRepo.findByUserName(username, pageable);
     }
 
-    @Caching(evict = {
-            @CacheEvict(value = "Posts", allEntries = true),
-            @CacheEvict(value = "users", allEntries = true),
-            @CacheEvict(value = "userPostsCache", key = "#username")
-    })
-//    @Transactional
-    public void createPost(Posts posts,String username,User myuser) {
-        try{
+    // @Transactional
+    public void createPost(Posts posts, String username, User myuser) {
+        try {
 
-            Posts saved= postRepo.save(posts);//saved in posts DB
+            Posts saved = postRepo.save(posts);// saved in posts DB
             myuser.getPosts().add(saved);
 
-            userService.createUser(myuser);//saved in user DB(creating ref)
-        }catch (Exception e){
+            userService.createUser(myuser);// saved in user DB(creating ref)
+        } catch (Exception e) {
             System.out.println(e);
-            throw new RuntimeException("(Ref course)an error occur while saving an entry",e);
+            throw new RuntimeException("(Ref course)an error occur while saving an entry", e);
         }
     }
 
-    @Caching(evict = {
-            @CacheEvict(value = "Posts", allEntries = true),
-            @CacheEvict(value = "users", allEntries = true)
-    })
-//    @Transactional
-    public void createPostWithRefCourse(Posts post, User user,String username) {
+    // @Transactional
+    public void createPostWithRefCourse(Posts post, User user, String username) {
         try {
 
             if (user == null) {
@@ -115,7 +109,8 @@ public class PostService {
             throw new RuntimeException("(Ref course)Error creating post", e);
         }
     }
-    public void createPostWithRefContest(Posts post, User user,String username) {
+
+    public void createPostWithRefContest(Posts post, User user, String username) {
         try {
 
             if (user == null) {
@@ -123,7 +118,7 @@ public class PostService {
             }
 
             postRepo.save(post);
-//            user.getPosts().add(post);
+            // user.getPosts().add(post);
             userRepo.save(user);
 
             Contest contest = post.getContest();
@@ -132,18 +127,15 @@ public class PostService {
                 contestRepo.save(contest);
             }
 
-            // logger.info("(Ref constest)Post created successfully for user: {}", username);
+            // logger.info("(Ref constest)Post created successfully for user: {}",
+            // username);
         } catch (Exception e) {
             // logger.error("(Ref constest)Error creating post for user: {}", username, e);
             throw new RuntimeException("(Ref course)Error creating post", e);
         }
     }
 
-    @Caching(evict = {
-            @CacheEvict(value = "Posts", allEntries = true),
-            @CacheEvict(value = "users", allEntries = true)
-    })
-//    @Transactional
+    // @Transactional
     public void deleteUserById(String id, String name) {
         try {
             User myuser = userService.findByName(name);
@@ -152,20 +144,15 @@ public class PostService {
                 userService.createUser(myuser);
                 postRepo.deleteById(id);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
 
             System.out.println(e);
-            throw new RuntimeException("Error occur while delete post",e);
+            throw new RuntimeException("Error occur while delete post", e);
         }
 
     }
-    @Caching(evict = {
-            @CacheEvict(value = "Posts", allEntries = true),
-            @CacheEvict(value = "users", allEntries = true)
-    })
 
-
-//    @Transactional
+    // @Transactional
     public Posts updatePost(String id, Posts newPost, String username) {
         try {
             User user = userService.findByName(username);
@@ -176,24 +163,59 @@ public class PostService {
                 Posts existingPost = existingPostOpt.get();
                 if (user.getPosts().contains(existingPost)) {
                     // logger.error("user {} contain post found: {}", username,existingPost);
-                    existingPost.setTitle(newPost.getTitle() != null && !newPost.getTitle().isEmpty() ? newPost.getTitle() : existingPost.getTitle());
-                    existingPost.setDescription(newPost.getDescription() != null && !newPost.getDescription().isEmpty() ? newPost.getDescription() : existingPost.getDescription());
-                    existingPost.setAnswer(newPost.getAnswer() != null && !newPost.getAnswer().isEmpty() ? newPost.getAnswer() : existingPost.getAnswer());
-                    existingPost.setExample(newPost.getExample() != null && !newPost.getExample().isEmpty() ? newPost.getExample() : existingPost.getExample());
-                    existingPost.setDifficulty(newPost.getDifficulty() != null && !newPost.getDifficulty().isEmpty() ? newPost.getDifficulty() : existingPost.getDifficulty());
-                    existingPost.setConstrain(newPost.getConstrain() != null && !newPost.getConstrain().isEmpty() ? newPost.getConstrain() : existingPost.getConstrain());
-                    existingPost.setTimecomplixity(newPost.getTimecomplixity() != null && !newPost.getTimecomplixity().isEmpty() ? newPost.getTimecomplixity() : existingPost.getTimecomplixity());
-                    existingPost.setAvgtime(newPost.getAvgtime() != null && !newPost.getAvgtime().isEmpty() ? newPost.getAvgtime() : existingPost.getAvgtime());
-                    existingPost.setType(newPost.getType() != null && !newPost.getType().isEmpty() ? newPost.getType() : existingPost.getType());
-                    existingPost.setOptionA(newPost.getOptionA() != null && !newPost.getOptionA().isEmpty() ? newPost.getOptionA() : existingPost.getOptionA());
-                    existingPost.setOptionB(newPost.getOptionB() != null && !newPost.getOptionB().isEmpty() ? newPost.getOptionB() : existingPost.getOptionB());
-                    existingPost.setOptionC(newPost.getOptionC() != null && !newPost.getOptionC().isEmpty() ? newPost.getOptionC() : existingPost.getOptionC());
-                    existingPost.setOptionD(newPost.getOptionD() != null && !newPost.getOptionD().isEmpty() ? newPost.getOptionD() : existingPost.getOptionD());
-                    existingPost.setVideoUrl(newPost.getVideoUrl() != null && !newPost.getVideoUrl().isEmpty() ? newPost.getVideoUrl() : existingPost.getVideoUrl());
-                    existingPost.setSequence(newPost.getSequence() != null && !newPost.getSequence().isEmpty() ? newPost.getSequence() : existingPost.getSequence());
-                    existingPost.setTags(newPost.getTags() != null && !newPost.getTags().isEmpty() ? newPost.getTags() : existingPost.getTags());
-                    existingPost.setCompanies(newPost.getCompanies() != null && !newPost.getCompanies().isEmpty() ? newPost.getCompanies() : existingPost.getCompanies());
-                    existingPost.setAccuracy(newPost.getAccuracy() != null && !newPost.getAccuracy().isEmpty() ? newPost.getAccuracy() : existingPost.getAccuracy());
+                    existingPost
+                            .setTitle(newPost.getTitle() != null && !newPost.getTitle().isEmpty() ? newPost.getTitle()
+                                    : existingPost.getTitle());
+                    existingPost.setDescription(newPost.getDescription() != null && !newPost.getDescription().isEmpty()
+                            ? newPost.getDescription()
+                            : existingPost.getDescription());
+                    existingPost.setAnswer(
+                            newPost.getAnswer() != null && !newPost.getAnswer().isEmpty() ? newPost.getAnswer()
+                                    : existingPost.getAnswer());
+                    existingPost.setExample(
+                            newPost.getExample() != null && !newPost.getExample().isEmpty() ? newPost.getExample()
+                                    : existingPost.getExample());
+                    existingPost.setDifficulty(newPost.getDifficulty() != null && !newPost.getDifficulty().isEmpty()
+                            ? newPost.getDifficulty()
+                            : existingPost.getDifficulty());
+                    existingPost.setConstrain(
+                            newPost.getConstrain() != null && !newPost.getConstrain().isEmpty() ? newPost.getConstrain()
+                                    : existingPost.getConstrain());
+                    existingPost.setTimecomplixity(
+                            newPost.getTimecomplixity() != null && !newPost.getTimecomplixity().isEmpty()
+                                    ? newPost.getTimecomplixity()
+                                    : existingPost.getTimecomplixity());
+                    existingPost.setAvgtime(
+                            newPost.getAvgtime() != null && !newPost.getAvgtime().isEmpty() ? newPost.getAvgtime()
+                                    : existingPost.getAvgtime());
+                    existingPost.setType(newPost.getType() != null && !newPost.getType().isEmpty() ? newPost.getType()
+                            : existingPost.getType());
+                    existingPost.setOptionA(
+                            newPost.getOptionA() != null && !newPost.getOptionA().isEmpty() ? newPost.getOptionA()
+                                    : existingPost.getOptionA());
+                    existingPost.setOptionB(
+                            newPost.getOptionB() != null && !newPost.getOptionB().isEmpty() ? newPost.getOptionB()
+                                    : existingPost.getOptionB());
+                    existingPost.setOptionC(
+                            newPost.getOptionC() != null && !newPost.getOptionC().isEmpty() ? newPost.getOptionC()
+                                    : existingPost.getOptionC());
+                    existingPost.setOptionD(
+                            newPost.getOptionD() != null && !newPost.getOptionD().isEmpty() ? newPost.getOptionD()
+                                    : existingPost.getOptionD());
+                    existingPost.setVideoUrl(
+                            newPost.getVideoUrl() != null && !newPost.getVideoUrl().isEmpty() ? newPost.getVideoUrl()
+                                    : existingPost.getVideoUrl());
+                    existingPost.setSequence(
+                            newPost.getSequence() != null && !newPost.getSequence().isEmpty() ? newPost.getSequence()
+                                    : existingPost.getSequence());
+                    existingPost.setTags(newPost.getTags() != null && !newPost.getTags().isEmpty() ? newPost.getTags()
+                            : existingPost.getTags());
+                    existingPost.setCompanies(
+                            newPost.getCompanies() != null && !newPost.getCompanies().isEmpty() ? newPost.getCompanies()
+                                    : existingPost.getCompanies());
+                    existingPost.setAccuracy(
+                            newPost.getAccuracy() != null && !newPost.getAccuracy().isEmpty() ? newPost.getAccuracy()
+                                    : existingPost.getAccuracy());
 
                     // Update codeTemplates
                     if (newPost.getCodeTemplates() != null) {

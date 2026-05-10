@@ -124,13 +124,5 @@ public class PublicController {
         return new ResponseEntity<>( HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("/user/id/{id}")
-    public ResponseEntity<?> deleteUserById(@PathVariable String id) {
-        try {
-            userService.deleteUserById(id);
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+    // Removed unauthenticated delete — was SEC-003. User deletion now handled via /users/ (authenticated).
 }

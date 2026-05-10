@@ -91,6 +91,7 @@ public class CourseController {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
             // logger.error("creating course for username {}", username);
+            System.out.println("creating course for username {}"+ username);
             String id = courseService.createCourse(course, username);
             // logger.error(" course id {}", id);
             // Wrap the ID in a JSON object
@@ -100,6 +101,7 @@ public class CourseController {
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception e) {
             // logger.error("Error creating Course", e);
+            System.out.println("Error creating Course"+ e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }

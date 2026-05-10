@@ -59,14 +59,16 @@ public class userController {
     }
 
     @PutMapping
-    public ResponseEntity<?>updateUserName(@RequestBody User updatedUser){
-        Authentication auth= SecurityContextHolder.getContext().getAuthentication();
-        String username= auth.getName();
-        User userIndb= userService.findByName(username);
-        // logger.info(" for user: {}", username);
-        if(userIndb!=null){
+    public ResponseEntity<?> updateUserName(@RequestBody User updatedUser) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        User userIndb = userService.findByName(username);
+        if (userIndb != null) {
             userIndb.setName(updatedUser.getName());
-            userIndb.setPassword(updatedUser.getPassword());
+            // Only re-encode if caller sent a new plaintext password
+            if (updatedUser.getPassword() != null && !updatedUser.getPassword().isBlank()) {
+                userIndb.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+            }
             userIndb.setEmail(updatedUser.getEmail());
             userIndb.setCollage(updatedUser.getCollage());
             userIndb.setBranch(updatedUser.getBranch());
@@ -74,15 +76,12 @@ public class userController {
             userIndb.setBadges(updatedUser.getBadges());
             userIndb.setNumber(updatedUser.getNumber());
             userIndb.setSkills(updatedUser.getSkills());
-            userIndb.setRoles(updatedUser.getRoles());
+            // Do NOT allow role changes via this endpoint — roles are admin-managed
             userIndb.setProfileImg(updatedUser.getProfileImg());
             userIndb.setLastModifiedUser(new Date());
-
-            // Save the updated user back to the database
-            userService.createNewUser(userIndb);
+            userService.createUser(userIndb); // direct save — no re-encoding
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        // Return appropriate response if user not found
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
