@@ -51,12 +51,14 @@ public class CourseService {
         return new CourseDTO(
                 course.getId(),
                 course.getTitle(),
+                course.getDescription(),
                 course.getProgress(),
                 course.getTotalQuestions(),
                 course.getRating(),
                 course.getImage(),
                 course.getType(),
-                course.getPermission());
+                course.getPermission(),
+                course.getLanguage());
     }
 
     public List<Course> getUserCourses(String username) {
@@ -91,7 +93,7 @@ public class CourseService {
                 return existingCourseOpt.get().getId();
             } else {
                 // Associate the course with the user
-                // course.setUser(myUser);
+                course.setUserName(inputUser);
                 Course savedCourse = courseRepo.save(course);
 
                 // Update user's course list

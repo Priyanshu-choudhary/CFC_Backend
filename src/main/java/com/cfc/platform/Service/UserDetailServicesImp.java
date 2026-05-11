@@ -6,8 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UserDetailServicesImp implements UserDetailsService {
@@ -17,11 +18,8 @@ public class UserDetailServicesImp implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepo.findByName(username);
-//        System.out.println("security Using Find By name....");
         if (user != null) {
-            String[] roles = (user.getRoles() != null && !user.getRoles().isEmpty())
-                    ? user.getRoles().toArray(new String[0])
-                    : new String[]{"USER"};
+            String[] roles = normalizeRoles(user.getRoles());
             return org.springframework.security.core.userdetails.User.builder()
                     .username(user.getName())
                     .password(user.getPassword())
@@ -29,5 +27,16 @@ public class UserDetailServicesImp implements UserDetailsService {
                     .build();
         }
         throw new UsernameNotFoundException("User not found from security: " + username);
+    }
+
+    private String[] normalizeRoles(List<String> roles) {
+        if (roles == null || roles.isEmpty()) {
+            return new String[]{"USER"};
+        }
+
+        return roles.stream()
+                .filter(role -> role != null && !role.isBlank())
+                .map(role -> role.startsWith("ROLE_") ? role.substring(5) : role)
+                .toArray(String[]::new);
     }
 }

@@ -1,30 +1,37 @@
 package com.cfc.platform.Pojo.Course.CourseDTO;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CourseDTO {
     private String id;
     private String title;
+    private String description;
     private Integer progress;
     private String totalQuestions;
     private Integer rating;
     private String image;
     private String type;
     private String permission;
+    private List<String> language = new ArrayList<>();
 
     // No-args constructor
     public CourseDTO() {
     }
 
     // All-args constructor
-    public CourseDTO(String id, String title, Integer progress, String totalQuestions,
-            Integer rating, String image, String type, String permission) {
+    public CourseDTO(String id, String title, String description, Integer progress, String totalQuestions,
+            Integer rating, String image, String type, String permission, List<String> language) {
         this.id = id;
         this.title = title;
+        this.description = description;
         this.progress = progress;
         this.totalQuestions = totalQuestions;
         this.rating = rating;
         this.image = image;
         this.type = type;
         this.permission = permission;
+        this.language = language != null ? language : new ArrayList<>();
     }
 
     // Getters and Setters
@@ -42,6 +49,14 @@ public class CourseDTO {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Integer getProgress() {
@@ -90,5 +105,13 @@ public class CourseDTO {
 
     public void setPermission(String permission) {
         this.permission = permission;
+    }
+
+    public List<String> getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(List<String> language) {
+        this.language = language;
     }
 }
