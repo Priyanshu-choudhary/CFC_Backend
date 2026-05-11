@@ -26,24 +26,29 @@ jobs:
           java-version: '17'
           cache: maven
 
-      - name: Build with Maven
+      - name: Build Application
         run: mvn clean package -DskipTests
 
-      - name: List target files
-        run: ls -la target
+      - name: Verify Generated Files
+        run: |
+          echo "==== TARGET DIRECTORY ===="
+          ls -la target
 
-      - name: Upload Artifact
+          echo "==== VERIFY APPLICATION PROPERTIES INSIDE JAR ===="
+          jar xf target/cfc-platform-0.0.1-SNAPSHOT.jar BOOT-INF/classes/application.properties
+
+          cat BOOT-INF/classes/application.properties
+
+      - name: Upload Spring Boot JAR
         uses: actions/upload-artifact@v4
         with:
           name: spring-boot-app
-          path: target/*.jar
+          path: target/cfc-platform-0.0.1-SNAPSHOT.jar
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
 
-    # IMPORTANT:
-    # This enables GitHub Environment secrets
     environment:
       name: CFC_Backend
 
@@ -54,8 +59,10 @@ jobs:
           name: spring-boot-app
           path: target/
 
-      - name: List downloaded files
-        run: ls -la target
+      - name: Verify Downloaded Artifact
+        run: |
+          echo "==== DOWNLOADED FILES ===="
+          ls -la target
 
       - name: Deploy to EC2
         env:
@@ -64,37 +71,33 @@ jobs:
           USER: ubuntu
 
         run: |
-          echo "Deploying to $HOST"
-
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
 
-          # Copy JAR to server
+          echo "==== CLEAN OLD FILES ON EC2 ===="
+
+          ssh -i private_key.pem \
+          -o StrictHostKeyChecking=no \
+          -o UserKnownHostsFile=/dev/null \
+          $USER@$HOST "
+            rm -f /home/ubuntu/CFC_Backend/target/*.jar.original
+          "
+
+          echo "==== COPY NEW JAR ===="
+
           scp -i private_key.pem \
           -o StrictHostKeyChecking=no \
           -o UserKnownHostsFile=/dev/null \
-          target/*.jar \
+          target/cfc-platform-0.0.1-SNAPSHOT.jar \
           $USER@$HOST:/home/ubuntu/CFC_Backend/target/
 
-          # Restart Spring Boot service
-          ssh -i private_key.pem \
-          -o StrictHostKeyChecking=no \
-          -o UserKnownHostsFile=/dev/null \
-          $USER@$HOST \
-          "sudo systemctl restart my-spring-app"
-
-      - name: Verify Service Status
-        env:
-          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          HOST: ${{ secrets.HOST }}
-          USER: ubuntu
-
-        run: |
-          echo "$PRIVATE_KEY" > private_key.pem
-          chmod 600 private_key.pem
+          echo "==== RESTART APPLICATION ===="
 
           ssh -i private_key.pem \
           -o StrictHostKeyChecking=no \
           -o UserKnownHostsFile=/dev/null \
-          $USER@$HOST \
-          "sudo systemctl status my-spring-app --no-pager"
+          $USER@$HOST "
+            sudo systemctl restart my-spring-app
+            sleep 10
+            sudo systemctl status my-spring-app --no-pager
+          "
