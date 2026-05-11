@@ -1,0 +1,216 @@
+package com.cfc.platform.controller;
+
+import com.cfc.platform.MongoRepo.ContestRepo;
+import com.cfc.platform.Pojo.Contest;
+import com.cfc.platform.Pojo.Lecture.Lecture;
+import com.cfc.platform.Pojo.Lecture.RemoveHeadingsWapper;
+import com.cfc.platform.Pojo.Posts.Posts;
+import com.cfc.platform.Pojo.User;
+import com.cfc.platform.Service.ContestService;
+import com.cfc.platform.Service.LeactureService;
+import com.cfc.platform.Service.PostService;
+import com.cfc.platform.Service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
+
+@RestController
+@RequestMapping("/Lecture")
+//@CrossOrigin(origins = {"https://code-with-challenge.vercel.app", "http://localhost:5173"})
+public class LectureController {
+    private static final Logger logger = LoggerFactory.getLogger(LectureController.class);
+
+    @Autowired
+    private PostService postService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private ContestRepo contestRepo;
+
+    @Autowired
+    private ContestService contestService;
+
+    @Autowired
+    private LeactureService lectureService;
+
+    @GetMapping
+    public ResponseEntity<?> getAllLectureController() {
+        try {
+            List<Lecture> all = lectureService.getAllLecture();
+            if (all != null) {
+                return new ResponseEntity<>(all, HttpStatus.OK);
+            }
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+//            logger.error("Error fetching Lecture by username", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/{username}")
+    public ResponseEntity<?> getLectureByUserNameController(@PathVariable String username) {
+        try {
+            List<Lecture> all = lectureService.getUserLecture(username);
+            if (all != null) {
+                return new ResponseEntity<>(all, HttpStatus.OK);
+            }
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+//            logger.error("Error fetching Lecture by username", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/id/{id}")
+    public ResponseEntity<?> getCourseById(@PathVariable String id) {
+        try {
+
+            Optional<Lecture> all = lectureService.getUserLectureByID(id);
+            if (all.isPresent()) {
+                return new ResponseEntity<>(all, HttpStatus.OK);
+            }
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+//            logger.error("Error fetching Lecture by ID", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/Findby/{username}/{lectureTitle}")
+    public ResponseEntity<Lecture> getLectureByUserAndTitle(@PathVariable String username,@PathVariable String lectureTitle) {
+        Optional<Lecture> lecture = lectureService.getUserLectureWithTitle(username, lectureTitle);
+        return lecture.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+
+
+    @PostMapping
+    public ResponseEntity<?> createLecture(@RequestBody Lecture lecture) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String username = auth.getName();
+//            logger.error("creating course for username {}", username);
+            String id = lectureService.createLecture(lecture, username);
+//            logger.error(" Lecture id {}", id);
+            // Wrap the ID in a JSON object
+            Map<String, String> response = new HashMap<>();
+            response.put("LectureID", id);
+
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (Exception e) {
+//            logger.error("Error creating Course", e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+//    @PostMapping("/{lectureName}/username/{username}")
+//    public ResponseEntity<?> createPostRefCourse(@PathVariable String username,@PathVariable String lectureName, @RequestBody Posts post) {
+//        try {
+//
+////            logger.info("Creating new post ref to Lecture for user: {}", username);
+//
+//            // Fetch the user
+//            User user = userService.findByName(username);
+////            logger.info("user.getContests {}", user.getContests());
+//            // Find the course by name for this user
+//            Optional<Lecture> lectureOptional = user.getLectures().stream()
+//
+//                    .filter(c -> c.getTitle().equals(lectureName))
+//                    .findFirst();
+//
+//            if (lectureOptional.isPresent()) {
+//
+//                Lecture Lecture = lectureOptional.get();
+//
+//                // Set the lastModified field to the current date and time
+//                post.setLastModified(new Date());
+//
+//                // Reference the course in the post
+////                post.setConte(lecture);
+//
+//                // Create the post
+//                postService.createPostWithRefContest(post, user,username);
+//
+////                logger.info("Post ref to course created successfully for user: {}", username);
+//
+//                return new ResponseEntity<>(post, HttpStatus.CREATED);
+//            } else {
+////                logger.error("constest not found: {}", contestName);
+//                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//            }
+//
+//        } catch (Exception e) {
+////            logger.error("Error creating post ref to Lecture", e);
+//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//        }
+//    }
+//
+
+
+    @DeleteMapping("/id/{id}")
+    public ResponseEntity<Map<String, String>> deleteLectureById(@PathVariable String id) {
+        Map<String, String> response = new HashMap<>();
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String username = auth.getName();
+
+            // Assuming courseService.deleteUserById(id, username) returns a boolean indicating success
+            boolean deleted = lectureService.deleteLectureById(id, username);
+
+            if (deleted) {
+                response.put("message", "Lecture deleted successfully");
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("message", "Lecture not found or you do not have permission to delete it");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+
+        } catch (Exception e) {
+//            logger.error("Error deleting Lecture by ID", e);
+            response.put("message", "Error deleting Lecture");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+    @PutMapping("/id/{myId}")
+    public ResponseEntity<?> updateCourseById(@PathVariable String myId, @RequestBody Lecture newLecture ) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+//            logger.error("Try to updating Lecture by ID");
+            Lecture updatedLecture = lectureService.updateLecture(myId, newLecture, username);
+            return new ResponseEntity<>(updatedLecture, HttpStatus.OK);
+        } catch (RuntimeException e) {
+//            logger.error("Error updating Lecture by ID", e);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PutMapping("/removeHeadings/id/{myId}")
+    public ResponseEntity<?> removeHeadingAndSubHeadingById(@PathVariable String myId, @RequestBody RemoveHeadingsWapper removeHeadingsWapper ) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+//            logger.error("Try to updating Lecture by ID");
+            List<String> headingsToRemove = removeHeadingsWapper.getHeadingsToRemove();
+            List<String> subHeadingsToRemove = removeHeadingsWapper.getSubHeadingsToRemove();
+            Lecture updatedLecture = lectureService.removeHeadingInTheLecture(myId, username, headingsToRemove, subHeadingsToRemove);
+            return new ResponseEntity<>(updatedLecture, HttpStatus.OK);
+        } catch (RuntimeException e) {
+//            logger.error("Error updating Lecture by ID", e);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+
+
+}
