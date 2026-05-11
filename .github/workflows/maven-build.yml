@@ -1,6 +1,7 @@
 name: Build and Deploy Spring Boot
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - master  # Change to your default branch if it's different
@@ -45,8 +46,8 @@ jobs:
 
       - name: Deploy to Server via SCP
         env:
-          PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-          HOST: ${{ secrets.EC2_HOST }}
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          HOST: ${{ secrets.HOST }}
           USER: ubuntu
         run: |
           echo "Deploying to: $HOST"
