@@ -1,6 +1,6 @@
 package com.cfc.platform.controller;
 
-import com.cfc.platform.Service.Judge0Service;
+import com.cfc.platform.Service.CodeExecutionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +16,12 @@ public class Judge0Controller {
 
     private static final Logger log = LoggerFactory.getLogger(Judge0Controller.class);
 
+    /**
+     * Injected by interface — Spring wires whichever provider is active
+     * (judge0 or goboxd) based on the {@code code.execution.provider} property.
+     */
     @Autowired
-    private Judge0Service judge0Service;
+    private CodeExecutionService codeExecutionService;
 
     /**
      * POST /judge/run
@@ -27,7 +31,7 @@ public class Judge0Controller {
     @PostMapping("/run")
     public ResponseEntity<?> runCode(@RequestBody Map<String, String> request) {
         log.info("Run request: language={}", request.get("language"));
-        Map<String, Object> result = judge0Service.runCode(
+        Map<String, Object> result = codeExecutionService.runCode(
                 request.get("sourceCode"),
                 request.get("language"),
                 request.get("stdin")
@@ -55,7 +59,7 @@ public class Judge0Controller {
         Integer memLimit = request.get("memoryLimitKb") != null
                 ? ((Number) request.get("memoryLimitKb")).intValue() : null;
 
-        Map<String, Object> result = judge0Service.submitWithTestCases(
+        Map<String, Object> result = codeExecutionService.submitWithTestCases(
                 (String) request.get("sourceCode"),
                 (String) request.get("language"),
                 (Map<String, String>) request.get("testCases"),
@@ -71,6 +75,6 @@ public class Judge0Controller {
      */
     @GetMapping("/languages")
     public ResponseEntity<List<Map<String, Object>>> getLanguages() {
-        return ResponseEntity.ok(judge0Service.getLanguages());
+        return ResponseEntity.ok(codeExecutionService.getLanguages());
     }
 }

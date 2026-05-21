@@ -3,16 +3,30 @@ package com.cfc.platform.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
+/**
+ * Judge0 (RapidAPI) implementation of {@link CodeExecutionService}.
+ *
+ * Active when {@code code.execution.provider=judge0}. This is also the default
+ * when the property is absent ({@code matchIfMissing=true}) so existing
+ * deployments keep working with no config change.
+ */
 @Service
-public class Judge0Service {
+@ConditionalOnProperty(name = "code.execution.provider", havingValue = "judge0", matchIfMissing = true)
+public class Judge0Service implements CodeExecutionService {
 
     private static final Logger log = LoggerFactory.getLogger(Judge0Service.class);
+
+    @Override
+    public String providerName() {
+        return "judge0";
+    }
 
     @Value("${judge0.api.key}")
     private String apiKey;
@@ -54,6 +68,7 @@ public class Judge0Service {
      * Free-run playground â€” no expected output check.
      * Uses ?wait=true for synchronous single-call response.
      */
+    @Override
     public Map<String, Object> runCode(String sourceCode, String language, String stdin) {
         RestTemplate restTemplate = new RestTemplate();
         Integer langId = LANGUAGE_IDS.getOrDefault(language.toLowerCase(), 62);
@@ -82,6 +97,7 @@ public class Judge0Service {
      * testCases: Map of stdin â†’ expectedOutput pairs.
      * timeLimitSeconds / memoryLimitKb: per-problem limits (nullable â†’ defaults).
      */
+    @Override
     public Map<String, Object> submitWithTestCases(
             String sourceCode,
             String language,
@@ -213,6 +229,7 @@ public class Judge0Service {
         return result;
     }
 
+    @Override
     public List<Map<String, Object>> getLanguages() {
         try {
             RestTemplate restTemplate = new RestTemplate();
