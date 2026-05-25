@@ -1,20 +1,26 @@
 package com.cfc.platform.controller.fileUpload;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Value;
-import java.io.File;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+/**
+ * Files are now stored in S3 and served directly via CloudFront.
+ * This controller is kept as a legacy stub so any old URLs pointing to
+ * /FileManager/files/{filename} get a clear 410 Gone response instead
+ * of a 404, making it obvious during debugging that the endpoint moved.
+ *
+ * You can delete this class once you're sure no clients call it.
+ */
 @RestController
 @RequestMapping("/FileManager")
-@CrossOrigin(origins = {"https://codeforchallenge.online", "http://localhost:5173"})
+@CrossOrigin(origins = {"https://codeforchallenge.online", "https://www.codeforchallenge.online", "http://localhost:5173"})
 public class FileDownloadController {
-    @Value("${upload.dir}")
-    private String uploadDir;
 
     @GetMapping("/files/{filename:.+}")
-    public Resource downloadFile(@PathVariable String filename) {
-        File file = new File(uploadDir + File.separator + filename);
-        return new FileSystemResource(file);
+    public ResponseEntity<String> downloadFile(@PathVariable String filename) {
+        return ResponseEntity.status(HttpStatus.GONE)
+                .body("Files are now served via CloudFront. " +
+                      "Use the URL returned by the /Files/upload endpoint.");
     }
 }

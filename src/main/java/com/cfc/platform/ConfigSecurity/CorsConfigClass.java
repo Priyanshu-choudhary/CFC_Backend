@@ -15,9 +15,8 @@ public class CorsConfigClass {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("https://www.codeforchallenge.online");
         config.addAllowedOrigin("http://localhost:5173");
-        config.addAllowedOrigin("http://13.203.161.180");
+        config.addAllowedOrigin("https://edgepilot.space");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
 
