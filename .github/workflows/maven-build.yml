@@ -1,103 +1,90 @@
-name: Build and Deploy Spring Boot
+name: Build & Deploy to ECS
 
 on:
+  push:
+    branches: [ master ]
   workflow_dispatch:
 
-  push:
-    branches:
-      - master
-
-  pull_request:
-    branches:
-      - master
+env:
+  AWS_REGION: ap-south-1
+  ECR_REGISTRY: 936344984906.dkr.ecr.ap-south-1.amazonaws.com
+  ECR_REPOSITORY: cfc-backend
+  ECS_CLUSTER: cfc-backend-cluster
+  ECS_SERVICE: CFC-backend-service
+  TASK_DEFINITION_FAMILY: CFC-backend
+  CONTAINER_NAME: cfc-backend-container
 
 jobs:
-  build:
+  build-and-deploy:
+    name: Build, Push & Deploy
     runs-on: ubuntu-latest
+    environment: CFC_Backend
 
     steps:
-      - name: Checkout Repository
+      # ── 1. Checkout ────────────────────────────────────────────────────────
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set Up JDK 17
-        uses: actions/setup-java@v3
+      # ── 2. Java build ──────────────────────────────────────────────────────
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          distribution: temurin
           java-version: '17'
+          distribution: 'temurin'
           cache: maven
 
-      - name: Build Application
-        run: mvn clean package -DskipTests
+      - name: Build with Maven (skip tests)
+        run: mvn clean package -DskipTests --no-transfer-progress
 
-      - name: Verify Generated Files
-        run: |
-          echo "==== TARGET DIRECTORY ===="
-          ls -la target
-
-          echo "==== VERIFY APPLICATION PROPERTIES INSIDE JAR ===="
-          jar xf target/cfc-platform-0.0.1-SNAPSHOT.jar BOOT-INF/classes/application.properties
-
-          cat BOOT-INF/classes/application.properties
-
-      - name: Upload Spring Boot JAR
-        uses: actions/upload-artifact@v4
+      # ── 3. AWS credentials ─────────────────────────────────────────────────
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          name: spring-boot-app
-          path: target/cfc-platform-0.0.1-SNAPSHOT.jar
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
+      # ── 4. ECR login ───────────────────────────────────────────────────────
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
-    environment:
-      name: CFC_Backend
-
-    steps:
-      - name: Download Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: spring-boot-app
-          path: target/
-
-      - name: Verify Downloaded Artifact
-        run: |
-          echo "==== DOWNLOADED FILES ===="
-          ls -la target
-
-      - name: Deploy to EC2
+      # ── 5. Build & push Docker image ───────────────────────────────────────
+      - name: Build, tag, and push image to ECR
+        id: build-image
         env:
-          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          HOST: ${{ secrets.HOST }}
-          USER: ubuntu
-
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          echo "$PRIVATE_KEY" > private_key.pem
-          chmod 600 private_key.pem
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+                     $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-          echo "==== CLEAN OLD FILES ON EC2 ===="
+      # ── 6. Fetch current task definition ───────────────────────────────────
+      - name: Download current ECS task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ env.TASK_DEFINITION_FAMILY }} \
+            --query taskDefinition \
+            > task-definition.json
 
-          ssh -i private_key.pem \
-          -o StrictHostKeyChecking=no \
-          -o UserKnownHostsFile=/dev/null \
-          $USER@$HOST "
-            rm -f /home/ubuntu/CFC_Backend/target/*.jar.original
-          "
+      # ── 7. Inject new image into task definition ───────────────────────────
+      - name: Render new ECS task definition
+        id: render-task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.build-image.outputs.image }}
 
-          echo "==== COPY NEW JAR ===="
-
-          scp -i private_key.pem \
-          -o StrictHostKeyChecking=no \
-          -o UserKnownHostsFile=/dev/null \
-          target/cfc-platform-0.0.1-SNAPSHOT.jar \
-          $USER@$HOST:/home/ubuntu/CFC_Backend/target/
-
-          echo "==== RESTART APPLICATION ===="
-
-          ssh -i private_key.pem \
-          -o StrictHostKeyChecking=no \
-          -o UserKnownHostsFile=/dev/null \
-          $USER@$HOST "
-            sudo systemctl restart my-spring-app
-            sleep 10
-            sudo systemctl status my-spring-app --no-pager
-          "
+      # ── 8. Deploy to ECS ───────────────────────────────────────────────────
+      - name: Deploy to ECS service
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.render-task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
+          wait-for-minutes: 10
