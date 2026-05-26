@@ -1,5 +1,6 @@
 package com.cfc.platform.ConfigSecurity;
 
+import io.lettuce.core.ClientOptions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,11 +48,24 @@ public class RedisConfig {
         RedisStandaloneConfiguration serverConfig =
                 new RedisStandaloneConfiguration(host, port);
 
+        // REJECT_COMMANDS: when the Lettuce connection is in the DISCONNECTED
+        // state, every Redis command throws RedisException immediately (< 1ms)
+        // instead of being queued in Lettuce's internal buffer and blocking the
+        // calling thread until commandTimeout expires.  Without this, a burst of
+        // health-check / API requests while Redis is unreachable fills the Tomcat
+        // thread pool with threads all sleeping for up to 60 s (the default
+        // commandTimeout), causing subsequent health checks to time out and ECS
+        // to restart the container in an infinite loop.
+        ClientOptions clientOptions = ClientOptions.builder()
+                .disconnectedBehavior(ClientOptions.DisconnectedBehavior.REJECT_COMMANDS)
+                .autoReconnect(true)          // keep trying to reconnect in background
+                .build();
+
         LettuceClientConfiguration.LettuceClientConfigurationBuilder builder =
                 LettuceClientConfiguration.builder()
-                        // Fail fast: if ElastiCache is unreachable, commands throw
-                        // within 2 s instead of blocking Tomcat threads for 60 s
-                        // (the Lettuce default), which would starve health-check polls.
+                        .clientOptions(clientOptions)
+                        // Belt-and-suspenders: if a command somehow reaches a connected
+                        // but slow Redis, fail after 2 s instead of 60 s.
                         .commandTimeout(Duration.ofSeconds(2))
                         // Don't delay JVM shutdown waiting for Lettuce to drain.
                         .shutdownTimeout(Duration.ZERO);
@@ -65,7 +79,7 @@ public class RedisConfig {
         LettuceConnectionFactory factory = new LettuceConnectionFactory(serverConfig, builder.build());
         // Do not block startup validating the connection — the app should start
         // even if Redis is temporarily unreachable.  Individual callers get a
-        // fast RedisCommandTimeoutException instead of an infinite hang.
+        // fast RedisException (REJECT_COMMANDS) instead of an infinite hang.
         factory.setValidateConnection(false);
         return factory;
     }
