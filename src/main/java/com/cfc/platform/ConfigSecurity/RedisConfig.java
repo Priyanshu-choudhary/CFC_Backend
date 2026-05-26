@@ -8,6 +8,8 @@ import org.springframework.data.redis.connection.lettuce.LettuceClientConfigurat
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
+import java.time.Duration;
+
 /**
  * Configures the Lettuce Redis client to connect to AWS ElastiCache Valkey
  * (or a local Redis instance in dev).
@@ -46,7 +48,13 @@ public class RedisConfig {
                 new RedisStandaloneConfiguration(host, port);
 
         LettuceClientConfiguration.LettuceClientConfigurationBuilder builder =
-                LettuceClientConfiguration.builder();
+                LettuceClientConfiguration.builder()
+                        // Fail fast: if ElastiCache is unreachable, commands throw
+                        // within 2 s instead of blocking Tomcat threads for 60 s
+                        // (the Lettuce default), which would starve health-check polls.
+                        .commandTimeout(Duration.ofSeconds(2))
+                        // Don't delay JVM shutdown waiting for Lettuce to drain.
+                        .shutdownTimeout(Duration.ZERO);
 
         if (tls) {
             // useSsl() enables TLS; ElastiCache has a valid AWS cert so peer
@@ -54,7 +62,12 @@ public class RedisConfig {
             builder.useSsl();
         }
 
-        return new LettuceConnectionFactory(serverConfig, builder.build());
+        LettuceConnectionFactory factory = new LettuceConnectionFactory(serverConfig, builder.build());
+        // Do not block startup validating the connection — the app should start
+        // even if Redis is temporarily unreachable.  Individual callers get a
+        // fast RedisCommandTimeoutException instead of an infinite hang.
+        factory.setValidateConnection(false);
+        return factory;
     }
 
     /**
