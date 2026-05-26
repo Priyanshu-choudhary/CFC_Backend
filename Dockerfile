@@ -15,6 +15,10 @@ RUN mvn clean package -Dmaven.test.skip=true -q
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
+# curl is required by the ECS container health check command.
+# Alpine doesn't include it by default in the temurin image.
+RUN apk add --no-cache curl
+
 COPY --from=build /app/target/cfc-platform-0.0.1-SNAPSHOT.jar ./app.jar
 
 EXPOSE 9090
