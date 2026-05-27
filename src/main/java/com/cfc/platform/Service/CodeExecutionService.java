@@ -6,16 +6,13 @@ import java.util.Map;
 /**
  * Abstraction over a code-execution backend.
  *
- * Two implementations exist and are selected at startup via the
- * {@code code.execution.provider} property:
+ * Only one implementation currently exists — {@link GoboxdService}, which
+ * proxies to the self-hosted goboxd ECS service (nsjail sandbox).  The
+ * interface is kept so we can swap engines later (e.g. WASM, Firecracker)
+ * without changing callers.
  *
- * <ul>
- *   <li>{@code judge0}  -> {@link Judge0Service} (RapidAPI Judge0 CE)</li>
- *   <li>{@code goboxd}  -> {@link GoboxdService} (self-hosted nsjail sandbox)</li>
- * </ul>
- *
- * Both implementations return identical Map shapes so the controller and the
- * frontend never need to know which engine ran the code.
+ * Judge0Service was removed once goboxd reached parity; see git history if you
+ * need the old RapidAPI implementation back.
  */
 public interface CodeExecutionService {
 

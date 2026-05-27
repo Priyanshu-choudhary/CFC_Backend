@@ -3,7 +3,6 @@ package com.cfc.platform.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientResponseException;
@@ -15,17 +14,17 @@ import java.util.*;
  * goboxd (self-hosted nsjail sandbox) implementation of
  * {@link CodeExecutionService}.
  *
- * Active when {@code code.execution.provider=goboxd}.
+ * This is the ONLY implementation now — Judge0 was removed in favour of the
+ * self-hosted backend.  Kept the {@link CodeExecutionService} interface in
+ * place so future swaps (sandbox engines, etc.) remain a one-bean change.
  *
  * goboxd exposes a single synchronous {@code POST /run} endpoint that both
  * compiles and runs the code against optional test cases, returning the full
  * result in one call. This class translates CFC's request shape into goboxd's
- * and maps goboxd's response back into the EXACT same Map shape that
- * {@link Judge0Service} returns, so the controller and frontend are unaware of
- * which engine executed the code.
+ * and maps goboxd's response back into the same Map shape the frontend already
+ * consumes, so the controller and UI are unaware of the engine swap.
  */
 @Service
-@ConditionalOnProperty(name = "code.execution.provider", havingValue = "goboxd")
 public class GoboxdService implements CodeExecutionService {
 
     private static final Logger log = LoggerFactory.getLogger(GoboxdService.class);
