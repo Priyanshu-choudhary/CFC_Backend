@@ -2,6 +2,8 @@ package com.cfc.platform.controller;
 
 import com.cfc.platform.MongoRepo.ContestRepo;
 import com.cfc.platform.Pojo.Contest;
+import com.cfc.platform.Pojo.ContestLeaderboardEntry;
+import com.cfc.platform.Pojo.ContestSession;
 import com.cfc.platform.Pojo.Posts.Posts;
 import com.cfc.platform.Pojo.User;
 import com.cfc.platform.Service.ContestService;
@@ -18,172 +20,380 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+/**
+ * ContestController — REST layer for the CFC contest engine.
+ *
+ * ─────────────────────────────────────────────────────
+ *  Existing (unchanged)
+ * ─────────────────────────────────────────────────────
+ *  GET    /Contest                  list all (legacy)
+ *  GET    /Contest/{username}       user's contests
+ *  GET    /Contest/id/{id}          by ID
+ *  POST   /Contest                  create public contest
+ *  POST   /Contest/{cN}/username/{u}  add problem to contest
+ *  DELETE /Contest/id/{id}          delete
+ *  PUT    /Contest/id/{id}          update
+ *
+ * ─────────────────────────────────────────────────────
+ *  New Phase-1 endpoints
+ * ─────────────────────────────────────────────────────
+ *  GET    /Contest/public            public hub (SCHEDULED/LIVE/ENDED)
+ *  GET    /Contest/status/{status}   filter by status
+ *  POST   /Contest/room              create private room → returns roomCode
+ *  GET    /Contest/join/{roomCode}   find room by code (no-auth)
+ *  POST   /Contest/{id}/start        host starts contest
+ *  POST   /Contest/{id}/end          host ends contest
+ *  POST   /Contest/{id}/register     user registers for public contest
+ *  POST   /Contest/{id}/join         user enters arena → creates session
+ *  GET    /Contest/{id}/session/me   my current session state
+ *  POST   /Contest/{id}/submit       submit solution during LIVE window
+ *  GET    /Contest/{id}/leaderboard  live/final leaderboard (Redis-cached)
+ */
 @RestController
 @RequestMapping("/Contest")
-//@CrossOrigin(origins = {"https://code-with-challenge.vercel.app", "http://localhost:5173"})
 public class ContestController {
-    private static final Logger logger = LoggerFactory.getLogger(ContestController.class);
 
-    @Autowired
-    private PostService postService;
+    private static final Logger log = LoggerFactory.getLogger(ContestController.class);
 
-    @Autowired
-    private UserService userService;
+    @Autowired private ContestService contestService;
+    @Autowired private ContestRepo    contestRepo;
+    @Autowired private PostService    postService;
+    @Autowired private UserService    userService;
 
-    @Autowired
-    private ContestRepo contestRepo;
+    // ════════════════════════════════════════════════════════════════════════════
+    //  READ
+    // ════════════════════════════════════════════════════════════════════════════
 
-    @Autowired
-    private ContestService contestService;
-
+    /** Legacy: returns ALL contests (no filter). Kept for backward compatibility. */
     @GetMapping
-    public ResponseEntity<?> getAllContestController() {
+    public ResponseEntity<?> getAllContests() {
         try {
             List<Contest> all = contestService.getAllContest();
-            if (all != null) {
-                return new ResponseEntity<>(all, HttpStatus.OK);
-            }
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.ok(all);
         } catch (Exception e) {
-//            logger.error("Error fetching Contest by username", e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            log.error("getAllContests: {}", e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
+     * Public contest hub — returns SCHEDULED + LIVE + ENDED public contests.
+     * No auth required (permitAll in security config).
+     */
+    @GetMapping("/public")
+    public ResponseEntity<?> getPublicContests() {
+        try {
+            return ResponseEntity.ok(contestService.getPublicContests());
+        } catch (Exception e) {
+            log.error("getPublicContests: {}", e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /** Filter by status: DRAFT | SCHEDULED | LIVE | ENDED */
+    @GetMapping("/status/{status}")
+    public ResponseEntity<?> getByStatus(@PathVariable String status) {
+        try {
+            return ResponseEntity.ok(contestService.getContestsByStatus(status));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
     }
 
     @GetMapping("/{username}")
-    public ResponseEntity<?> getContestByUserNameController(@PathVariable String username) {
+    public ResponseEntity<?> getContestsByUser(@PathVariable String username) {
         try {
             List<Contest> all = contestService.getUserContest(username);
-            if (all != null) {
-                return new ResponseEntity<>(all, HttpStatus.OK);
-            }
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return all != null ? ResponseEntity.ok(all) : ResponseEntity.notFound().build();
         } catch (Exception e) {
-//            logger.error("Error fetching Contest by username", e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
     @GetMapping("/id/{id}")
-    public ResponseEntity<?> getCourseById(@PathVariable String id) {
+    public ResponseEntity<?> getContestById(@PathVariable String id) {
         try {
-
-            Optional<Contest> all = contestService.getUserContestByID(id);
-            if (all.isPresent()) {
-                return new ResponseEntity<>(all, HttpStatus.OK);
-            }
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            Optional<Contest> c = contestService.getUserContestByID(id);
+            return c.isPresent() ? ResponseEntity.ok(c) : ResponseEntity.notFound().build();
         } catch (Exception e) {
-//            logger.error("Error fetching Contest by ID", e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
+    /**
+     * Join a private room by 6-char code.
+     * No auth required so anyone can look up a room to see its details.
+     */
+    @GetMapping("/join/{roomCode}")
+    public ResponseEntity<?> findRoomByCode(@PathVariable String roomCode) {
+        try {
+            return contestService.findByRoomCode(roomCode)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            log.error("findRoomByCode {}: {}", roomCode, e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 
+    // ════════════════════════════════════════════════════════════════════════════
+    //  CREATE
+    // ════════════════════════════════════════════════════════════════════════════
 
-
-
+    /** Create a public scheduled contest. */
     @PostMapping
     public ResponseEntity<?> createContest(@RequestBody Contest contest) {
         try {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            String username = auth.getName();
-//            logger.error("creating course for username {}", username);
+            String username = currentUser();
             String id = contestService.createContest(contest, username);
-//            logger.error(" Contest id {}", id);
-            // Wrap the ID in a JSON object
-            Map<String, String> response = new HashMap<>();
-            response.put("ContestID", id);
-
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(Map.of("contestId", id));
         } catch (Exception e) {
-//            logger.error("Error creating Course", e);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            log.error("createContest: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
-    @PostMapping("/{contestName}/username/{username}")
-    public ResponseEntity<?> createPostRefCourse(@PathVariable String username,@PathVariable String contestName, @RequestBody Posts post) {
+    /**
+     * Create a private custom room.
+     * Returns the full Contest object which includes the roomCode.
+     */
+    @PostMapping("/room")
+    public ResponseEntity<?> createRoom(@RequestBody Contest contest) {
         try {
+            String username = currentUser();
+            Contest saved = contestService.createRoom(contest, username);
+            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+        } catch (Exception e) {
+            log.error("createRoom: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 
-//            logger.info("Creating new post ref to contest for user: {}", username);
-
-            // Fetch the user
+    /** Add an existing problem (by problem ID) to a contest. */
+    @PostMapping("/{contestName}/username/{username}")
+    public ResponseEntity<?> addProblemToContest(
+            @PathVariable String username,
+            @PathVariable String contestName,
+            @RequestBody Posts post) {
+        try {
             User user = userService.findByName(username);
-//            logger.info("user.getContests {}", user.getContests());
-            // Find the course by name for this user
             Optional<Contest> contestOpt = user.getContests().stream()
-
                     .filter(c -> c.getNameOfContest().equals(contestName))
                     .findFirst();
 
-            if (contestOpt.isPresent()) {
+            if (contestOpt.isEmpty()) return ResponseEntity.notFound().build();
 
-                Contest contest = contestOpt.get();
-
-                // Set the lastModified field to the current date and time
-                post.setLastModified(new Date());
-
-                // Reference the course in the post
-                post.setContest(contest);
-
-                // Create the post
-                postService.createPostWithRefContest(post, user,username);
-
-//                logger.info("Post ref to course created successfully for user: {}", username);
-
-                return new ResponseEntity<>(post, HttpStatus.CREATED);
-            } else {
-//                logger.error("constest not found: {}", contestName);
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-
+            Contest contest = contestOpt.get();
+            post.setLastModified(new Date());
+            post.setContest(contest);
+            postService.createPostWithRefContest(post, user, username);
+            return ResponseEntity.status(HttpStatus.CREATED).body(post);
         } catch (Exception e) {
-//            logger.error("Error creating post ref to contest", e);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         }
     }
 
+    // ════════════════════════════════════════════════════════════════════════════
+    //  LIFECYCLE
+    // ════════════════════════════════════════════════════════════════════════════
 
+    /**
+     * Host starts the contest → SCHEDULED/DRAFT → LIVE.
+     * Sets startedAt = now, endedAt = now + durationMinutes.
+     */
+    @PostMapping("/{id}/start")
+    public ResponseEntity<?> startContest(@PathVariable String id) {
+        try {
+            Contest contest = contestService.startContest(id, currentUser());
+            return ResponseEntity.ok(Map.of(
+                    "message",   "Contest is now LIVE",
+                    "status",    contest.getStatus(),
+                    "startedAt", contest.getStartedAt(),
+                    "endedAt",   contest.getEndedAt()
+            ));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            log.error("startContest {}: {}", id, e.getMessage());
+            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
+     * Host ends the contest early → LIVE → ENDED.
+     * Final ranks are computed and cached.
+     */
+    @PostMapping("/{id}/end")
+    public ResponseEntity<?> endContest(@PathVariable String id) {
+        try {
+            Contest contest = contestService.endContest(id, currentUser());
+            return ResponseEntity.ok(Map.of(
+                    "message", "Contest ended",
+                    "status",  contest.getStatus(),
+                    "endedAt", contest.getEndedAt()
+            ));
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            log.error("endContest {}: {}", id, e.getMessage());
+            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════
+    //  REGISTRATION & ARENA JOIN
+    // ════════════════════════════════════════════════════════════════════════════
+
+    /**
+     * Register for a public contest (before it starts).
+     * Idempotent.
+     */
+    @PostMapping("/{id}/register")
+    public ResponseEntity<?> register(@PathVariable String id) {
+        try {
+            contestService.registerForContest(id, currentUser());
+            return ResponseEntity.ok(Map.of("message", "Registered successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
+     * Enter the arena when the contest is LIVE.
+     * Creates a ContestSession and returns it.
+     * Idempotent — reconnecting returns the existing session.
+     */
+    @PostMapping("/{id}/join")
+    public ResponseEntity<?> joinArena(@PathVariable String id) {
+        try {
+            ContestSession session = contestService.joinArena(id, currentUser());
+            return ResponseEntity.ok(session);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            log.error("joinArena {}: {}", id, e.getMessage());
+            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /** Get the caller's current ContestSession (score, submissions, solved count). */
+    @GetMapping("/{id}/session/me")
+    public ResponseEntity<?> getMySession(@PathVariable String id) {
+        try {
+            return contestService.getMySession(id, currentUser())
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════
+    //  SUBMISSION
+    // ════════════════════════════════════════════════════════════════════════════
+
+    /**
+     * Submit code against a contest problem.
+     *
+     * Request body:
+     * {
+     *   "problemId": "6634abc...",
+     *   "sourceCode": "def solution...",
+     *   "language": "python3"
+     * }
+     *
+     * Response:
+     * {
+     *   "verdict": "AC" | "WA" | "TLE" | "RE" | "CE",
+     *   "allPassed": true,
+     *   "totalScore": 200,
+     *   "penaltyMinutes": 5,
+     *   "solvedCount": 2,
+     *   "submissions": {"pid1": "AC", "pid2": "WA"},
+     *   "results": [...]    // per-test-case details from goboxd
+     * }
+     */
+    @PostMapping("/{id}/submit")
+    public ResponseEntity<?> submit(
+            @PathVariable String id,
+            @RequestBody Map<String, String> body) {
+        try {
+            String problemId  = body.get("problemId");
+            String sourceCode = body.get("sourceCode");
+            String language   = body.get("language");
+
+            if (problemId == null || sourceCode == null || language == null)
+                return ResponseEntity.badRequest().body(
+                        Map.of("error", "Required fields: problemId, sourceCode, language"));
+
+            Map<String, Object> result = contestService.submitSolution(
+                    id, currentUser(), problemId, sourceCode, language);
+            return ResponseEntity.ok(result);
+
+        } catch (IllegalStateException e) {
+            // Already solved, contest closed, not joined
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            log.error("submit contest={} user={}: {}", id, currentUser(), e.getMessage());
+            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════
+    //  LEADERBOARD
+    // ════════════════════════════════════════════════════════════════════════════
+
+    /**
+     * Live and final leaderboard.
+     * Served from a 15-second Redis cache — safe to poll every 10 seconds.
+     * No auth required (public view).
+     */
+    @GetMapping("/{id}/leaderboard")
+    public ResponseEntity<?> getLeaderboard(@PathVariable String id) {
+        try {
+            List<ContestLeaderboardEntry> lb = contestService.getLeaderboard(id);
+            return ResponseEntity.ok(lb);
+        } catch (Exception e) {
+            log.error("getLeaderboard {}: {}", id, e.getMessage());
+            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════
+    //  DELETE / UPDATE (unchanged)
+    // ════════════════════════════════════════════════════════════════════════════
 
     @DeleteMapping("/id/{id}")
-    public ResponseEntity<Map<String, String>> deleteContestById(@PathVariable String id) {
-        Map<String, String> response = new HashMap<>();
+    public ResponseEntity<Map<String, String>> deleteContest(@PathVariable String id) {
         try {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            String username = auth.getName();
-
-            // Assuming courseService.deleteUserById(id, username) returns a boolean indicating success
+            String username = currentUser();
             boolean deleted = contestService.deleteContestById(id, username);
-
-            if (deleted) {
-                response.put("message", "Contest deleted successfully");
-                return ResponseEntity.ok(response);
-            } else {
-                response.put("message", "Contest not found or you do not have permission to delete it");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-            }
-
+            if (deleted) return ResponseEntity.ok(Map.of("message", "Contest deleted successfully"));
+            return ResponseEntity.notFound().build();
         } catch (Exception e) {
-//            logger.error("Error deleting Contest by ID", e);
-            response.put("message", "Error deleting Contest");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("message", "Error deleting contest"));
         }
     }
-    @PutMapping("/id/{myId}")
-    public ResponseEntity<?> updateCourseById(@PathVariable String myId, @RequestBody Contest newContest) {
+
+    @PutMapping("/id/{id}")
+    public ResponseEntity<?> updateContest(@PathVariable String id, @RequestBody Contest newContest) {
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();
-//            logger.error("Try to updating contest by ID");
-            Contest updatedContest = contestService.updateContest(myId, newContest, username);
-            return new ResponseEntity<>(updatedContest, HttpStatus.OK);
+            Contest updated = contestService.updateContest(id, newContest, currentUser());
+            return ResponseEntity.ok(updated);
         } catch (RuntimeException e) {
-//            logger.error("Error updating contest by ID", e);
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
         }
     }
 
-
-
+    // ────────────────────────────────────────────────────────────────────────────
+    private String currentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth.getName();
+    }
 }

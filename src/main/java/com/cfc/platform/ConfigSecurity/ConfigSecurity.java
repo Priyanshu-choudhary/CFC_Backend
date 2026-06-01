@@ -30,21 +30,34 @@ public class ConfigSecurity {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints â€” no token needed
+
+                        // ── Public endpoints - no token needed ──────────────────
                         .requestMatchers("/Public/**").permitAll()
                         .requestMatchers("/images/**", "/css/**", "/js/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/Public/Create-User").permitAll()
                         .requestMatchers("/auth/login").permitAll()
-                        // Judge0 â€” run/languages are public; submit requires login
+
+                        // ── Contest - read-only and room-lookup are public ───────
+                        // Arena actions (start, end, join, submit) require login.
+                        .requestMatchers(HttpMethod.GET,  "/Contest").permitAll()
+                        .requestMatchers(HttpMethod.GET,  "/Contest/public").permitAll()
+                        .requestMatchers(HttpMethod.GET,  "/Contest/status/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,  "/Contest/id/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,  "/Contest/join/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,  "/Contest/*/leaderboard").permitAll()
+
+                        // ── Judge - run/languages public; submit requires login ──
                         .requestMatchers(HttpMethod.POST, "/judge/run").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/judge/languages").permitAll()
+                        .requestMatchers(HttpMethod.GET,  "/judge/languages").permitAll()
                         .requestMatchers(HttpMethod.POST, "/judge/submit").authenticated()
-                        // Posts â€” course/contest-linked creation is admin-only
+
+                        // ── Posts - course/contest creation is admin-only ────────
                         .requestMatchers(HttpMethod.POST, "/Posts/Course/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/Posts/ProblemSet").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/Posts/id/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/Posts/filter").permitAll()
-                        // Everything else needs a valid JWT
+                        .requestMatchers(HttpMethod.GET,  "/Posts/ProblemSet").permitAll()
+                        .requestMatchers(HttpMethod.GET,  "/Posts/id/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,  "/Posts/filter").permitAll()
+
+                        // ── Everything else requires a valid JWT ─────────────────
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(

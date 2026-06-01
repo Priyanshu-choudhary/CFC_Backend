@@ -6,17 +6,20 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.MongoTransactionManager;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @EnableTransactionManagement
 @SpringBootApplication
 @EnableCaching
+@EnableScheduling   // ← required for ContestScheduler @Scheduled ticks
 public class ResponseEntityExampleApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ResponseEntityExampleApplication.class, args);
 	}
+
 	@Bean
 	public PlatformTransactionManager toImplementTanscation(MongoDatabaseFactory dbFactory){
 		return new MongoTransactionManager(dbFactory);
