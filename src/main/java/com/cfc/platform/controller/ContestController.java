@@ -194,6 +194,40 @@ public class ContestController {
         }
     }
 
+    /**
+     * Add problems to an existing contest/room (host-only).
+     * Works in any status except ENDED — so a host can add questions mid-contest.
+     *
+     * Body: { "problemIds": ["id1","id2"], "problemWeights": { "id1": 100 } }
+     */
+    @PostMapping("/{id}/problems")
+    public ResponseEntity<?> addProblems(@PathVariable String id, @RequestBody Map<String, Object> body) {
+        try {
+            @SuppressWarnings("unchecked")
+            List<String> problemIds = body.get("problemIds") instanceof List
+                    ? (List<String>) body.get("problemIds")
+                    : Collections.emptyList();
+
+            Map<String, Integer> weights = new HashMap<>();
+            if (body.get("problemWeights") instanceof Map<?, ?> wm) {
+                for (Map.Entry<?, ?> e : wm.entrySet()) {
+                    if (e.getValue() instanceof Number n)
+                        weights.put(String.valueOf(e.getKey()), n.intValue());
+                }
+            }
+
+            Contest updated = contestService.addProblems(id, currentUser(), problemIds, weights);
+            return ResponseEntity.ok(updated);
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            log.error("addProblems {}: {}", id, e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     // ════════════════════════════════════════════════════════════════════════════
     //  LIFECYCLE
     // ════════════════════════════════════════════════════════════════════════════

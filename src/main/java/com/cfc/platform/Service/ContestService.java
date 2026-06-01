@@ -90,6 +90,9 @@ public class ContestService {
             contest.setHostUsername(username);
             if (contest.getStatus() == null) contest.setStatus("DRAFT");
 
+            // Resolve selected problem IDs → DBRef posts
+            resolveProblemsFromIds(contest);
+
             Contest saved = contestRepo.save(contest);
             myUser.getContests().add(saved);
             userService.createUser(myUser);
@@ -120,6 +123,9 @@ public class ContestService {
 
         // Schedule start 1 minute from now so host can share the code
         contest.setStartedAt(new Date(System.currentTimeMillis() + 60_000L));
+
+        // Resolve selected problem IDs → DBRef posts
+        resolveProblemsFromIds(contest);
 
         Contest saved = contestRepo.save(contest);
 
@@ -401,7 +407,66 @@ public class ContestService {
         if (list(newContest.getLanguage()))          existing.setLanguage(newContest.getLanguage());
         if (list(newContest.getRegisteredUser()))    existing.setRegisteredUser(newContest.getRegisteredUser());
 
+        // Problem selection — if the edit form sent problemIds, re-resolve the posts list
+        if (newContest.getProblemIds() != null && !newContest.getProblemIds().isEmpty()) {
+            List<Posts> resolved = new ArrayList<>();
+            for (String pid : newContest.getProblemIds())
+                postRepo.findById(pid).ifPresent(resolved::add);
+            if (!resolved.isEmpty()) existing.setPosts(resolved);
+        }
+        if (newContest.getProblemWeights() != null && !newContest.getProblemWeights().isEmpty())
+            existing.setProblemWeights(newContest.getProblemWeights());
+
         return contestRepo.save(existing);
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // PROBLEMS — add to an existing contest/room (works even while LIVE)
+    // ════════════════════════════════════════════════════════════════════════════
+
+    /**
+     * Appends problems to a contest's problem list. Host-only. Allowed in any
+     * status except ENDED — so a host can add questions mid-contest and they
+     * instantly become available in the arena for all participants.
+     *
+     * @param problemIds Posts.id values to add (duplicates / unknown IDs skipped)
+     * @param weights    optional per-problem point overrides (problemId → points)
+     */
+    public Contest addProblems(String contestId, String username,
+                               List<String> problemIds, Map<String, Integer> weights) {
+        Contest contest = requireContest(contestId);
+        requireHost(contest, username);
+
+        if ("ENDED".equals(contest.getStatus()))
+            throw new IllegalStateException("Cannot add problems to an ended contest.");
+
+        List<Posts> posts = contest.getPosts() != null
+                ? new ArrayList<>(contest.getPosts())
+                : new ArrayList<>();
+        Set<String> existingIds = posts.stream()
+                .map(Posts::getId).collect(Collectors.toCollection(HashSet::new));
+
+        if (problemIds != null) {
+            for (String pid : problemIds) {
+                if (pid == null || existingIds.contains(pid)) continue;
+                postRepo.findById(pid).ifPresent(p -> { posts.add(p); existingIds.add(pid); });
+            }
+        }
+        contest.setPosts(posts);
+
+        if (weights != null && !weights.isEmpty())
+            contest.getProblemWeights().putAll(weights);
+
+        return contestRepo.save(contest);
+    }
+
+    /** Resolve a contest's transient problemIds into the persistent DBRef posts list. */
+    private void resolveProblemsFromIds(Contest contest) {
+        if (contest.getProblemIds() == null || contest.getProblemIds().isEmpty()) return;
+        List<Posts> resolved = new ArrayList<>();
+        for (String pid : contest.getProblemIds())
+            postRepo.findById(pid).ifPresent(resolved::add);
+        if (!resolved.isEmpty()) contest.setPosts(resolved);
     }
 
     // ════════════════════════════════════════════════════════════════════════════

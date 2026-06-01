@@ -2,6 +2,7 @@ package com.cfc.platform.Pojo;
 
 import com.cfc.platform.Pojo.Posts.Posts;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -98,6 +99,14 @@ public class Contest {
     @DBRef
     private List<Posts> posts = new ArrayList<>();
 
+    /**
+     * Transient carrier — the frontend sends a list of Posts.id values when
+     * creating/updating a contest or room. The service layer resolves these
+     * against PostRepo and populates {@link #posts}. NOT persisted itself.
+     */
+    @Transient
+    private List<String> problemIds = new ArrayList<>();
+
     // ────────────────────────────────────────────────────────────────────────────
     // Constructors
     // ────────────────────────────────────────────────────────────────────────────
@@ -192,6 +201,9 @@ public class Contest {
 
     public List<Posts> getPosts() { return posts; }
     public void setPosts(List<Posts> posts) { this.posts = posts; }
+
+    public List<String> getProblemIds() { return problemIds; }
+    public void setProblemIds(List<String> problemIds) { this.problemIds = problemIds; }
 
     // ────────────────────────────────────────────────────────────────────────────
     // Helpers
