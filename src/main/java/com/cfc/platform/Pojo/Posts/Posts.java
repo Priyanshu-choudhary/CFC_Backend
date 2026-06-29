@@ -16,6 +16,8 @@ public class Posts {
     private String id;
 
     private String title;
+    private int contestId;
+    private String index;
     private String description;
     private String userName;
     private String Example;
@@ -68,7 +70,12 @@ public class Posts {
     public String getId() {
         return id;
     }
-
+    public void setContestId(int contestId) {
+        this.contestId=contestId;
+    }
+    public void setIndex(String index) {
+            this.index=index;
+        }
     public void setId(String id) {
         this.id = id;
     }
@@ -76,6 +83,7 @@ public class Posts {
     public String getTitle() {
         return title;
     }
+
 
     public void setTitle(String title) {
         this.title = title;
@@ -91,6 +99,13 @@ public class Posts {
 
     public String getUserName() {
         return userName;
+    }
+
+    public int getContestId( ) {
+        return  contestId;
+    }
+    public String getIndex( ) {
+        return  index;
     }
 
     public void setUserName(String userName) {

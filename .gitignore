@@ -3,6 +3,10 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+docker-compose.yaml
+.env
+*.pem
+*.key
 
 ### STS ###
 .apt_generated
