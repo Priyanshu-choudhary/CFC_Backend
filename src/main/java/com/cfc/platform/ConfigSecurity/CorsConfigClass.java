@@ -16,6 +16,8 @@ public class CorsConfigClass {
 
         config.setAllowCredentials(true);
         config.addAllowedOrigin("http://localhost:5173");
+        config.addAllowedOrigin("chrome-extension://menlaffghmadmgabkolocncjgjnhjhpl");
+        config.addAllowedOrigin("https://leetcode.com");
         config.addAllowedOrigin("https://edgepilot.space");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");

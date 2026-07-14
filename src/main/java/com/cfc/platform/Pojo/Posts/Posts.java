@@ -38,6 +38,7 @@ public class Posts {
     private String videoUrl;
     private String sequence;
     private String input;
+    private String editorialUrl;
 
     @JsonIgnore
     @DBRef
@@ -254,6 +255,14 @@ public class Posts {
 
     public void setInput(String input) {
         this.input = input;
+    }
+
+    public String getEditorialUrl() {
+        return editorialUrl;
+    }
+
+    public void setEditorialUrl(String editorialUrl) {
+        this.editorialUrl = editorialUrl;
     }
 
     public Course getCourse() {

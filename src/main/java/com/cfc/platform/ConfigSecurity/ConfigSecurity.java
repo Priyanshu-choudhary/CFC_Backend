@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.config.Customizer;
 
 @Configuration
 @EnableWebSecurity
@@ -26,7 +27,8 @@ public class ConfigSecurity {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(csrf -> csrf.disable())
+        .cors(Customizer.withDefaults())
+        .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
@@ -56,7 +58,7 @@ public class ConfigSecurity {
                         .requestMatchers(HttpMethod.GET,  "/Posts/ProblemSet").permitAll()
                         .requestMatchers(HttpMethod.GET,  "/Posts/id/**").permitAll()
                         .requestMatchers(HttpMethod.GET,  "/Posts/filter").permitAll()
-
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // ── Everything else requires a valid JWT ─────────────────
                         .anyRequest().authenticated()
                 )

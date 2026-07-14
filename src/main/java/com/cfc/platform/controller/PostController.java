@@ -46,9 +46,16 @@ public class PostController {
     @GetMapping("/ProblemSet")
     public ResponseEntity<?> getAllPosts(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "50") int size) {
+            @RequestParam(defaultValue = "50") int size,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) List<String> difficulty,
+            @RequestParam(required = false) List<String> status,
+            @RequestParam(required = false) List<String> companies,
+            @RequestParam(required = false) List<String> topics,
+            @RequestParam(defaultValue = "pop") String sort) {
         try {
-            Page<Posts> result = postRepo.findAll(PageRequest.of(page, size));
+            Page<Posts> result = postService.findProblemSet(
+                    search, difficulty, status, companies, topics, sort, page, size);
             return new ResponseEntity<>(result, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

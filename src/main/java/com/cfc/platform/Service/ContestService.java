@@ -37,6 +37,8 @@ public class ContestService {
     @Autowired private UserRepo                  userRepo;
     @Autowired private PostRepo                  postRepo;
     @Autowired private UserService               userService;
+    @Autowired private CFToolsService            cfToolsService;
+    @Autowired private AtCoderToolsService       atCoderToolsService;
     @Autowired private CodeExecutionService      codeExecutionService;
     @Autowired private StringRedisTemplate       redis;
     @Autowired private ObjectMapper              objectMapper;
@@ -106,6 +108,276 @@ public class ContestService {
     // ════════════════════════════════════════════════════════════════════════════
     // CREATE — Custom room (private contest)
     // ════════════════════════════════════════════════════════════════════════════
+public Map<String, Object> importCodeforcesContest(String url, Integer startDelayMinutes, String username) {
+
+    log.info("========== Starting Codeforces Contest Import ==========");
+    log.info("URL: {}", url);
+    log.info("Username: {}", username);
+    log.info("Start Delay: {}", startDelayMinutes);
+
+    try {
+
+        if (url == null || url.isBlank()) {
+            log.error("Contest URL is null or blank.");
+            throw new IllegalArgumentException("Contest URL is required.");
+        }
+
+        if (startDelayMinutes != null && startDelayMinutes < 0) {
+            log.error("Invalid startDelayMinutes: {}", startDelayMinutes);
+            throw new IllegalArgumentException("startDelayMinutes cannot be negative.");
+        }
+
+        // ----------------------------------------------------
+        // Step 1 : Import contest metadata
+        // ----------------------------------------------------
+        log.info("Step 1: Importing contest metadata...");
+
+        CFToolsService.CodeforcesContestData contestData;
+
+        try {
+            contestData = cfToolsService.importContestMetadataFromHtml(url);
+
+            log.info("Contest metadata imported successfully.");
+            log.info("Contest Name: {}", contestData.name());
+            log.info("Contest URL: {}", contestData.canonicalContestUrl());
+            log.info("Duration: {} seconds", contestData.durationSeconds());
+            log.info("Problems Found: {}", contestData.problems().size());
+
+        } catch (Exception e) {
+            log.error("Failed while importing contest metadata.", e);
+            throw e;
+        }
+
+        // ----------------------------------------------------
+        // Step 2 : Resolve schedule
+        // ----------------------------------------------------
+        log.info("Step 2: Resolving contest schedule...");
+
+        ImportedContestSchedule schedule;
+
+        try {
+            schedule = resolveImportedContestSchedule(contestData, startDelayMinutes);
+
+            log.info("Schedule resolved.");
+            log.info("Status : {}", schedule.status());
+            log.info("Virtual: {}", schedule.isVirtual());
+            log.info("Start  : {}", schedule.startAt());
+            log.info("End    : {}", schedule.endAt());
+
+        } catch (Exception e) {
+            log.error("Failed while resolving contest schedule.", e);
+            throw e;
+        }
+
+        // ----------------------------------------------------
+        // Step 3 : Import Problems
+        // ----------------------------------------------------
+        log.info("Step 3: Importing {} problems...", contestData.problems().size());
+
+        List<String> problemIds = new ArrayList<>();
+
+        int index = 1;
+
+        for (CFToolsService.CodeforcesProblemRef problemRef : contestData.problems()) {
+
+            log.info("----------------------------------------------");
+            log.info("Importing Problem {}/{}", index, contestData.problems().size());
+            log.info("Problem URL: {}", problemRef.url());
+
+            try {
+
+                Posts post = cfToolsService.importAndSaveProblem(
+                        problemRef.url(),
+                        username,
+                        true
+                );
+
+                problemIds.add(post.getId());
+
+                log.info("Problem imported successfully.");
+                log.info("Problem ID: {}", post.getId());
+
+            } catch (Exception e) {
+
+                log.error("Failed importing problem {}", problemRef.url(), e);
+                throw e;
+            }
+
+            index++;
+        }
+
+        // ----------------------------------------------------
+        // Step 4 : Create Contest
+        // ----------------------------------------------------
+        log.info("Step 4: Creating contest entity...");
+
+        Contest contest = new Contest();
+
+        contest.setNameOfContest(
+                buildUniqueContestName(
+                        username,
+                        contestData.name(),
+                        schedule.virtualLabel()
+                )
+        );
+
+        contest.setNameOfOrganization("Codeforces");
+        contest.setDescription(buildImportedContestDescription(contestData));
+        contest.setType("Contest");
+        contest.setPublic(true);
+        contest.setStatus(schedule.status());
+        contest.setDate(schedule.startAt());
+        contest.setStartedAt(schedule.startAt());
+        contest.setEndedAt(schedule.endAt());
+
+        int durationMinutes = Math.max(
+                1,
+                (int) Duration.ofSeconds(contestData.durationSeconds()).toMinutes()
+        );
+
+        contest.setDurationMinutes(durationMinutes);
+        contest.setTimeDuration(durationMinutes + " minutes");
+        contest.setProblemIds(problemIds);
+
+        log.info("Contest entity prepared.");
+
+        // ----------------------------------------------------
+        // Step 5 : Save Contest
+        // ----------------------------------------------------
+        log.info("Step 5: Saving contest...");
+
+        String contestId;
+
+        try {
+
+            contestId = createContest(contest, username);
+
+            log.info("Contest saved successfully.");
+            log.info("Contest ID: {}", contestId);
+
+        } catch (Exception e) {
+
+            log.error("Failed while creating contest.", e);
+            throw e;
+        }
+
+        // ----------------------------------------------------
+        // Step 6 : Reload Contest
+        // ----------------------------------------------------
+        log.info("Step 6: Reloading contest...");
+
+        Contest savedContest;
+
+        try {
+
+            savedContest = contestRepo.findById(contestId)
+                    .orElseThrow(() -> new IllegalStateException(
+                            "Imported contest was created but could not be reloaded."
+                    ));
+
+            log.info("Contest reloaded successfully.");
+
+        } catch (Exception e) {
+
+            log.error("Failed while reloading contest.", e);
+            throw e;
+        }
+
+        // ----------------------------------------------------
+        // Step 7 : Build Response
+        // ----------------------------------------------------
+        log.info("Step 7: Building response...");
+
+        Map<String, Object> response = new LinkedHashMap<>();
+
+        response.put("contestId", savedContest.getId());
+        response.put("contest", savedContest);
+        response.put("sourceUrl", contestData.canonicalContestUrl());
+        response.put("phase", contestData.phase());
+        response.put("virtual", schedule.isVirtual());
+        response.put("importedProblemCount", problemIds.size());
+        response.put("problemIds", problemIds);
+
+        log.info("========== Contest Import Completed Successfully ==========");
+        log.info("Contest ID : {}", savedContest.getId());
+        log.info("Problems Imported : {}", problemIds.size());
+
+        return response;
+
+    } catch (Exception e) {
+
+        log.error("========== Contest Import FAILED ==========", e);
+
+        if (e instanceof IllegalArgumentException validationError) {
+            throw validationError;
+        }
+        if (e instanceof IllegalStateException stateError) {
+            throw stateError;
+        }
+
+        throw new RuntimeException(
+                "Failed to import Codeforces contest: " + e.getMessage(),
+                e
+        );
+    }
+}
+
+    public Map<String, Object> importContest(String url, Integer startDelayMinutes, String username) {
+        if (url == null || url.isBlank()) throw new IllegalArgumentException("Contest URL is required.");
+        String normalized = url.toLowerCase(Locale.ROOT);
+        if (normalized.contains("atcoder.jp/")) {
+            return importAtCoderContest(url, startDelayMinutes, username);
+        }
+        if (normalized.contains("codeforces.com/")) {
+            return importCodeforcesContest(url, startDelayMinutes, username);
+        }
+        throw new IllegalArgumentException("Use a Codeforces or AtCoder contest URL.");
+    }
+
+    public Map<String, Object> importAtCoderContest(String url, Integer startDelayMinutes, String username) {
+        if (startDelayMinutes != null && startDelayMinutes < 0) {
+            throw new IllegalArgumentException("startDelayMinutes cannot be negative.");
+        }
+
+        AtCoderToolsService.AtCoderContestData contestData = atCoderToolsService.importContestMetadata(url);
+        ImportedContestSchedule schedule = resolveAtCoderContestSchedule(contestData, startDelayMinutes);
+        List<String> problemIds = new ArrayList<>();
+        for (AtCoderToolsService.AtCoderProblemRef problemRef : contestData.problems()) {
+            Posts post = atCoderToolsService.importAndSaveProblem(problemRef.url(), username, true);
+            problemIds.add(post.getId());
+        }
+
+        Contest contest = new Contest();
+        contest.setNameOfContest(buildUniqueContestName(username, contestData.name(), schedule.virtualLabel()));
+        contest.setNameOfOrganization("AtCoder");
+        contest.setDescription("Imported from AtCoder: " + contestData.canonicalContestUrl()
+                + " | phase=" + contestData.phase());
+        contest.setType("Contest");
+        contest.setPublic(true);
+        contest.setStatus(schedule.status());
+        contest.setDate(schedule.startAt());
+        contest.setStartedAt(schedule.startAt());
+        contest.setEndedAt(schedule.endAt());
+        int durationMinutes = Math.max(1, (int) Duration.ofSeconds(contestData.durationSeconds()).toMinutes());
+        contest.setDurationMinutes(durationMinutes);
+        contest.setTimeDuration(durationMinutes + " minutes");
+        contest.setProblemIds(problemIds);
+
+        String contestId = createContest(contest, username);
+        Contest savedContest = contestRepo.findById(contestId)
+                .orElseThrow(() -> new IllegalStateException("Imported contest could not be reloaded."));
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("contestId", savedContest.getId());
+        response.put("contest", savedContest);
+        response.put("platform", "atcoder");
+        response.put("sourceUrl", contestData.canonicalContestUrl());
+        response.put("phase", contestData.phase());
+        response.put("virtual", schedule.isVirtual());
+        response.put("importedProblemCount", problemIds.size());
+        response.put("problemIds", problemIds);
+        return response;
+    }
 
     /**
      * Creates a private room.  Generates a unique 6-char alphanumeric code,
@@ -501,6 +773,74 @@ public class ContestService {
     // PRIVATE HELPERS
     // ════════════════════════════════════════════════════════════════════════════
 
+    private ImportedContestSchedule resolveImportedContestSchedule(
+            CFToolsService.CodeforcesContestData contestData,
+            Integer startDelayMinutes) {
+
+        long durationMs = Duration.ofSeconds(contestData.durationSeconds()).toMillis();
+        if (startDelayMinutes != null) {
+            Date start = new Date(System.currentTimeMillis() + startDelayMinutes * 60_000L);
+            return new ImportedContestSchedule(
+                    "SCHEDULED",
+                    start,
+                    new Date(start.getTime() + durationMs),
+                    true,
+                    "Virtual"
+            );
+        }
+
+        if (contestData.virtualRequest()) {
+            throw new IllegalArgumentException("This Codeforces virtual contest URL requires startDelayMinutes.");
+        }
+
+        if ("BEFORE".equalsIgnoreCase(contestData.phase())) {
+            Date start = contestData.officialStart() != null ? contestData.officialStart() : new Date();
+            return new ImportedContestSchedule(
+                    "SCHEDULED",
+                    start,
+                    new Date(start.getTime() + durationMs),
+                    false,
+                    null
+            );
+        }
+
+        if ("CODING".equalsIgnoreCase(contestData.phase())) {
+            Date start = contestData.officialStart() != null ? contestData.officialStart() : new Date();
+            return new ImportedContestSchedule(
+                    "LIVE",
+                    start,
+                    new Date(start.getTime() + durationMs),
+                    false,
+                    null
+            );
+        }
+
+        throw new IllegalArgumentException(
+                "startDelayMinutes is required for non-live Codeforces contests. Current phase: " + contestData.phase()
+        );
+    }
+
+    private ImportedContestSchedule resolveAtCoderContestSchedule(
+            AtCoderToolsService.AtCoderContestData contestData,
+            Integer startDelayMinutes) {
+        long durationMs = Duration.ofSeconds(contestData.durationSeconds()).toMillis();
+        if (startDelayMinutes != null) {
+            Date start = new Date(System.currentTimeMillis() + startDelayMinutes * 60_000L);
+            return new ImportedContestSchedule("SCHEDULED", start,
+                    new Date(start.getTime() + durationMs), true, "Virtual");
+        }
+        if ("BEFORE".equalsIgnoreCase(contestData.phase())) {
+            return new ImportedContestSchedule("SCHEDULED", contestData.officialStart(),
+                    contestData.officialEnd(), false, null);
+        }
+        if ("CODING".equalsIgnoreCase(contestData.phase())) {
+            return new ImportedContestSchedule("LIVE", contestData.officialStart(),
+                    contestData.officialEnd(), false, null);
+        }
+        throw new IllegalArgumentException(
+                "startDelayMinutes is required when importing a finished AtCoder contest as a virtual contest.");
+    }
+
     private Contest requireContest(String id) {
         return contestRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Contest not found: " + id));
@@ -593,6 +933,35 @@ public class ContestService {
         return "WA";
     }
 
+    private String buildUniqueContestName(String username, String baseName, String suffixLabel) {
+        User user = userService.findByName(username);
+        Set<String> existingNames = user.getContests().stream()
+                .map(Contest::getNameOfContest)
+                .filter(Objects::nonNull)
+                .map(name -> name.toLowerCase(Locale.ROOT))
+                .collect(Collectors.toSet());
+
+        String candidate = suffixLabel == null || suffixLabel.isBlank()
+                ? baseName
+                : baseName + " (" + suffixLabel + ")";
+        if (!existingNames.contains(candidate.toLowerCase(Locale.ROOT))) {
+            return candidate;
+        }
+
+        int copy = 2;
+        String withCopy = candidate + " #" + copy;
+        while (existingNames.contains(withCopy.toLowerCase(Locale.ROOT))) {
+            copy++;
+            withCopy = candidate + " #" + copy;
+        }
+        return withCopy;
+    }
+
+    private String buildImportedContestDescription(CFToolsService.CodeforcesContestData contestData) {
+        return "Imported from Codeforces: " + contestData.canonicalContestUrl()
+                + " | phase=" + contestData.phase();
+    }
+
     private String generateUniqueRoomCode() {
         String chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O/1/I to avoid confusion
         Random rng   = new Random();
@@ -611,4 +980,12 @@ public class ContestService {
     // Null-safe helpers for updateContest
     private boolean str(String s)    { return s != null && !s.isBlank(); }
     private boolean list(List<?> l)  { return l != null && !l.isEmpty(); }
+
+    private record ImportedContestSchedule(
+            String status,
+            Date startAt,
+            Date endAt,
+            boolean isVirtual,
+            String virtualLabel
+    ) {}
 }

@@ -1,6 +1,7 @@
 package com.cfc.platform.controller;
 
 import com.cfc.platform.MongoRepo.ContestRepo;
+import com.cfc.platform.DTO.CFContestImportRequestDTO;
 import com.cfc.platform.Pojo.Contest;
 import com.cfc.platform.Pojo.ContestLeaderboardEntry;
 import com.cfc.platform.Pojo.ContestSession;
@@ -167,6 +168,37 @@ public class ContestController {
         } catch (Exception e) {
             log.error("createRoom: {}", e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/import/codeforces")
+    public ResponseEntity<?> importCodeforcesContest(@RequestBody CFContestImportRequestDTO request) {
+        try {
+            Map<String, Object> imported = contestService.importCodeforcesContest(
+                    request.getUrl(),
+                    request.getStartDelayMinutes(),
+                    currentUser()
+            );
+            return ResponseEntity.status(HttpStatus.CREATED).body(imported);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            log.error("importCodeforcesContest: {}", e.getMessage());
+            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/import")
+    public ResponseEntity<?> importContest(@RequestBody CFContestImportRequestDTO request) {
+        try {
+            Map<String, Object> imported = contestService.importContest(
+                    request.getUrl(), request.getStartDelayMinutes(), currentUser());
+            return ResponseEntity.status(HttpStatus.CREATED).body(imported);
+        } catch (IllegalArgumentException exception) {
+            return ResponseEntity.badRequest().body(Map.of("error", exception.getMessage()));
+        } catch (Exception exception) {
+            log.error("importContest: {}", exception.getMessage());
+            return ResponseEntity.internalServerError().body(Map.of("error", exception.getMessage()));
         }
     }
 

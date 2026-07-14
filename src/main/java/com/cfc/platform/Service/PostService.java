@@ -15,11 +15,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 @Service
 public class PostService {
@@ -41,6 +46,8 @@ public class PostService {
     private CourseRepo courseRepo;
     @Autowired
     private ContestRepo contestRepo;
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     // @Cacheable("Posts")
     public List<Posts> getAllPosts() {
@@ -67,6 +74,72 @@ public class PostService {
     public Page<Posts> findPostsByUsername(String username, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         return postRepo.findByUserName(username, pageable);
+    }
+
+    public Page<Posts> findProblemSet(String search, List<String> difficulties, List<String> statuses,
+                                      List<String> companies, List<String> topics, String sort,
+                                      int page, int size) {
+        List<Criteria> groups = new ArrayList<>();
+
+        if (search != null && !search.isBlank()) {
+            Pattern value = containsIgnoreCase(search.trim());
+            groups.add(new Criteria().orOperator(
+                    Criteria.where("title").regex(value),
+                    Criteria.where("tags").regex(value),
+                    Criteria.where("index").regex(value)));
+        }
+        addArrayOrScalarFilter(groups, "difficulty", difficulties);
+        addArrayOrScalarFilter(groups, "companies", companies);
+        addArrayOrScalarFilter(groups, "tags", topics);
+
+        if (statuses != null && !statuses.isEmpty()) {
+            List<Criteria> statusOptions = new ArrayList<>();
+            for (String status : statuses) {
+                if (status.equalsIgnoreCase("Solved")) {
+                    statusOptions.add(Criteria.where("status").regex(exactIgnoreCase("solved")));
+                    statusOptions.add(Criteria.where("status").regex(exactIgnoreCase("done")));
+                } else if (status.equalsIgnoreCase("Attempted")) {
+                    statusOptions.add(Criteria.where("status").regex(exactIgnoreCase("attempted")));
+                    statusOptions.add(Criteria.where("status").regex(exactIgnoreCase("attempting")));
+                } else if (status.equalsIgnoreCase("Todo")) {
+                    statusOptions.add(Criteria.where("status").regex(exactIgnoreCase("todo")));
+                    statusOptions.add(Criteria.where("status").exists(false));
+                    statusOptions.add(Criteria.where("status").is(null));
+                }
+            }
+            if (!statusOptions.isEmpty()) groups.add(new Criteria().orOperator(statusOptions));
+        }
+
+        Query query = new Query();
+        if (!groups.isEmpty()) query.addCriteria(new Criteria().andOperator(groups));
+        long total = mongoTemplate.count(query, Posts.class);
+
+        Sort ordering = switch (sort == null ? "" : sort) {
+            case "acc" -> Sort.by(Sort.Direction.DESC, "accuracy");
+            case "new" -> Sort.by(Sort.Direction.DESC, "lastModified");
+            default -> Sort.by(Sort.Direction.DESC, "_id");
+        };
+        Pageable pageable = PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), 100), ordering);
+        query.with(pageable);
+        return new PageImpl<>(mongoTemplate.find(query, Posts.class), pageable, total);
+    }
+
+    private static void addArrayOrScalarFilter(List<Criteria> groups, String field, List<String> values) {
+        if (values == null || values.isEmpty()) return;
+        List<Criteria> options = values.stream()
+                .filter(Objects::nonNull)
+                .filter(value -> !value.isBlank())
+                .map(value -> Criteria.where(field).regex(exactIgnoreCase(value.trim())))
+                .toList();
+        if (!options.isEmpty()) groups.add(new Criteria().orOperator(options));
+    }
+
+    private static Pattern containsIgnoreCase(String value) {
+        return Pattern.compile(Pattern.quote(value), Pattern.CASE_INSENSITIVE);
+    }
+
+    private static Pattern exactIgnoreCase(String value) {
+        return Pattern.compile("^" + Pattern.quote(value) + "$", Pattern.CASE_INSENSITIVE);
     }
 
     public void createPost(Posts posts, String username) {
